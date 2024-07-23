@@ -4,16 +4,18 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import com.example.mymusicapp.data.model.SongFile
+import com.example.mymusicapp.data.dto.SongFileDTO
+import com.example.mymusicapp.domain.model.Song
+import com.example.mymusicapp.domain.repository.SongFileRepository
 import com.example.mymusicapp.helper.BitmapHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MainRepository(private val context: Context) {
+class SongFileRepositoryImpl(private val context: Context) : SongFileRepository {
 
-    suspend fun getAllAudioFiles(): ArrayList<SongFile> {
+    override suspend fun getAllAudioFiles(): ArrayList<Song> {
         return withContext(Dispatchers.IO) {
-            val songFiles = arrayListOf<SongFile>()
+            val songs = arrayListOf<Song>()
 
             val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
@@ -31,8 +33,8 @@ class MainRepository(private val context: Context) {
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
                 while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idColumn)
                     val title = cursor.getString(titleColumn)
+                    val id = cursor.getLong(idColumn)
                     val data = cursor.getString(dataColumn)
 
                     val contentUri: Uri = ContentUris.withAppendedId(
@@ -40,10 +42,12 @@ class MainRepository(private val context: Context) {
                     )
 
                     val bitmap = BitmapHelper.getMp3Thumbnail(data)
-                    songFiles.add(SongFile(id, title, data, contentUri, bitmap, songFiles.size))
+                    songs.add(
+                        Song(title, contentUri.toString(), bitmap)
+                    )
                 }
             }
-            songFiles
+            songs
         }
     }
 }

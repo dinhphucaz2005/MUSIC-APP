@@ -14,7 +14,7 @@ import androidx.media3.session.MediaController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mymusicapp.callback.SongItemListener
 import com.example.mymusicapp.common.AppCommon
-import com.example.mymusicapp.data.model.SongFile
+import com.example.mymusicapp.data.dto.SongFileDTO
 import com.example.mymusicapp.data.service.MusicService
 import com.example.mymusicapp.databinding.ActivityPlayListBinding
 import com.example.mymusicapp.presentation.adapter.SongAdapter
@@ -24,31 +24,6 @@ import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 class PlayListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayListBinding
-    private val mainMVVM by lazy {
-        MainViewModel.getInstance()
-    }
-    private val songAdapter by lazy {
-        SongAdapter(this@PlayListActivity, object : SongItemListener {
-            override fun onItemClicked(uri: Uri) {
-                var position = AppCommon.INVALID_VALUE
-                mainMVVM.getPlayList()?.songs?.forEachIndexed { index, song ->
-                    if (song.getContentUri() == uri) {
-                        position = index
-                    }
-                }
-                mainMVVM.observePlayList().value?.let {
-                    myMusicService?.loadData(
-                        mainMVVM.getPlayList()?.songs as ArrayList<SongFile>,
-                        it
-                    )
-                }
-                if (position != AppCommon.INVALID_VALUE) {
-                    controller.seekTo(position, 0)
-                    controller.play()
-                }
-            }
-        })
-    }
 
     private var isBound = false
 
@@ -60,7 +35,6 @@ class PlayListActivity : AppCompatActivity() {
             println("Service is connected")
             val binder = service as MusicService.MyBinder
             myMusicService = binder.getService()
-            controller = mainMVVM.getController()
             isBound = true
         }
 
@@ -85,7 +59,6 @@ class PlayListActivity : AppCompatActivity() {
 
     private fun prepareRecyclerView() {
         binding.rvPlayList.apply {
-            adapter = songAdapter
             layoutManager =
                 LinearLayoutManager(this@PlayListActivity, LinearLayoutManager.VERTICAL, false)
         }
@@ -103,17 +76,11 @@ class PlayListActivity : AppCompatActivity() {
                 startActivity(Intent(this@PlayListActivity, SongActivity::class.java))
             }
             fabUpload.setOnClickListener {
-                mainMVVM.uploadPlayList()
             }
         }
     }
 
     private fun dataBinding() {
-        mainMVVM.observePlayList().observe(this) { position ->
-            val playList = mainMVVM.getPlayList(position)
-            songAdapter.updateData(playList.songs as ArrayList<SongFile>)
-            binding.tvPlayListName.text = playList.name
-        }
     }
 
     private fun init() {

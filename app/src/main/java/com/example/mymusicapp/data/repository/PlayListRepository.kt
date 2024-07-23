@@ -5,8 +5,8 @@ import com.example.mymusicapp.callback.LoadDataListener
 import com.example.mymusicapp.data.database.AppDatabase
 import com.example.mymusicapp.data.database.PlayListsEntity
 import com.example.mymusicapp.data.database.SongsEntity
-import com.example.mymusicapp.data.model.PlayList
-import com.example.mymusicapp.data.model.SongFile
+import com.example.mymusicapp.data.dto.PlayList
+import com.example.mymusicapp.data.dto.SongFileDTO
 import com.example.mymusicapp.helper.FileHelper
 import com.example.mymusicapp.helper.StringHelper
 import com.google.firebase.database.FirebaseDatabase
@@ -109,7 +109,7 @@ class PlayListRepository(
                 if (it.key != null) {
                     val playList = PlayList(0, it.key.toString(), mutableListOf())
                     it.children.forEach { d ->
-                        playList.addSong(d.getValue(SongFile::class.java))
+                        playList.addSong(d.getValue(SongFileDTO::class.java))
                     }
                     playLists.add(playList)
                 }

@@ -19,19 +19,11 @@ import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
-    private val mainMVVM = MainViewModel.getInstance()
 
     private val songAdapter by lazy {
         SongAdapter(requireContext(), object : SongItemListener {
             override fun onItemClicked(uri: Uri) {
                 var position = AppCommon.INVALID_VALUE
-                for (i in mainMVVM.getSongList().indices)
-                    if (mainMVVM.getSongList()[i].getContentUri() == uri)
-                        position = i
-                println("HomeFragment.onItemClicked: $position")
-                mainMVVM.loadData(AppCommon.LOCAL_FILES)
-                mainMVVM.getController().seekTo(position, 0)
-                mainMVVM.getController().play()
             }
         })
     }
@@ -77,7 +69,6 @@ class HomeFragment : Fragment() {
                     }
 
                     override fun onQueryTextChange(newText: String?): Boolean {
-                        mainMVVM.filterSongs(newText ?: "")
                         return true
                     }
                 })
@@ -89,12 +80,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun dataBinding() {
-        mainMVVM.observeSongsList().observe(viewLifecycleOwner) {
-            songAdapter.updateData(it)
-        }
-        mainMVVM.observeSongName().observe(viewLifecycleOwner) {
-            binding.tvSongName.text = it
-        }
     }
 
     private fun prepareRecyclerViews() {

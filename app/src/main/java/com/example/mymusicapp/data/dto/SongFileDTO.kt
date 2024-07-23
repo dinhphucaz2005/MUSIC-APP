@@ -1,16 +1,14 @@
-package com.example.mymusicapp.data.model
+package com.example.mymusicapp.data.dto
 
 
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import com.example.mymusicapp.R
 import com.example.mymusicapp.common.AppCommon
 
-data class SongFile(
+data class SongFileDTO(
     private val id: Long,
     private val title: String,
     private val path: String,

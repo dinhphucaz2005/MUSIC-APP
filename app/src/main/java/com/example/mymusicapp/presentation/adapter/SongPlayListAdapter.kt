@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mymusicapp.callback.ItemListener
-import com.example.mymusicapp.data.model.SongFile
+import com.example.mymusicapp.data.dto.SongFileDTO
 import com.example.mymusicapp.databinding.ItemSongPlayListBinding
 
 class SongPlayListAdapter(
     private val context: Context,
     private val callback: ItemListener
 ) : RecyclerView.Adapter<SongPlayListAdapter.ViewHolder>() {
-    private var songList = ArrayList<SongFile>()
+    private var songList = ArrayList<SongFileDTO>()
     private var isSelectedSong = ArrayList<Boolean>(0)
 
     inner class ViewHolder(var binding: ItemSongPlayListBinding) :
@@ -53,7 +53,7 @@ class SongPlayListAdapter(
         }
     }
 
-    fun updateData(songList: ArrayList<SongFile>, selectedSong: ArrayList<Int>) {
+    fun updateData(songList: ArrayList<SongFileDTO>, selectedSong: ArrayList<Int>) {
         this.songList = songList
         this.isSelectedSong.clear()
         this.isSelectedSong.addAll(List(songList.size) { false })

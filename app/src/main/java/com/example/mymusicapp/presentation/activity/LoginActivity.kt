@@ -113,14 +113,15 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun requestSignInWithGoogle() {
-        val providers = arrayListOf(
-            AuthUI.IdpConfig.GoogleBuilder().build(),
-        )
-        val signInIntent = AuthUI.getInstance()
-            .createSignInIntentBuilder()
-            .setAvailableProviders(providers)
-            .build()
-        signInLauncher.launch(signInIntent)
+        loadMainActivity()
+//        val providers = arrayListOf(
+//            AuthUI.IdpConfig.GoogleBuilder().build(),
+//        )
+//        val signInIntent = AuthUI.getInstance()
+//            .createSignInIntentBuilder()
+//            .setAvailableProviders(providers)
+//            .build()
+//        signInLauncher.launch(signInIntent)
     }
 
     private fun init() {

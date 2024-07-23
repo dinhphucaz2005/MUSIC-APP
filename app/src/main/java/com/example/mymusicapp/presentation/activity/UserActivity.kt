@@ -1,10 +1,10 @@
 package com.example.mymusicapp.presentation.activity
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.util.UnstableApi
 import com.bumptech.glide.Glide
@@ -15,6 +15,8 @@ import com.example.mymusicapp.databinding.ActivityUserBinding
 class UserActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityUserBinding
+
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init()

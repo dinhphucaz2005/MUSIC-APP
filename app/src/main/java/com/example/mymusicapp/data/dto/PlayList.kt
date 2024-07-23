@@ -1,11 +1,11 @@
-package com.example.mymusicapp.data.model
+package com.example.mymusicapp.data.dto
 
 data class PlayList(
     val id: Int,
     val name: String = "Unnamed",
-    val songs: MutableList<SongFile> = mutableListOf()
+    val songs: MutableList<SongFileDTO> = mutableListOf()
 ) {
-    fun addSong(value: SongFile?) {
+    fun addSong(value: SongFileDTO?) {
         if (value != null) {
             songs.add(value)
         }

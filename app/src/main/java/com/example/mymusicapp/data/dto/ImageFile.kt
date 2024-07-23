@@ -1,4 +1,4 @@
-package com.example.mymusicapp.data.model
+package com.example.mymusicapp.data.dto
 
 import android.graphics.Bitmap
 import android.net.Uri

@@ -2,7 +2,7 @@ package com.example.mymusicapp.presentation.viewmodel
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
-import com.example.mymusicapp.data.model.ImageFile
+import com.example.mymusicapp.data.dto.ImageFile
 import com.example.mymusicapp.data.repository.GalleryRepository
 
 

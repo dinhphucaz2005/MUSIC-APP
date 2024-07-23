@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 object BitmapHelper {
@@ -17,7 +18,10 @@ object BitmapHelper {
             val embeddedThumbnail = retriever.embeddedPicture
 
             if (embeddedThumbnail != null) {
-                BitmapFactory.decodeByteArray(embeddedThumbnail, 0, embeddedThumbnail.size)
+                val bitmap =
+                    BitmapFactory.decodeByteArray(embeddedThumbnail, 0, embeddedThumbnail.size)
+
+                bitmap.scale(100, 100, false)
             } else {
                 null
             }

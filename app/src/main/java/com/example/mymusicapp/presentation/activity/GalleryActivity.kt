@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.example.mymusicapp.callback.ItemListener
 import com.example.mymusicapp.common.AppCommon
-import com.example.mymusicapp.data.model.ImageFile
+import com.example.mymusicapp.data.dto.ImageFile
 import com.example.mymusicapp.data.repository.GalleryRepository
 import com.example.mymusicapp.databinding.ActivityGalleryBinding
 import com.example.mymusicapp.helper.BitmapHelper

@@ -1,7 +1,7 @@
 package com.example.mymusicapp.data.repository
 
 import android.content.Context
-import com.example.mymusicapp.data.model.ImageFile
+import com.example.mymusicapp.data.dto.ImageFile
 import com.example.mymusicapp.helper.FileHelper
 import com.example.mymusicapp.helper.StringHelper
 import com.google.firebase.database.FirebaseDatabase

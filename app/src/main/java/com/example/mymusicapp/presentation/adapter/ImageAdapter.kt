@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mymusicapp.data.model.ImageFile
+import com.example.mymusicapp.data.dto.ImageFile
 import com.example.mymusicapp.databinding.ItemImageBinding
 import com.example.mymusicapp.callback.ItemListener
 

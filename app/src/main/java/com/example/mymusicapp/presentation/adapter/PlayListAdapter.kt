@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymusicapp.callback.ItemListener
-import com.example.mymusicapp.data.model.PlayList
+import com.example.mymusicapp.data.dto.PlayList
 import com.example.mymusicapp.databinding.ItemPlayListBinding
 
 class PlayListAdapter(

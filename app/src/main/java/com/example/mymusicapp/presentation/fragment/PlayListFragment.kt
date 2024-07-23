@@ -22,14 +22,11 @@ class PlayListFragment : Fragment() {
 
     private lateinit var binding: FragmentPlayListBinding
     private lateinit var playListRepository: PlayListRepository
-    private val mainMVVM by lazy {
-        MainViewModel.getInstance()
-    }
+
 
     private val playListAdapter by lazy {
         PlayListAdapter(requireContext(), @UnstableApi object : ItemListener {
             override fun onItemClicked(position: Int) {
-                mainMVVM.setPlayList(position)
                 binding.dialogBottom.visibility = View.VISIBLE
                 val intent = Intent(requireContext(), PlayListActivity::class.java)
                 startActivity(intent)
@@ -40,8 +37,6 @@ class PlayListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         playListRepository = PlayListRepository(requireContext())
-        mainMVVM.setPlayListRepository(playListRepository)
-        mainMVVM.loadPlayList()
     }
 
     override fun onCreateView(
@@ -65,34 +60,15 @@ class PlayListFragment : Fragment() {
             fabAddPlaylist.setOnClickListener {
                 DialogCreatePlayList.create(requireContext(), object : DialogListener {
                     override fun onDialogClicked(name: String) {
-                        if (name.isNotEmpty())
-                            mainMVVM.addPlayList(name)
                     }
                 })
             }
             buttonDelete.setOnClickListener {
-                mainMVVM.deletePlayList()
             }
         }
     }
 
     private fun dataBinding() {
-        mainMVVM.apply {
-            observePlayListList().observe(viewLifecycleOwner) {
-                playListAdapter.updateData(it)
-            }
-            observePlayList().observe(viewLifecycleOwner) {
-                val playList = mainMVVM.getPlayList()
-                if (playList != null) {
-                    binding.apply {
-                        textView5.text = playList.name
-                        textView6.text = playList.songs.size.toString()
-                    }
-                } else {
-                    binding.dialogBottom.visibility = View.GONE
-                }
-            }
-        }
     }
 
     private fun prepareRecyclerView() {

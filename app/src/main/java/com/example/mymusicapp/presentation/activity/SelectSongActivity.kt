@@ -12,9 +12,6 @@ import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 class SelectSongActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySelectSongBinding
-    private val mainMVVM by lazy {
-        MainViewModel.getInstance()
-    }
 
     private val adapter by lazy {
         SongPlayListAdapter(
@@ -30,24 +27,12 @@ class SelectSongActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         init()
         setEvents()
-        dataBinding()
     }
 
-    private fun dataBinding() {
-        mainMVVM.observeSongsList().observe(this) { songList ->
-            val selectedSong = arrayListOf<Int>()
-            songList.forEachIndexed { index, song ->
-                if (mainMVVM.getPlayList()?.songs?.find { it.getContentUri() == song.getContentUri() } != null)
-                    selectedSong.add(index)
-            }
-            adapter.updateData(songList, selectedSong)
-        }
-    }
 
     private fun setEvents() {
         binding.apply {
             buttonBack.setOnClickListener {
-                mainMVVM.updateSongList(adapter.getSelectedSong())
                 finish()
             }
             rvSelectSongList.apply {

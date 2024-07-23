@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mymusicapp.callback.SongItemListener
-import com.example.mymusicapp.data.model.SongFile
+import com.example.mymusicapp.data.dto.SongFileDTO
 import com.example.mymusicapp.databinding.ItemMusicBinding
 
 
@@ -16,7 +16,7 @@ class SongAdapter(
     private val listener: SongItemListener
 ) : RecyclerView.Adapter<SongAdapter.ViewHolder>() {
 
-    private var songList = ArrayList<SongFile>()
+    private var songList = ArrayList<SongFileDTO>()
 
     inner class ViewHolder(var binding: ItemMusicBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
@@ -47,7 +47,7 @@ class SongAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(songList: ArrayList<SongFile>) {
+    fun updateData(songList: ArrayList<SongFileDTO>) {
         this.songList = songList
         notifyDataSetChanged()
     }
