@@ -1,8 +1,7 @@
-package com.example.mymusicapp.presentation.activity
+package com.example.mymusicapp
 
 import android.Manifest
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
@@ -18,9 +17,7 @@ import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.data.service.MusicService
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.presentation.viewmodel.MainViewModel
-import com.example.mymusicapp.ui.screen.App
 import com.example.mymusicapp.util.MediaControllerManager
-
 
 @UnstableApi
 class MainActivity : AppCompatActivity() {
@@ -79,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startMusicService() {
         val musicServiceIntent = Intent(this@MainActivity, MusicService::class.java)
-        bindService(musicServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        bindService(musicServiceIntent, serviceConnection, BIND_AUTO_CREATE)
         val serviceIntent = Intent(this@MainActivity, MusicService::class.java)
         startService(serviceIntent)
     }

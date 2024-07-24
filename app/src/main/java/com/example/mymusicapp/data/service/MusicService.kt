@@ -21,6 +21,16 @@ import com.example.mymusicapp.helper.NotificationHelper
 @UnstableApi
 class MusicService : MediaLibraryService() {
 
+    companion object {
+        private const val TAG = "MusicService"
+        const val LOCAL_FILE = 0
+        const val ROOM_DATABASE_FILE = 1
+        const val FIREBASE_FILE = 2
+        const val PLAY_LIST_INDEX = -1
+    }
+
+    private var currentType = -1
+
     private lateinit var player: ExoPlayer
     private lateinit var session: MediaLibrarySession
     private lateinit var notificationManager: NotificationManagerCompat
@@ -84,13 +94,16 @@ class MusicService : MediaLibraryService() {
     fun getSession(): MediaLibrarySession = session
 
 
-    fun loadData(songList: List<Song>) {
-        player.stop()
-        player.clearMediaItems()
-        songList.forEach {
-            if (it.uri != null) loadMediaItem(Uri.parse(it.uri))
+    fun loadData(songList: List<Song>, fileFromType: Int = LOCAL_FILE) {
+        if (fileFromType != currentType) {
+            currentType = fileFromType
+            player.stop()
+            player.clearMediaItems()
+            songList.forEach {
+                if (it.uri != null) loadMediaItem(Uri.parse(it.uri))
+            }
+            player.play()
         }
-        player.play()
     }
 
     private fun loadMediaItem(uri: Uri) {

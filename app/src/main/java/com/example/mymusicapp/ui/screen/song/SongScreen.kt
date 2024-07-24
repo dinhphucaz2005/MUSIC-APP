@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,10 +36,14 @@ import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.MyBrush
 import com.example.mymusicapp.ui.theme.TextColor
+import com.example.mymusicapp.util.MediaControllerManager
 
 @Preview
 @Composable
-fun SongScreen(viewModel: SongViewModel = viewModel()) {
+fun SongScreen() {
+
+    val song = MediaControllerManager.currentSong
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,7 +76,6 @@ fun SongScreen(viewModel: SongViewModel = viewModel()) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val song = viewModel.songFileDTO.value
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,20 +84,21 @@ fun SongScreen(viewModel: SongViewModel = viewModel()) {
                         brush = MyBrush
                     )
             ) {
-                AsyncImage(
-                    model = song.getThumbnail(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
+                song.value.thumbnail?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(), contentDescription = null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
             Text(
-                text = song.getTitle(),
+                text = song.value.title.toString(),
                 color = TextColor,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = song.getPath(),
+                text = song.value.artist.toString(),
                 color = TextColor,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
@@ -103,7 +108,7 @@ fun SongScreen(viewModel: SongViewModel = viewModel()) {
                 value = sliderPosition,
                 onValueChange = {
                     sliderPosition = it
-                    viewModel.printPosition(it)
+                    MediaControllerManager.play(sliderPosition)
                 },
                 colors = SliderDefaults.colors(
                     thumbColor = TextColor,

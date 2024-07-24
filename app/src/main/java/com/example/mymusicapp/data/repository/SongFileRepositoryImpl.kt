@@ -43,7 +43,7 @@ class SongFileRepositoryImpl(private val context: Context) : SongFileRepository 
 
                     val bitmap = BitmapHelper.getMp3Thumbnail(data)
                     songs.add(
-                        Song(title, contentUri.toString(), bitmap)
+                        Song(title, contentUri.toString(), bitmap, "")
                     )
                 }
             }

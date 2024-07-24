@@ -1,7 +1,6 @@
-package com.example.mymusicapp.ui.screen
+package com.example.mymusicapp
 
 import android.annotation.SuppressLint
-import android.speech.ModelDownloadListener
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +17,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,15 +29,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.mymusicapp.R
 import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 import com.example.mymusicapp.ui.navigation.Routes
+import com.example.mymusicapp.ui.screen.home.HomeScreen
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.TextColor
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mymusicapp.ui.screen.home.HomeScreen
 
 @SuppressLint("RememberReturnType")
 @Preview
