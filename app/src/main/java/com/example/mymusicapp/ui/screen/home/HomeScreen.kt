@@ -17,32 +17,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.Index
-import coil.compose.AsyncImage
+import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
-import com.example.mymusicapp.data.dto.SongFileDTO
 import com.example.mymusicapp.domain.model.Song
-import com.example.mymusicapp.ui.screen.song.SongScreen
+import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.TextColor
@@ -51,44 +47,39 @@ import com.example.mymusicapp.util.MediaControllerManager
 
 @Preview
 @Composable
-fun HomeScreen(songList: List<Song> = emptyList(), modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    songList: List<Song> = emptyList(),
+    navController: NavHostController = NavHostController(
+        LocalContext.current
+    )
+) {
 
-    val isPlaying = true
-
-    var isSongScreenVisible by remember {
-        mutableStateOf(false)
-    }
-
-    if (isSongScreenVisible) {
-        SongScreen()
-    } else
-
-        Column(
-            modifier = modifier.fillMaxSize()
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                itemsIndexed(songList) { index, song ->
-                    SongItem(song) {
-                        MediaControllerManager.playIndex(index)
-                    }
+            itemsIndexed(songList) { index, song ->
+                SongItem(song = song) {
+                    MediaControllerManager.playIndex(index)
                 }
             }
-            if (isPlaying)
-                SongPreview {
-                    isSongScreenVisible = true
-                }
         }
+        SongPreview {
+            navController.navigate(Routes.SONG)
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SongItem(
-    song: Song = Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"),
     modifier: Modifier = Modifier,
+    song: Song = Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"),
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -147,13 +138,23 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
             .padding(8.dp, 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = currentSong.value.thumbnail,
-            contentDescription = null,
+        Box(
             modifier = Modifier
+                .background(color = Color(0xFF77b2e0))
                 .fillMaxHeight()
                 .aspectRatio(1f)
-        )
+        ) {
+            currentSong.value.thumbnail?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -182,23 +183,32 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
         IconButton(onClick = { /*TODO*/ }) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder, contentDescription = null,
-                tint = IconTintColor
+                tint = IconTintColor,
             )
         }
         Icon(
-            painter = painterResource(id = R.drawable.play),
+            painter = painterResource(
+                id = when (MediaControllerManager.isPlayingState.value) {
+                    true -> R.drawable.pause
+                    else -> R.drawable.play
+                }
+            ),
             contentDescription = null,
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxHeight()
-                .aspectRatio(1f),
+                .aspectRatio(1f)
+                .clickable {
+                    MediaControllerManager.playOrPause()
+                },
             tint = IconTintColor
         )
         IconButton(onClick = {
             MediaControllerManager.playNext()
         }) {
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
                 tint = IconTintColor
             )
         }

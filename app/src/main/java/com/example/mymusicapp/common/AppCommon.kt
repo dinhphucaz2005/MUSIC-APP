@@ -20,6 +20,9 @@ object AppCommon {
     const val WIDGET_PLAY_NEXT = "WIDGET_PLAY_NEXT"
     const val WIDGET_PLAY = "WIDGET_PLAY"
 
+    const val CHANGE_PLAYLIST_STATE = "CHANGE_PLAYLIST_STATE"
+    const val CHANGE_PLAYLIST_STATE_CODE = 1
+
 
     const val SHARED_PREF_NAME = "UserPreferences"
     const val SHARED_PREF_EMAIL = "email"

@@ -30,10 +30,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.screen.home.HomeScreen
+import com.example.mymusicapp.ui.screen.song.SongScreen
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.TextColor
@@ -52,75 +55,83 @@ fun App(
 
     val navController = rememberNavController()
 
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Background
-                    ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { isSongPreviewGone = !isSongPreviewGone }) {
-                    Icon(
-                        imageVector = Icons.Default.Menu, contentDescription = null,
-                        tint = IconTintColor,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-                Text(
-                    text = "My Music App", fontSize = 26.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    color = TextColor
-                )
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        imageVector = Icons.Default.Person, contentDescription = null,
-                        tint = IconTintColor,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-            }
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .background(Background)
-                    .fillMaxWidth()
-                    .padding(
-                        8.dp
-                    ),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.home),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            navController.navigate(Routes.HOME)
+    NavHost(navController = navController, startDestination = Routes.HOME) {
+        composable(Routes.HOME) {
+            Scaffold(
+                topBar = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Background
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { isSongPreviewGone = !isSongPreviewGone }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu, contentDescription = null,
+                                tint = IconTintColor,
+                                modifier = Modifier.size(40.dp)
+                            )
                         }
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.music_list),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            navController.navigate(Routes.SONG)
+                        Text(
+                            text = "My Music App", fontSize = 26.sp, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            color = TextColor
+                        )
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Default.Person, contentDescription = null,
+                                tint = IconTintColor,
+                                modifier = Modifier.size(40.dp)
+                            )
                         }
+                    }
+                },
+                bottomBar = {
+                    Row(
+                        modifier = Modifier
+                            .background(Background)
+                            .fillMaxWidth()
+                            .padding(
+                                8.dp
+                            ),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.home),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable {
+                                    navController.navigate(Routes.HOME)
+                                }
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.music_list),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable {
+                                    navController.navigate(Routes.PLAYLIST)
+                                }
+                        )
+                    }
+                }
+            ) { contentPadding ->
+                HomeScreen(
+                    Modifier
+                        .background(Background)
+                        .padding(contentPadding),
+                    songs,
+                    navController
                 )
             }
         }
-    ) { contentPadding ->
-        HomeScreen(
-            songs,
-            Modifier
-                .background(Background)
-                .padding(contentPadding)
-        )
+        composable(Routes.SONG) {
+            SongScreen(navController)
+        }
     }
-
 }
+

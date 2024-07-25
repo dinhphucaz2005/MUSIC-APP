@@ -14,13 +14,23 @@ import com.example.mymusicapp.domain.model.Song
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
+
+enum class PlayListState {
+    SHUFFLE,
+    REPEAT_ALL,
+    REPEAT_ONE
+}
+
 @OptIn(UnstableApi::class)
 object MediaControllerManager {
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private lateinit var controller: MediaController
 
-    val currentSong = mutableStateOf<Song>(Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"))
+    var isPlayingState = mutableStateOf<Boolean?>(null)
+
+    val playListState = mutableStateOf(PlayListState.REPEAT_ALL)
+    val currentSong = mutableStateOf(Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"))
 
     fun initController(sessionToken: SessionToken) {
         controllerFuture =
@@ -36,7 +46,20 @@ object MediaControllerManager {
 
     private fun initController() {
         controller.playWhenReady = true
+        if (controller.shuffleModeEnabled)
+            playListState.value = PlayListState.SHUFFLE
+        else if (controller.repeatMode == Player.REPEAT_MODE_ONE)
+            playListState.value = PlayListState.REPEAT_ONE
+        else {
+            playListState.value = PlayListState.REPEAT_ALL
+            controller.repeatMode = Player.REPEAT_MODE_ALL
+        }
         controller.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                isPlayingState.value = isPlaying
+            }
+
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 super.onMediaMetadataChanged(mediaMetadata)
                 AppModule.provideMusicService()?.updateNotification()
@@ -48,11 +71,6 @@ object MediaControllerManager {
                 )
             }
         })
-    }
-
-    fun playNext() {
-        controller.seekToNext()
-        controller.play()
     }
 
     private fun getArtworkFromMetadata(mediaMetadata: MediaMetadata): Bitmap? {
@@ -78,7 +96,52 @@ object MediaControllerManager {
         controller.seekTo(index, 0)
     }
 
-    fun play(sliderPosition: Float) {
+    fun playNext() {
+        controller.seekToNext()
+        controller.play()
+    }
+
+    fun playPrevious() {
+        controller.seekToPrevious()
+        controller.play()
+    }
+
+    fun playOrPause() {
+        if (controller.isPlaying) {
+            controller.pause()
+        } else {
+            controller.play()
+        }
+    }
+
+    fun changePlayListState() {
+        // SHUFFLE -> REPEAT_ALL -> REPEAT_ONE
+        when (playListState.value) {
+            PlayListState.SHUFFLE -> {
+                playListState.value = PlayListState.REPEAT_ALL
+                controller.repeatMode = Player.REPEAT_MODE_ALL
+                controller.shuffleModeEnabled = false
+            }
+
+            PlayListState.REPEAT_ALL -> {
+                playListState.value = PlayListState.REPEAT_ONE
+                controller.repeatMode = Player.REPEAT_MODE_ONE
+            }
+
+            PlayListState.REPEAT_ONE -> {
+                playListState.value = PlayListState.SHUFFLE
+                controller.shuffleModeEnabled = true
+                controller.repeatMode = Player.REPEAT_MODE_ALL
+            }
+        }
+    }
+
+    fun getCurrentPosition(): Float {
+        return controller.currentPosition.toFloat() / controller.duration
+    }
+
+    fun seekTo(sliderPosition: Float) {
         controller.seekTo((controller.duration * sliderPosition).toLong())
     }
+
 }
