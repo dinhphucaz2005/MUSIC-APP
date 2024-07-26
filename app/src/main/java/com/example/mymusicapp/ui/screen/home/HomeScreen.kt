@@ -1,5 +1,6 @@
 package com.example.mymusicapp.ui.screen.home
 
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
 import com.example.mymusicapp.domain.model.Song
@@ -45,15 +48,18 @@ import com.example.mymusicapp.ui.theme.TextColor
 import com.example.mymusicapp.util.MediaControllerManager
 
 
+@OptIn(UnstableApi::class)
 @Preview
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    songList: List<Song> = emptyList(),
     navController: NavHostController = NavHostController(
         LocalContext.current
-    )
+    ),
+    viewModel: HomeViewModel = viewModel()
 ) {
+
+    val songs = viewModel.songList
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -63,7 +69,7 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            itemsIndexed(songList) { index, song ->
+            itemsIndexed(songs) { index, song ->
                 SongItem(song = song) {
                     MediaControllerManager.playIndex(index)
                 }
@@ -79,7 +85,7 @@ fun HomeScreen(
 @Composable
 fun SongItem(
     modifier: Modifier = Modifier,
-    song: Song = Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"),
+    song: Song = Song("NO SONG FOUND", null, null, "NO ARTIST FOUND", ""),
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -102,7 +108,8 @@ fun SongItem(
                 Image(
                     bitmap = song.thumbnail.asImageBitmap(), contentDescription = null,
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
             }
 

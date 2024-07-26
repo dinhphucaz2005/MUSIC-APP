@@ -6,5 +6,6 @@ data class Song(
     val title: String?,
     val uri: String?,
     val thumbnail: Bitmap?,
-    val artist: String?
+    val artist: String?,
+    val path: String
 )

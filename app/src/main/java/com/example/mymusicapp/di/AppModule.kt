@@ -1,10 +1,10 @@
 package com.example.mymusicapp.di
 
 import android.content.Context
-import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.data.repository.SongFileRepositoryImpl
 import com.example.mymusicapp.data.service.MusicService
+import com.example.mymusicapp.domain.repository.SongFileRepository
 
 @UnstableApi
 object AppModule {
@@ -21,7 +21,7 @@ object AppModule {
         SongFileRepositoryImpl(appContext)
     }
 
-    fun provideSongFileRepository(): SongFileRepositoryImpl {
+    fun provideSongFileRepository(): SongFileRepository {
         return songFileRepositoryImpl
     }
 

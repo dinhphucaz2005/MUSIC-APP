@@ -1,6 +1,7 @@
 package com.example.mymusicapp
 
 import android.annotation.SuppressLint
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,10 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -29,29 +26,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 import com.example.mymusicapp.ui.navigation.Routes
+import com.example.mymusicapp.ui.screen.edit.EditScreen
 import com.example.mymusicapp.ui.screen.home.HomeScreen
 import com.example.mymusicapp.ui.screen.song.SongScreen
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.TextColor
 
+@OptIn(UnstableApi::class)
 @SuppressLint("RememberReturnType")
 @Preview
 @Composable
-fun App(
-    viewModel: MainViewModel = viewModel()
-) {
-    var isSongPreviewGone by remember {
-        mutableStateOf(false)
-    }
-
-    val songs = viewModel.songList
+fun App() {
 
     val navController = rememberNavController()
 
@@ -67,7 +58,7 @@ fun App(
                             ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { isSongPreviewGone = !isSongPreviewGone }) {
+                        IconButton(onClick = { }) {
                             Icon(
                                 imageVector = Icons.Default.Menu, contentDescription = null,
                                 tint = IconTintColor,
@@ -124,13 +115,20 @@ fun App(
                     Modifier
                         .background(Background)
                         .padding(contentPadding),
-                    songs,
                     navController
                 )
             }
         }
         composable(Routes.SONG) {
             SongScreen(navController)
+        }
+        composable("${Routes.EDIT_SONG}/{songUri}") { backStackEntry ->
+            val songUri = backStackEntry.arguments?.getString("songUri")
+            if (songUri != null) {
+                EditScreen(navController = navController, songUri = songUri)
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }

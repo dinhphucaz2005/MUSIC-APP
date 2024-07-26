@@ -27,12 +27,20 @@ object MediaControllerManager {
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private lateinit var controller: MediaController
 
+    private var songList = ArrayList<Song>()
+
+    fun getSong(): Song = songList[controller.currentMediaItemIndex]
+
     var isPlayingState = mutableStateOf<Boolean?>(null)
 
     val playListState = mutableStateOf(PlayListState.REPEAT_ALL)
-    val currentSong = mutableStateOf(Song("NO SONG FOUND", null, null, "NO ARTIST FOUND"))
+    val currentSong = mutableStateOf(Song("NO SONG FOUND", null, null, "NO ARTIST FOUND", ""))
 
-    fun initController(sessionToken: SessionToken) {
+    fun initController(
+        sessionToken: SessionToken,
+        songs: List<Song> = emptyList()
+    ) {
+        songList.addAll(songs)
         controllerFuture =
             MediaController.Builder(AppModule.provideAppContext(), sessionToken).buildAsync()
         controllerFuture.addListener(
@@ -67,7 +75,8 @@ object MediaControllerManager {
                     mediaMetadata.title.toString(),
                     null,
                     getArtworkFromMetadata(mediaMetadata),
-                    mediaMetadata.artist.toString()
+                    mediaMetadata.artist.toString(),
+                    ""
                 )
             }
         })
@@ -142,6 +151,10 @@ object MediaControllerManager {
 
     fun seekTo(sliderPosition: Float) {
         controller.seekTo((controller.duration * sliderPosition).toLong())
+    }
+
+    fun addSongs(songs: List<Song>) {
+        this.songList = songs as ArrayList<Song>
     }
 
 }

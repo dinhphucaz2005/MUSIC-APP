@@ -1,19 +1,19 @@
 package com.example.mymusicapp.presentation.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.example.mymusicapp.data.repository.SongFileRepositoryImpl
+import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.domain.model.Song
+import com.example.mymusicapp.domain.repository.SongFileRepository
 import kotlinx.coroutines.launch
 
 
+@UnstableApi
 class MainViewModel(
-    private val songFileRepository: SongFileRepositoryImpl = AppModule.provideSongFileRepository(),
+    private val songFileRepository: SongFileRepository = AppModule.provideSongFileRepository(),
 ) : ViewModel() {
 
     val songListLoaded = MutableLiveData(false)

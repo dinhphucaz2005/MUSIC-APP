@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             val mainViewModel: MainViewModel = viewModel()
             mainViewModel.songListLoaded.observe(this@MainActivity) {
                 myMusicService?.loadData(mainViewModel.getSongs())
+                MediaControllerManager.addSongs(mainViewModel.getSongs())
             }
             App()
         }

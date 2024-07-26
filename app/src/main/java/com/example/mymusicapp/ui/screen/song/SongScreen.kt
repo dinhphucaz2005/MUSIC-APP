@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
+import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.MyBrush
@@ -46,7 +47,7 @@ import kotlinx.coroutines.delay
 @Preview
 @Composable
 fun SongScreen(
-    navController: NavHostController = NavHostController(LocalContext.current)
+    navController: NavHostController = NavHostController(LocalContext.current),
 ) {
 
     val song = MediaControllerManager.currentSong
@@ -73,7 +74,10 @@ fun SongScreen(
             Icon(
                 painter = painterResource(id = R.drawable.settings), contentDescription = null,
                 modifier = Modifier
-                    .size(40.dp),
+                    .size(40.dp)
+                    .clickable {
+                        navController.navigate("${Routes.EDIT_SONG}/${song.value.uri}")
+                    },
                 tint = IconTintColor
             )
         }
