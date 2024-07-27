@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,8 +58,10 @@ fun SongScreen(
             .background(Background)
             .padding(16.dp)
     ) {
+
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.back), contentDescription = null,
@@ -81,17 +84,33 @@ fun SongScreen(
             )
         }
 
+
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Background),
-            verticalArrangement = Arrangement.SpaceEvenly,
+                .background(Background)
+                .fillMaxHeight()
+                .padding(top = 12.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .weight(1f)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val width = minOf(placeable.width, placeable.height)
+                        val newConstraints =
+                            constraints.copy(
+                                minHeight = width, maxHeight = width,
+                                minWidth = width, maxWidth = width
+                            )
+                        val newPlaceable = measurable.measure(newConstraints)
+                        layout(newPlaceable.width, newPlaceable.height) {
+                            newPlaceable.place(0, 0)
+                        }
+                    }
                     .background(
                         brush = MyBrush
                     )
@@ -199,5 +218,7 @@ fun SongScreen(
                 )
             }
         }
+
+
     }
 }

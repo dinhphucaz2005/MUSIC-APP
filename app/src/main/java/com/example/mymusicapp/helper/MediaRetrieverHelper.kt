@@ -1,14 +1,12 @@
 package com.example.mymusicapp.helper
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.mymusicapp.domain.model.Song
-import java.io.ByteArrayOutputStream
+import com.example.mymusicapp.extension.toScaledImageBitmap
 import java.io.File
 
 object MediaRetrieverHelper {
@@ -38,31 +36,11 @@ object MediaRetrieverHelper {
                 title,
                 artist,
                 imageBitmap,
+                imageBitmap?.toScaledImageBitmap(0.3f),
                 duration
             )
             songs.add(song)
         }
         return songs
-    }
-
-    fun getBitmap(context: Context, imageUri: Uri): Bitmap {
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        inputStream?.close()
-        val scaledBitmap = scaleBitmap(bitmap, 0.3f)
-        return scaledBitmap
-    }
-
-    private fun scaleBitmap(bitmap: Bitmap, scale: Float): Bitmap {
-        val width = (bitmap.width * scale).toInt()
-        val height = (bitmap.height * scale).toInt()
-
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
-
-        val outputStream = ByteArrayOutputStream()
-        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
-
-        val byteArray = outputStream.toByteArray()
-        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 }

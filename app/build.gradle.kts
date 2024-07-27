@@ -112,8 +112,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database:21.0.0")
     implementation("com.google.firebase:firebase-storage:21.0.0")
 
-    implementation("com.firebaseui:firebase-ui-auth:8.0.0")
-
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
 

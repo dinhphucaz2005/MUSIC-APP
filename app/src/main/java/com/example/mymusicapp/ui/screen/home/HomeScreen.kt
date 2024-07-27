@@ -117,7 +117,7 @@ fun SongItem(
                     color = Color(0xFFf2dadf)
                 )
         ) {
-            song.imageBitmap?.let {
+            song.smallBitmap?.let {
                 Image(
                     bitmap = it, contentDescription = null,
                     modifier = Modifier
@@ -154,7 +154,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
             .fillMaxWidth()
             .background(TextColor.copy(0.5f))
             .height(72.dp)
-            .padding(8.dp, 4.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
