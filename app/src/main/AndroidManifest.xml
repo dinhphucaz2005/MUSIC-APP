@@ -32,33 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".presentation.activity.MyPlayListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.SelectSongActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.PlayListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.CalendarActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.GalleryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.UserActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.SongActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.activity.LoginActivity"
-            android:exported="false">
-
-        </activity>
-
         <receiver
             android:name=".presentation.widget.MyWidget"
             android:exported="false">

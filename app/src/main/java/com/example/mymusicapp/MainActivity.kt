@@ -11,16 +11,20 @@ import android.os.IBinder
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.data.service.MusicService
 import com.example.mymusicapp.di.AppModule
-import com.example.mymusicapp.presentation.viewmodel.MainViewModel
 import com.example.mymusicapp.util.MediaControllerManager
 
 @UnstableApi
 class MainActivity : AppCompatActivity() {
+
+    init {
+        System.loadLibrary("mymusicapp")
+    }
+
+    external fun stringComparison(str1: String, str2: String): Boolean
 
     private var isBound = false
     private var myMusicService: MusicService? = null
@@ -30,9 +34,10 @@ class MainActivity : AppCompatActivity() {
             println("Service is connected")
             val binder = service as MusicService.MyBinder
             myMusicService = binder.getService()
-            AppModule.setMusicService(myMusicService!!)
             isBound = true
             val sessionToken = myMusicService!!.getSession().token
+            myMusicService?.updateSong()
+            AppModule.initMusicService(myMusicService!!)
             MediaControllerManager.initController(sessionToken)
         }
 
@@ -46,11 +51,6 @@ class MainActivity : AppCompatActivity() {
         AppModule.init(this@MainActivity)
         startMusicService()
         setContent {
-            val mainViewModel: MainViewModel = viewModel()
-            mainViewModel.songListLoaded.observe(this@MainActivity) {
-                myMusicService?.loadData(mainViewModel.getSongs())
-                MediaControllerManager.addSongs(mainViewModel.getSongs())
-            }
             App()
         }
         if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == AppCommon.REQUEST_CODE_PERMISSION && permissions[0] == Manifest.permission.READ_MEDIA_AUDIO) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                //TODO("Not yet implemented")
             }
         }
     }

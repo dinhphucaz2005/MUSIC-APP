@@ -29,4 +29,6 @@ object AppCommon {
     const val SHARED_PREF_DISPLAY_NAME = "displayName"
     const val SHARED_PREF_PHOTO_URL = "photoUrl"
     const val SHARED_PREF_UID = "uid"
+
+    const val BROADCAST_ACTION_UPDATE_SONG_LIST = "UPDATE_SONG_LIST"
 }

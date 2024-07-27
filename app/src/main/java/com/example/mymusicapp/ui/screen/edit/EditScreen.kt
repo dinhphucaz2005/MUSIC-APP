@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +52,6 @@ import com.example.mymusicapp.ui.theme.IconTintColor
 fun EditScreen(
     viewModel: EditViewModel = viewModel(),
     navController: NavHostController = NavHostController(LocalContext.current),
-    songUri: String = ""
 ) {
 
     viewModel.message.value.let {
@@ -110,10 +110,10 @@ fun EditScreen(
                     )
                 )
         ) {
-            viewModel.song.thumbnail.let {
+            viewModel.song.imageBitmap.let {
                 if (it != null)
-                    AsyncImage(
-                        model = it, contentDescription = null,
+                    Image(
+                        bitmap = it, contentDescription = null,
                         contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()
                     )
             }
@@ -154,13 +154,13 @@ fun EditScreen(
 @Composable
 fun MyTextField(
     modifier: Modifier = Modifier,
-    state: MutableState<String?> = mutableStateOf(""),
+    state: MutableState<String> = mutableStateOf(""),
     labelString: String = "Username"
 ) {
 
     TextField(
         singleLine = true,
-        value = state.value.toString(),
+        value = state.value,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color(0xFF479a89),
             focusedContainerColor = Color(0xFF479a89),

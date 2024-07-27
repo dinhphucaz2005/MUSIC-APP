@@ -18,8 +18,20 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            songList.addAll(repository.getAllAudioFiles())
+//            songList.addAll(Song() * 20)
+            repository.getAllAudioFiles().collect {
+                songList.clear()
+                songList.addAll(it)
+            }
         }
     }
+
+    fun search(searchQuery: String) {
+        viewModelScope.launch {
+            songList.clear()
+            repository.search(searchQuery)?.let { songList.addAll(it) }
+        }
+    }
+
 
 }

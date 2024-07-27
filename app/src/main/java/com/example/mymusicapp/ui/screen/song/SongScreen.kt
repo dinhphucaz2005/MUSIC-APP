@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -76,7 +75,7 @@ fun SongScreen(
                 modifier = Modifier
                     .size(40.dp)
                     .clickable {
-                        navController.navigate("${Routes.EDIT_SONG}/${song.value.uri}")
+                        navController.navigate(Routes.EDIT_SONG)
                     },
                 tint = IconTintColor
             )
@@ -97,22 +96,22 @@ fun SongScreen(
                         brush = MyBrush
                     )
             ) {
-                song.value.thumbnail?.let {
+                song.value.imageBitmap?.let {
                     Image(
-                        bitmap = it.asImageBitmap(), contentDescription = null,
+                        bitmap = it, contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
             }
             Text(
-                text = song.value.title.toString(),
+                text = song.value.title ?: "Unknown",
                 color = TextColor,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = song.value.artist.toString(),
+                text = song.value.artist ?: "Unknown",
                 color = TextColor,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold

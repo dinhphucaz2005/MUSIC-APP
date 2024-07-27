@@ -1,7 +1,5 @@
 package com.example.mymusicapp.util
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableStateOf
 import androidx.media3.common.MediaMetadata
@@ -34,7 +32,7 @@ object MediaControllerManager {
     var isPlayingState = mutableStateOf<Boolean?>(null)
 
     val playListState = mutableStateOf(PlayListState.REPEAT_ALL)
-    val currentSong = mutableStateOf(Song("NO SONG FOUND", null, null, "NO ARTIST FOUND", ""))
+    val currentSong = mutableStateOf(Song())
 
     fun initController(
         sessionToken: SessionToken,
@@ -70,35 +68,10 @@ object MediaControllerManager {
 
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 super.onMediaMetadataChanged(mediaMetadata)
-                AppModule.provideMusicService()?.updateNotification()
-                currentSong.value = Song(
-                    mediaMetadata.title.toString(),
-                    null,
-                    getArtworkFromMetadata(mediaMetadata),
-                    mediaMetadata.artist.toString(),
-                    ""
-                )
+                AppModule.provideMusicService().updateNotification()
+                currentSong.value = songList[controller.currentMediaItemIndex]
             }
         })
-    }
-
-    private fun getArtworkFromMetadata(mediaMetadata: MediaMetadata): Bitmap? {
-        mediaMetadata.artworkData?.let { data ->
-            return BitmapFactory.decodeByteArray(data, 0, data.size)
-        }
-
-        mediaMetadata.artworkUri?.let { uri ->
-            try {
-                return AppModule.provideAppContext().contentResolver.openInputStream(uri)
-                    ?.use { inputStream ->
-                        BitmapFactory.decodeStream(inputStream)
-                    }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        return null
     }
 
     fun playIndex(index: Int) {
@@ -116,6 +89,7 @@ object MediaControllerManager {
     }
 
     fun playOrPause() {
+        println(controller.mediaItemCount)
         if (controller.isPlaying) {
             controller.pause()
         } else {

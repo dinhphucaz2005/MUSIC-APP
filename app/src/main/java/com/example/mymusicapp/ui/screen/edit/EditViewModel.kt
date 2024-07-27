@@ -42,7 +42,7 @@ class EditViewModel : ViewModel() {
                         )
                     }
                 }
-                mp3File.save("/storage/emulated/0/Music/${fileName.value}.mp3")
+                mp3File.save("/storage/emulated/0/Music/${fileName.value}")
                 message.value = "Song saved successfully"
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,8 +54,8 @@ class EditViewModel : ViewModel() {
     val song = MediaControllerManager.getSong()
 
     val message = mutableStateOf("")
-    val fileName = mutableStateOf(song.title)
-    val title = mutableStateOf(song.title)
-    val artist = mutableStateOf(song.artist)
+    val fileName = mutableStateOf(song.fileName)
+    val title = mutableStateOf(song.title ?: "Unknown")
+    val artist = mutableStateOf(song.artist ?: "Unknown")
 
 }

@@ -20,15 +20,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,8 +53,8 @@ import com.example.mymusicapp.ui.theme.TextColor
 import com.example.mymusicapp.util.MediaControllerManager
 
 
+@ExperimentalMaterial3Api
 @OptIn(UnstableApi::class)
-@Preview
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -59,11 +64,19 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
 
+    var query by remember {
+        mutableStateOf("")
+    }
     val songs = viewModel.songList
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
+        SearchBar(query = query, onQueryChange = {
+            query = it
+        }, onSearch = {
+            viewModel.search(it)
+        }, active = false, onActiveChange = {}) { }
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -85,7 +98,7 @@ fun HomeScreen(
 @Composable
 fun SongItem(
     modifier: Modifier = Modifier,
-    song: Song = Song("NO SONG FOUND", null, null, "NO ARTIST FOUND", ""),
+    song: Song = Song(),
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -104,9 +117,9 @@ fun SongItem(
                     color = Color(0xFFf2dadf)
                 )
         ) {
-            if (song.thumbnail != null) {
+            song.imageBitmap?.let {
                 Image(
-                    bitmap = song.thumbnail.asImageBitmap(), contentDescription = null,
+                    bitmap = it, contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -114,9 +127,8 @@ fun SongItem(
             }
 
         }
-
         Text(
-            text = song.title.toString(),
+            text = song.title ?: "Unknown",
             modifier = Modifier
                 .clickable {
                     onClick()
@@ -151,13 +163,10 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 .fillMaxHeight()
                 .aspectRatio(1f)
         ) {
-            currentSong.value.thumbnail?.let {
+            currentSong.value.imageBitmap?.let {
                 Image(
-                    bitmap = it.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    bitmap = it, contentDescription = null,
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
                 )
             }
         }
@@ -169,7 +178,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = currentSong.value.title ?: "NO SONG FOUND",
+                text = currentSong.value.title ?: "Unknown",
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable { onClick() },
@@ -178,7 +187,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 color = TextColor
             )
             Text(
-                text = currentSong.value.artist ?: "NO ARTIST FOUND",
+                text = currentSong.value.artist ?: "Unknown",
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable { onClick() },

@@ -1,3 +1,5 @@
+@file:kotlin.OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.mymusicapp
 
 import android.annotation.SuppressLint
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -43,9 +46,7 @@ import com.example.mymusicapp.ui.theme.TextColor
 @Preview
 @Composable
 fun App() {
-
     val navController = rememberNavController()
-
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
             Scaffold(
@@ -122,13 +123,8 @@ fun App() {
         composable(Routes.SONG) {
             SongScreen(navController)
         }
-        composable("${Routes.EDIT_SONG}/{songUri}") { backStackEntry ->
-            val songUri = backStackEntry.arguments?.getString("songUri")
-            if (songUri != null) {
-                EditScreen(navController = navController, songUri = songUri)
-            } else {
-                navController.popBackStack()
-            }
+        composable(Routes.EDIT_SONG) {
+            EditScreen(navController = navController)
         }
     }
 }

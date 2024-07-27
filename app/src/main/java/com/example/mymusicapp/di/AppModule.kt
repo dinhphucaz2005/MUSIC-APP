@@ -25,13 +25,14 @@ object AppModule {
         return songFileRepositoryImpl
     }
 
-    private var musicService: MusicService? = null
+    private lateinit var musicService: MusicService
 
-    fun provideMusicService(): MusicService? = musicService
-
-    fun setMusicService(myMusicService: MusicService) {
-        this.musicService = myMusicService
+    fun provideMusicService(): MusicService {
+        return musicService
     }
 
+    fun initMusicService(musicService: MusicService) {
+        this.musicService = musicService
+    }
 
 }
