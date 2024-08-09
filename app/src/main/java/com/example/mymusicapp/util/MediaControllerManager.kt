@@ -89,7 +89,6 @@ object MediaControllerManager {
     }
 
     fun playOrPause() {
-        println(controller.mediaItemCount)
         if (controller.isPlaying) {
             controller.pause()
         } else {

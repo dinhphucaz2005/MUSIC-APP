@@ -58,6 +58,14 @@ class MusicService : MediaLibraryService() {
         }
 
         session = MediaLibrarySession.Builder(this, player, object : MediaLibrarySession.Callback {
+            override fun onMediaButtonEvent(
+                session: MediaSession,
+                controllerInfo: MediaSession.ControllerInfo,
+                intent: Intent
+            ): Boolean {
+                Log.d(TAG, "onMediaButtonEvent:")
+                return super.onMediaButtonEvent(session, controllerInfo, intent)
+            }
         }).build()
 
         notificationManager = NotificationManagerCompat.from(this)
@@ -89,6 +97,7 @@ class MusicService : MediaLibraryService() {
         player.clearMediaItems()
         player.clearMediaItems()
         songList.forEach {
+            Log.d(TAG, "loadData: ${it.fileName}")
             if (it.uri != null) loadMediaItem(it.uri)
         }
         player.prepare()

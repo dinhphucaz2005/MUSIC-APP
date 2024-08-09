@@ -17,4 +17,3 @@ fun ImageBitmap.toScaledImageBitmap(factor: Float): ImageBitmap {
     canvas.drawBitmap(originalBitmap, null, android.graphics.Rect(0, 0, width, height), paint)
     return scaledBitmap.asImageBitmap()
 }
-

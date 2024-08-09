@@ -31,4 +31,7 @@ object AppCommon {
     const val SHARED_PREF_UID = "uid"
 
     const val BROADCAST_ACTION_UPDATE_SONG_LIST = "UPDATE_SONG_LIST"
+
+    //Room Database
+    const val DATABASE_NAME = "app_database"
 }

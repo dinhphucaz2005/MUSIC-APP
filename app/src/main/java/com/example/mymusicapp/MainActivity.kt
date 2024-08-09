@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -15,7 +16,10 @@ import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.data.service.MusicService
 import com.example.mymusicapp.di.AppModule
+import com.example.mymusicapp.util.EventData
 import com.example.mymusicapp.util.MediaControllerManager
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 @UnstableApi
 class MainActivity : AppCompatActivity() {
@@ -60,6 +64,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unbindService(serviceConnection)
+        EventBus.getDefault().unregister(this)
+    }
+
+    @Subscribe
+    fun onMessageEvent(event: EventData) {
+        Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_SHORT).show()
+        EventBus.getDefault().removeStickyEvent(event)
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -93,8 +115,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unbindService(serviceConnection)
-    }
+
 }

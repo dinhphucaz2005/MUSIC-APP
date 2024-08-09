@@ -1,7 +1,6 @@
 package com.example.mymusicapp.ui.screen.edit
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,12 +52,6 @@ fun EditScreen(
     viewModel: EditViewModel = viewModel(),
     navController: NavHostController = NavHostController(LocalContext.current),
 ) {
-
-    viewModel.message.value.let {
-        if (it.isNotEmpty()) {
-            Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
-        }
-    }
 
     val image: MutableState<Uri?> = remember {
         mutableStateOf(null)
@@ -133,7 +126,7 @@ fun EditScreen(
             Button(
                 onClick = { viewModel.saveSongFile(image.value) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF479a89)
+                    containerColor = IconTintColor
                 ), shape = RectangleShape, modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Save")
@@ -162,8 +155,8 @@ fun MyTextField(
         singleLine = true,
         value = state.value,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFF479a89),
-            focusedContainerColor = Color(0xFF479a89),
+            unfocusedContainerColor = IconTintColor.copy(0.8f),
+            focusedContainerColor = IconTintColor.copy(0.8f),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent

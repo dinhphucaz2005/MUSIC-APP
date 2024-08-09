@@ -11,9 +11,9 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
-val Background = Color(0xFFe0f5ec)
-val IconTintColor = Color(0xFF2f604b)
-val TextColor = Color(0xFF30614c)
+val Background = Color(0xFFc1e8ff)
+val IconTintColor = Color(0xFF1c6387)
+val TextColor = Color(0xFF1c6387)
 val MyBrush = Brush.linearGradient(
     listOf(
         Color(0xFF3D3D3C),

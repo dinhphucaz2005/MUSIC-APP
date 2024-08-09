@@ -3,6 +3,7 @@ package com.example.mymusicapp.data.repository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.domain.model.Song
@@ -15,11 +16,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
+import kotlin.random.Random
 
 
 @SuppressLint("UnsafeOptInUsageError")
 class SongFileRepositoryImpl(private val context: Context) : SongFileRepository {
 
+    companion object {
+        const val TAG = "SongFileRepositoryImpl"
+    }
 
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
     private val songList: StateFlow<List<Song>> = _songList
@@ -55,12 +61,18 @@ class SongFileRepositoryImpl(private val context: Context) : SongFileRepository 
     }
 
     @OptIn(UnstableApi::class)
-    override suspend fun search(searchQuery: String): List<Song>? {
+    override suspend fun search(searchQuery: String): List<Song> {
         return _songList.value.filter {
             StringHelper.matching(it.fileName, searchQuery) || StringHelper.matching(
                 it.title ?: "",
                 searchQuery
             )
+        }
+    }
+
+    override fun reloadFiles() {
+        CoroutineScope(Dispatchers.IO).launch {
+            _songList.value = fetchAllAudioFiles()
         }
     }
 }

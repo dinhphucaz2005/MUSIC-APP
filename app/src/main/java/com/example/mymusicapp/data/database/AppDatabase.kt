@@ -12,7 +12,31 @@ import androidx.room.RoomDatabase
 data class PlayListsEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "name") val name: String = "",
-)
+    @ColumnInfo(name = "image_data") val imageData: ByteArray? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PlayListsEntity
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (imageData != null) {
+            if (other.imageData == null) return false
+            if (!imageData.contentEquals(other.imageData)) return false
+        } else if (other.imageData != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + name.hashCode()
+        result = 31 * result + (imageData?.contentHashCode() ?: 0)
+        return result
+    }
+}
 
 @Entity(tableName = "songs")
 data class SongsEntity(
@@ -24,18 +48,4 @@ data class SongsEntity(
 @Database(entities = [SongsEntity::class, PlayListsEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appDAO(): AppDAO
-
-    companion object {
-        private var INSTANCE: AppDatabase? = null
-        fun getInstance(context: Context): AppDatabase {
-            if (INSTANCE == null) {
-                INSTANCE = Room.databaseBuilder(
-                    context = context,
-                    klass = AppDatabase::class.java,
-                    name = "app_database"
-                ).build()
-            }
-            return INSTANCE!!
-        }
-    }
 }

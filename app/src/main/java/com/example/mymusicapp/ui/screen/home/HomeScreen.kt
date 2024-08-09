@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +55,7 @@ import com.example.mymusicapp.ui.theme.TextColor
 import com.example.mymusicapp.util.MediaControllerManager
 
 
+@Preview
 @ExperimentalMaterial3Api
 @OptIn(UnstableApi::class)
 @Composable
@@ -72,11 +75,26 @@ fun HomeScreen(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        SearchBar(query = query, onQueryChange = {
-            query = it
-        }, onSearch = {
-            viewModel.search(it)
-        }, active = false, onActiveChange = {}) { }
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SearchBar(query = query, onQueryChange = {
+                query = it
+            }, onSearch = {
+                viewModel.search(it)
+            }, active = false, onActiveChange = {},
+                modifier = Modifier.weight(1f)
+            ) { }
+            IconButton(onClick = {
+                viewModel.reload()
+            }, modifier = Modifier.size(60.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    tint = IconTintColor
+                )
+            }
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,7 +146,7 @@ fun SongItem(
 
         }
         Text(
-            text = song.title ?: "Unknown",
+            text = song.fileName,
             modifier = Modifier
                 .clickable {
                     onClick()
@@ -152,7 +170,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
             .fillMaxWidth()
-            .background(TextColor.copy(0.5f))
+            .background(Color(0xFF1c6387))
             .height(72.dp)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -184,7 +202,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                     .clickable { onClick() },
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = TextColor
+                color = Background
             )
             Text(
                 text = currentSong.value.artist ?: "Unknown",
@@ -193,13 +211,13 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                     .clickable { onClick() },
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = TextColor
+                color = Background
             )
         }
         IconButton(onClick = { /*TODO*/ }) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder, contentDescription = null,
-                tint = IconTintColor,
+                tint = Background,
             )
         }
         Icon(
@@ -217,7 +235,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 .clickable {
                     MediaControllerManager.playOrPause()
                 },
-            tint = IconTintColor
+            tint = Background
         )
         IconButton(onClick = {
             MediaControllerManager.playNext()
@@ -225,7 +243,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = IconTintColor
+                tint = Background
             )
         }
     }

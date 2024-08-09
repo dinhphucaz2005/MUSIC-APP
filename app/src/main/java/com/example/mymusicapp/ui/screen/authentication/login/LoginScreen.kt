@@ -54,7 +54,7 @@ fun LoginScreen() {
             Button(onClick = { /*TODO*/ }) {
                 Text(text = "          Login          ")
             }
-            Text(text = "          Login          ")
+            Text(text = "Login")
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically

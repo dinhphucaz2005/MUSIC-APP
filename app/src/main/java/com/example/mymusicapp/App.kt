@@ -91,23 +91,25 @@ fun App() {
                             ),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Image(
+                        Icon(
                             painter = painterResource(id = R.drawable.home),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
                                     navController.navigate(Routes.HOME)
-                                }
+                                },
+                            tint = IconTintColor
                         )
-                        Image(
+                        Icon(
                             painter = painterResource(id = R.drawable.music_list),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
                                     navController.navigate(Routes.PLAYLIST)
-                                }
+                                },
+                            tint = IconTintColor
                         )
                     }
                 }

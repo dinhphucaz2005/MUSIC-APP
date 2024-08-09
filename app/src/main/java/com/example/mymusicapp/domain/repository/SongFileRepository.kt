@@ -7,5 +7,6 @@ interface SongFileRepository {
 
     suspend fun getAllAudioFiles(): StateFlow<List<Song>>
     suspend fun search(searchQuery: String): List<Song>?
+    fun reloadFiles()
 
 }
