@@ -9,15 +9,12 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.domain.model.Song
+import com.example.mymusicapp.enums.PlaylistState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
 
-enum class PlayListState {
-    SHUFFLE,
-    REPEAT_ALL,
-    REPEAT_ONE
-}
+
 
 @OptIn(UnstableApi::class)
 object MediaControllerManager {
@@ -31,7 +28,7 @@ object MediaControllerManager {
 
     var isPlayingState = mutableStateOf<Boolean?>(null)
 
-    val playListState = mutableStateOf(PlayListState.REPEAT_ALL)
+    val playListState = mutableStateOf(PlaylistState.REPEAT_ALL)
     val currentSong = mutableStateOf(Song())
 
     fun initController(
@@ -53,11 +50,11 @@ object MediaControllerManager {
     private fun initController() {
         controller.playWhenReady = true
         if (controller.shuffleModeEnabled)
-            playListState.value = PlayListState.SHUFFLE
+            playListState.value = PlaylistState.SHUFFLE
         else if (controller.repeatMode == Player.REPEAT_MODE_ONE)
-            playListState.value = PlayListState.REPEAT_ONE
+            playListState.value = PlaylistState.REPEAT_ONE
         else {
-            playListState.value = PlayListState.REPEAT_ALL
+            playListState.value = PlaylistState.REPEAT_ALL
             controller.repeatMode = Player.REPEAT_MODE_ALL
         }
         controller.addListener(object : Player.Listener {
@@ -99,19 +96,19 @@ object MediaControllerManager {
     fun changePlayListState() {
         // SHUFFLE -> REPEAT_ALL -> REPEAT_ONE
         when (playListState.value) {
-            PlayListState.SHUFFLE -> {
-                playListState.value = PlayListState.REPEAT_ALL
+            PlaylistState.SHUFFLE -> {
+                playListState.value = PlaylistState.REPEAT_ALL
                 controller.repeatMode = Player.REPEAT_MODE_ALL
                 controller.shuffleModeEnabled = false
             }
 
-            PlayListState.REPEAT_ALL -> {
-                playListState.value = PlayListState.REPEAT_ONE
+            PlaylistState.REPEAT_ALL -> {
+                playListState.value = PlaylistState.REPEAT_ONE
                 controller.repeatMode = Player.REPEAT_MODE_ONE
             }
 
-            PlayListState.REPEAT_ONE -> {
-                playListState.value = PlayListState.SHUFFLE
+            PlaylistState.REPEAT_ONE -> {
+                playListState.value = PlaylistState.SHUFFLE
                 controller.shuffleModeEnabled = true
                 controller.repeatMode = Player.REPEAT_MODE_ALL
             }

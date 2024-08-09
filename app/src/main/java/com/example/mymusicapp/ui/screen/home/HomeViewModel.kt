@@ -18,7 +18,7 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            repository.getAllAudioFiles().collect {
+            repository.getLocal().collect {
                 songList.clear()
                 songList.addAll(it)
             }
@@ -34,7 +34,7 @@ class HomeViewModel(
 
     fun reload() {
         viewModelScope.launch {
-            repository.reloadFiles()
+            repository.reload()
         }
     }
 

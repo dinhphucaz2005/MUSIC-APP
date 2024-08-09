@@ -14,7 +14,7 @@ object MediaStoreHelper {
             arrayOf(filePath),
             null,
         ) { _, _ ->
-            AppModule.provideSongFileRepository().reloadFiles()
+            AppModule.provideSongFileRepository().reload()
         }
     }
 

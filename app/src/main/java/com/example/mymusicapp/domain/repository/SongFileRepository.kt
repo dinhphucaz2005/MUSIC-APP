@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface SongFileRepository {
 
-    suspend fun getAllAudioFiles(): StateFlow<List<Song>>
+    suspend fun getLocal(): StateFlow<List<Song>>
     suspend fun search(searchQuery: String): List<Song>?
-    fun reloadFiles()
+    fun reload()
 
 }

@@ -1,28 +1,29 @@
 package com.example.mymusicapp.data.database
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
+import com.example.mymusicapp.data.database.entity.PlaylistEntity
+import com.example.mymusicapp.data.database.entity.SongEntity
 
 @Dao
 interface AppDAO {
-    @Query("SELECT * FROM songs")
-    fun getSongs(): List<SongsEntity>
 
-    @Query("SELECT * FROM play_lists")
-    fun getPlayLists(): List<PlayListsEntity>
+    @Query("SELECT * FROM song")
+    fun getSongs(): List<SongEntity>
 
-    @Query("INSERT INTO songs(content_uri, play_list_id) VALUES(:contentURI, :playListId)")
-    fun addSong(contentURI: String, playListId: Int): Long
+    @Query("SELECT * FROM playlist")
+    fun getPlayLists(): List<PlaylistEntity>
 
-    @Query("INSERT INTO play_lists(name) VALUES(:name)")
-    fun addPlayList(name: String): Long
+    @Insert
+    fun addSong(song: SongEntity): Long
 
-    @Query("DELETE FROM songs WHERE play_list_id = :playListId")
-    fun deleteSongsByPlayListId(playListId: Int)
+    @Insert
+    fun addPlayList(playListEntity: PlaylistEntity): Long
 
-    @Query("DELETE FROM play_lists WHERE id = :id")
+    @Query("DELETE FROM playlist WHERE id = :id")
     fun deletePlayList(id: Int)
 
-    @Query("DELETE FROM songs WHERE id = :id")
+    @Query("DELETE FROM song WHERE id = :id")
     fun deleteSongById(id: Int)
 }

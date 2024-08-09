@@ -129,4 +129,7 @@ dependencies {
 
     //EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
+
+    //Accompanist Icon
+
 }

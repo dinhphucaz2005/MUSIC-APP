@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -40,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
+import com.example.mymusicapp.enums.PlaylistState
 import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
@@ -47,7 +46,6 @@ import com.example.mymusicapp.ui.theme.MyBrush
 import com.example.mymusicapp.ui.theme.MyMusicAppTheme
 import com.example.mymusicapp.ui.theme.TextColor
 import com.example.mymusicapp.util.MediaControllerManager
-import com.example.mymusicapp.util.PlayListState
 import kotlinx.coroutines.delay
 
 @Preview(showSystemUi = true)
@@ -173,8 +171,8 @@ fun SongScreen(
                     Icon(
                         painter = painterResource(
                             id = when (MediaControllerManager.playListState.value) {
-                                PlayListState.SHUFFLE -> R.drawable.shuffle
-                                PlayListState.REPEAT_ALL -> R.drawable.repeat
+                                PlaylistState.SHUFFLE -> R.drawable.shuffle
+                                PlaylistState.REPEAT_ALL -> R.drawable.repeat
                                 else -> R.drawable.repeat_one
                             }
                         ), contentDescription = null,

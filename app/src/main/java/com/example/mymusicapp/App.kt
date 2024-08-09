@@ -4,7 +4,6 @@ package com.example.mymusicapp
 
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,9 +32,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mymusicapp.ui.navigation.MainNavigation
+import com.example.mymusicapp.ui.navigation.OtherRoutes
 import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.screen.edit.EditScreen
-import com.example.mymusicapp.ui.screen.home.HomeScreen
 import com.example.mymusicapp.ui.screen.song.SongScreen
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
@@ -47,8 +47,9 @@ import com.example.mymusicapp.ui.theme.TextColor
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Routes.HOME) {
-        composable(Routes.HOME) {
+    val homeNavController = rememberNavController()
+    NavHost(navController = navController, startDestination = Routes.MAIN) {
+        composable(Routes.MAIN) {
             Scaffold(
                 topBar = {
                     Row(
@@ -97,7 +98,7 @@ fun App() {
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
-                                    navController.navigate(Routes.HOME)
+                                    homeNavController.navigate(OtherRoutes.HOME.name)
                                 },
                             tint = IconTintColor
                         )
@@ -107,18 +108,17 @@ fun App() {
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
-                                    navController.navigate(Routes.PLAYLIST)
+                                    homeNavController.navigate(OtherRoutes.PLAYLIST.name)
                                 },
                             tint = IconTintColor
                         )
                     }
                 }
             ) { contentPadding ->
-                HomeScreen(
-                    Modifier
-                        .background(Background)
-                        .padding(contentPadding),
-                    navController
+                MainNavigation(
+                    navController = navController,
+                    homeNavController = homeNavController,
+                    contentPadding
                 )
             }
         }

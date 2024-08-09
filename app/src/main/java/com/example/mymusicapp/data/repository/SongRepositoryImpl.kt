@@ -3,7 +3,6 @@ package com.example.mymusicapp.data.repository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.domain.model.Song
@@ -16,12 +15,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.abs
-import kotlin.random.Random
 
 
 @SuppressLint("UnsafeOptInUsageError")
-class SongFileRepositoryImpl(private val context: Context) : SongFileRepository {
+class SongRepositoryImpl(private val context: Context) : SongFileRepository {
 
     companion object {
         const val TAG = "SongFileRepositoryImpl"
@@ -56,7 +53,7 @@ class SongFileRepositoryImpl(private val context: Context) : SongFileRepository 
         }
     }
 
-    override suspend fun getAllAudioFiles(): StateFlow<List<Song>> {
+    override suspend fun getLocal(): StateFlow<List<Song>> {
         return songList
     }
 
@@ -70,7 +67,7 @@ class SongFileRepositoryImpl(private val context: Context) : SongFileRepository 
         }
     }
 
-    override fun reloadFiles() {
+    override fun reload() {
         CoroutineScope(Dispatchers.IO).launch {
             _songList.value = fetchAllAudioFiles()
         }

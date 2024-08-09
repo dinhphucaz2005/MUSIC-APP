@@ -125,7 +125,7 @@ class MusicService : MediaLibraryService() {
 
     fun updateSong() {
         CoroutineScope(Dispatchers.IO).launch {
-            songRepository.getAllAudioFiles().collect {
+            songRepository.getLocal().collect {
                 if (it.isEmpty()) return@collect
                 MediaControllerManager.addSongs(it)
                 CoroutineScope(Dispatchers.Main).launch {
