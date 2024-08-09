@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -98,7 +99,13 @@ fun App() {
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
-                                    homeNavController.navigate(OtherRoutes.HOME.name)
+                                    homeNavController.navigate(OtherRoutes.HOME.name) {
+                                        popUpTo(homeNavController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 },
                             tint = IconTintColor
                         )
@@ -108,7 +115,13 @@ fun App() {
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable {
-                                    homeNavController.navigate(OtherRoutes.PLAYLIST.name)
+                                    homeNavController.navigate(OtherRoutes.PLAYLIST.name) {
+                                        popUpTo(homeNavController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 },
                             tint = IconTintColor
                         )

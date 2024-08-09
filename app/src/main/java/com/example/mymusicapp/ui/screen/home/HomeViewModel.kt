@@ -11,31 +11,31 @@ import kotlinx.coroutines.launch
 
 @UnstableApi
 class HomeViewModel(
-    private val repository: SongFileRepository = AppModule.provideSongFileRepository()
+//    private val repository: SongFileRepository = AppModule.provideSongFileRepository()
 ) : ViewModel() {
 
     val songList = mutableStateListOf<Song>()
-
-    init {
-        viewModelScope.launch {
-            repository.getLocal().collect {
-                songList.clear()
-                songList.addAll(it)
-            }
-        }
-    }
-
+//
+//    init {
+//        viewModelScope.launch {
+//            repository.getLocal().collect {
+//                songList.clear()
+//                songList.addAll(it)
+//            }
+//        }
+//    }
+//
     fun search(searchQuery: String) {
-        viewModelScope.launch {
-            songList.clear()
-            repository.search(searchQuery)?.let { songList.addAll(it) }
-        }
+//        viewModelScope.launch {
+//            songList.clear()
+//            repository.search(searchQuery)?.let { songList.addAll(it) }
+//        }
     }
-
+//
     fun reload() {
-        viewModelScope.launch {
-            repository.reload()
-        }
+//        viewModelScope.launch {
+//            repository.reload()
+//        }
     }
 
 

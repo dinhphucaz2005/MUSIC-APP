@@ -48,6 +48,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
 import com.example.mymusicapp.domain.model.Song
+import com.example.mymusicapp.ui.components.MySearchBar
 import com.example.mymusicapp.ui.navigation.Routes
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
@@ -73,28 +74,14 @@ fun HomeScreen(
     val songs = viewModel.songList
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .background(Background)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SearchBar(query = query, onQueryChange = {
-                query = it
-            }, onSearch = {
-                viewModel.search(it)
-            }, active = false, onActiveChange = {},
-                modifier = Modifier.weight(1f)
-            ) { }
-            IconButton(onClick = {
-                viewModel.reload()
-            }, modifier = Modifier.size(60.dp)) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = null,
-                    tint = IconTintColor
-                )
-            }
-        }
+        MySearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
