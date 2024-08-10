@@ -10,8 +10,11 @@ import com.example.mymusicapp.domain.repository.PlaylistRepository
 import com.example.mymusicapp.helper.MediaRetrieverHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class PlaylistRepositoryImpl(val database: AppDatabase) : PlaylistRepository {
+class PlaylistRepositoryImpl @Inject constructor(
+    val database: AppDatabase
+) : PlaylistRepository {
 
     override suspend fun getPlaylist(): List<Playlist> {
         return withContext(Dispatchers.IO) {

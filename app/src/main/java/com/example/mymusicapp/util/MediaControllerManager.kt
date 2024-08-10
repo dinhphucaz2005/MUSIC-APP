@@ -1,75 +1,104 @@
 package com.example.mymusicapp.util
 
+import android.content.Context
+import android.util.Log
 import androidx.annotation.OptIn
-import androidx.compose.runtime.mutableStateOf
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.domain.model.Song
 import com.example.mymusicapp.enums.PlaylistState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-
-
-
+import javax.inject.Inject
 
 @OptIn(UnstableApi::class)
-object MediaControllerManager {
+class MediaControllerManager @Inject constructor(
+    private val context: Context,
+) {
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private lateinit var controller: MediaController
 
-    private var songList = ArrayList<Song>()
+    private var onIsPlayingChanged: ((Boolean) -> Unit)? = null
+    private var onMediaMetadataChanged: ((MediaMetadata) -> Unit)? = null
+    private var onPlayListStateChanged: ((PlaylistState) -> Unit)? = null
 
-    fun getSong(): Song = songList[controller.currentMediaItemIndex]
+    private val controllerListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            onIsPlayingChanged?.invoke(isPlaying)
+        }
 
-    var isPlayingState = mutableStateOf<Boolean?>(null)
+        override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+            Log.d(TAG, "onMediaMetadataChanged: $mediaMetadata")
+            onMediaMetadataChanged?.invoke(mediaMetadata)
+        }
 
-    val playListState = mutableStateOf(PlaylistState.REPEAT_ALL)
-    val currentSong = mutableStateOf(Song())
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            super.onShuffleModeEnabledChanged(shuffleModeEnabled)
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            super.onRepeatModeChanged(repeatMode)
+        }
+    }
+
+    companion object {
+        private const val TAG = "MediaControllerManager"
+    }
 
     fun initController(
         sessionToken: SessionToken,
-        songs: List<Song> = emptyList()
     ) {
-        songList.addAll(songs)
-        controllerFuture =
-            MediaController.Builder(AppModule.provideAppContext(), sessionToken).buildAsync()
-        controllerFuture.addListener(
-            {
+        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        controllerFuture.addListener({
+            try {
                 controller = controllerFuture.get()
-            },
-            MoreExecutors.directExecutor()
-        )
-        initController()
+                setupController()
+                Log.d(TAG, "initController: ")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to initialize MediaController", e)
+            }
+        }, MoreExecutors.directExecutor())
     }
 
-    private fun initController() {
+    private fun setupController() {
         controller.playWhenReady = true
-        if (controller.shuffleModeEnabled)
-            playListState.value = PlaylistState.SHUFFLE
-        else if (controller.repeatMode == Player.REPEAT_MODE_ONE)
-            playListState.value = PlaylistState.REPEAT_ONE
-        else {
-            playListState.value = PlaylistState.REPEAT_ALL
-            controller.repeatMode = Player.REPEAT_MODE_ALL
-        }
-        controller.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                super.onIsPlayingChanged(isPlaying)
-                isPlayingState.value = isPlaying
-            }
-
-            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-                super.onMediaMetadataChanged(mediaMetadata)
-                AppModule.provideMusicService().updateNotification()
-                currentSong.value = songList[controller.currentMediaItemIndex]
-            }
-        })
+        updatePlayListState()
+        controller.addListener(controllerListener)
     }
+
+    private fun updatePlayListState() {
+        var currentPlaylistState = when {
+            controller.shuffleModeEnabled -> PlaylistState.SHUFFLE
+            controller.repeatMode == Player.REPEAT_MODE_ONE -> PlaylistState.REPEAT_ONE
+            else -> PlaylistState.REPEAT_ALL
+        }
+        //SHUFFLE -> REPEAT_ALL -> REPEAT_ONE
+        currentPlaylistState = when (currentPlaylistState) {
+            PlaylistState.SHUFFLE -> PlaylistState.REPEAT_ALL
+            PlaylistState.REPEAT_ALL -> PlaylistState.REPEAT_ONE
+            else -> PlaylistState.SHUFFLE
+        }
+        when (currentPlaylistState) {
+            PlaylistState.SHUFFLE -> {
+                controller.shuffleModeEnabled = true
+                controller.repeatMode = Player.REPEAT_MODE_ALL
+            }
+            PlaylistState.REPEAT_ALL -> {
+                controller.shuffleModeEnabled = false
+                controller.repeatMode = Player.REPEAT_MODE_ALL
+            }
+            PlaylistState.REPEAT_ONE -> {
+                controller.shuffleModeEnabled = false
+                controller.repeatMode = Player.REPEAT_MODE_ONE
+            }
+        }
+    }
+
+
 
     fun playIndex(index: Int) {
         controller.seekTo(index, 0)
@@ -93,27 +122,6 @@ object MediaControllerManager {
         }
     }
 
-    fun changePlayListState() {
-        // SHUFFLE -> REPEAT_ALL -> REPEAT_ONE
-        when (playListState.value) {
-            PlaylistState.SHUFFLE -> {
-                playListState.value = PlaylistState.REPEAT_ALL
-                controller.repeatMode = Player.REPEAT_MODE_ALL
-                controller.shuffleModeEnabled = false
-            }
-
-            PlaylistState.REPEAT_ALL -> {
-                playListState.value = PlaylistState.REPEAT_ONE
-                controller.repeatMode = Player.REPEAT_MODE_ONE
-            }
-
-            PlaylistState.REPEAT_ONE -> {
-                playListState.value = PlaylistState.SHUFFLE
-                controller.shuffleModeEnabled = true
-                controller.repeatMode = Player.REPEAT_MODE_ALL
-            }
-        }
-    }
 
     fun getCurrentPosition(): Float {
         return controller.currentPosition.toFloat() / controller.duration
@@ -123,8 +131,15 @@ object MediaControllerManager {
         controller.seekTo((controller.duration * sliderPosition).toLong())
     }
 
-    fun addSongs(songs: List<Song>) {
-        this.songList = songs as ArrayList<Song>
+    fun setOnIsPlayingChangedListener(listener: (Boolean) -> Unit) {
+        onIsPlayingChanged = listener
     }
 
+    fun setOnMediaMetadataChangedListener(listener: (MediaMetadata) -> Unit) {
+        onMediaMetadataChanged = listener
+    }
+
+    fun setOnPlayListStateChangedListener(listener: (PlaylistState) -> Unit) {
+        onPlayListStateChanged = listener
+    }
 }

@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -19,22 +21,25 @@ import com.example.mymusicapp.data.service.MusicService
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.util.EventData
 import com.example.mymusicapp.util.MediaControllerManager
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import javax.inject.Inject
 
 @UnstableApi
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val TAG = "Main"
-    }
 
     init {
         System.loadLibrary("mymusicapp")
     }
+
+    @Inject
+    lateinit var mediaControllerManager: MediaControllerManager
 
     external fun stringComparison(str1: String, str2: String): Boolean
 
@@ -48,9 +53,8 @@ class MainActivity : AppCompatActivity() {
             myMusicService = binder.getService()
             isBound = true
             val sessionToken = myMusicService!!.getSession().token
+            mediaControllerManager.initController(sessionToken)
             myMusicService?.updateSong()
-            AppModule.initMusicService(myMusicService!!)
-            MediaControllerManager.initController(sessionToken)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -60,11 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppModule.init(this@MainActivity)
         startMusicService()
-        CoroutineScope(Dispatchers.IO).launch {
-            Log.d(TAG, "onCreate: ${AppModule.provideRoomDatabase().appDAO().getSongs()}")
-        }
         setContent {
             App()
         }
@@ -125,6 +125,4 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
-
 }

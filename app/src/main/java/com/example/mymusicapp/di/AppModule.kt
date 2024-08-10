@@ -1,60 +1,77 @@
 package com.example.mymusicapp.di
 
+import android.app.Application
 import android.content.Context
 import androidx.media3.common.util.UnstableApi
 import androidx.room.Room
 import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.data.database.AppDatabase
+import com.example.mymusicapp.data.repository.EditSongRepositoryImpl
 import com.example.mymusicapp.data.repository.PlaylistRepositoryImpl
 import com.example.mymusicapp.data.repository.SongRepositoryImpl
 import com.example.mymusicapp.data.service.MusicService
+import com.example.mymusicapp.domain.repository.EditSongRepository
 import com.example.mymusicapp.domain.repository.PlaylistRepository
 import com.example.mymusicapp.domain.repository.SongFileRepository
+import com.example.mymusicapp.util.MediaControllerManager
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
+@Module
+@InstallIn(SingletonComponent::class)
 @UnstableApi
 object AppModule {
 
-    private lateinit var appContext: Context
-    private lateinit var musicService: MusicService
-    private val roomDatabase: AppDatabase by lazy {
-        Room.databaseBuilder(
-            appContext,
+    @Provides
+    @Singleton
+    fun provideRoomDatabase(
+        context: Context
+    ): AppDatabase {
+        return Room.databaseBuilder(
+            context,
             AppDatabase::class.java,
             AppCommon.DATABASE_NAME
         ).build()
     }
 
-    fun init(context: Context) {
-        appContext = context
+    @Provides
+    @Singleton
+    fun provideApplicationContext(app: Application): Context {
+        return app.applicationContext
     }
 
-    fun provideAppContext(): Context {
-        if (!::appContext.isInitialized) {
-            throw IllegalStateException("AppContext not initialized")
-        }
-        return appContext
-    }
-
+    @Provides
+    @Singleton
     fun provideMusicService(): MusicService {
-        if (!::musicService.isInitialized) {
-            throw IllegalStateException("MusicService not initialized")
-        }
-        return musicService
+        return MusicService()
     }
 
-    fun initMusicService(musicService: MusicService) {
-        this.musicService = musicService
+    @Provides
+    @Singleton
+    fun provideSongFileRepository(context: Context): SongFileRepository {
+        return SongRepositoryImpl(context)
     }
 
-    fun provideSongFileRepository(): SongFileRepository {
-        return SongRepositoryImpl(provideAppContext())
+    @Provides
+    @Singleton
+    fun providePlaylistRepository(context: Context): PlaylistRepository {
+        return PlaylistRepositoryImpl(provideRoomDatabase(context))
     }
 
-    fun providePlaylistRepository(): PlaylistRepository {
-        return PlaylistRepositoryImpl(provideRoomDatabase())
+    @Provides
+    @Singleton
+    fun provideEditSongRepository(context: Context): EditSongRepository {
+        return EditSongRepositoryImpl(context)
     }
 
-    fun provideRoomDatabase(): AppDatabase {
-        return roomDatabase
+    @Provides
+    @Singleton
+    fun provideMediaControllerManager(
+        context: Context,
+    ): MediaControllerManager {
+        return MediaControllerManager(context)
     }
 }

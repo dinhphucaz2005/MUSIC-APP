@@ -15,10 +15,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
 @SuppressLint("UnsafeOptInUsageError")
-class SongRepositoryImpl(private val context: Context) : SongFileRepository {
+class SongRepositoryImpl @Inject constructor(
+    private val context: Context
+) : SongFileRepository {
 
     companion object {
         const val TAG = "SongFileRepositoryImpl"

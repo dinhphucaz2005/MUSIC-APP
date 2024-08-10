@@ -7,6 +7,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
@@ -14,16 +16,21 @@ import androidx.media3.session.MediaSession
 import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.domain.model.Song
+import com.example.mymusicapp.domain.repository.SongFileRepository
 import com.example.mymusicapp.helper.NotificationHelper
 import com.example.mymusicapp.util.MediaControllerManager
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @UnstableApi
+@AndroidEntryPoint
 class MusicService : MediaLibraryService() {
 
-    private val songRepository = AppModule.provideSongFileRepository()
+    @Inject
+    lateinit var songRepository: SongFileRepository
 
     companion object {
         private const val TAG = "MusicService"
@@ -54,6 +61,12 @@ class MusicService : MediaLibraryService() {
         player = ExoPlayer.Builder(this).build()
         player.apply {
             playWhenReady = true
+            addListener(object : Player.Listener {
+                override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                    super.onMediaMetadataChanged(mediaMetadata)
+                    updateNotification()
+                }
+            })
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
         }
 
@@ -109,7 +122,7 @@ class MusicService : MediaLibraryService() {
         player.prepare()
     }
 
-    fun updateNotification() {
+    private fun updateNotification() {
         startForeground(
             AppCommon.NOTIFICATION_ID, NotificationHelper.createNotification(this, session)
         )
@@ -127,7 +140,7 @@ class MusicService : MediaLibraryService() {
         CoroutineScope(Dispatchers.IO).launch {
             songRepository.getLocal().collect {
                 if (it.isEmpty()) return@collect
-                MediaControllerManager.addSongs(it)
+//                MediaControllerManager.addSongs(it)
                 CoroutineScope(Dispatchers.Main).launch {
                     Log.d(TAG, "updateSong: ${it.size}")
                     loadData(it)

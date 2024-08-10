@@ -1,21 +1,31 @@
 package com.example.mymusicapp.helper
 
+import android.content.Context
 import android.media.MediaScannerConnection
+import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
-import com.example.mymusicapp.di.AppModule
+
 
 object MediaStoreHelper {
 
     @OptIn(UnstableApi::class)
-    fun scanFile(filePath: String) {
-        MediaScannerConnection.scanFile(
-            AppModule.provideAppContext(),
-            arrayOf(filePath),
-            null,
-        ) { _, _ ->
-            AppModule.provideSongFileRepository().reload()
+    fun scanFile(
+        filePath: String,
+        context: Context,
+        onError: ((Exception) -> Unit)? = null,
+        onScanCompletedListener: (String, Uri) -> Unit
+    ) {
+        try {
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(filePath),
+                null,
+            ) { path, uri ->
+                onScanCompletedListener(path, uri)
+            }
+        } catch (e: Exception) {
+            onError?.invoke(e)
         }
     }
-
 }

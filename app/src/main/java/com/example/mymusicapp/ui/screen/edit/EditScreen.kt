@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -49,7 +48,7 @@ import com.example.mymusicapp.ui.theme.IconTintColor
 @Preview
 @Composable
 fun EditScreen(
-    viewModel: EditViewModel = viewModel(),
+    viewModel: EditViewModel = hiltViewModel(),
     navController: NavHostController = NavHostController(LocalContext.current),
 ) {
 
@@ -78,9 +77,9 @@ fun EditScreen(
                 tint = IconTintColor, modifier = Modifier.fillMaxSize()
             )
         }
-        MyTextField(labelString = "File Name", state = viewModel.fileName)
-        MyTextField(labelString = "Title", state = viewModel.title)
-        MyTextField(labelString = "Artist", state = viewModel.artist)
+//        MyTextField(labelString = "File Name", state = viewModel.fileName)
+//        MyTextField(labelString = "Title", state = viewModel.title)
+//        MyTextField(labelString = "Artist", state = viewModel.artist)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -103,13 +102,13 @@ fun EditScreen(
                     )
                 )
         ) {
-            viewModel.song.imageBitmap.let {
-                if (it != null)
-                    Image(
-                        bitmap = it, contentDescription = null,
-                        contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()
-                    )
-            }
+//            viewModel.song.imageBitmap.let {
+//                if (it != null)
+//                    Image(
+//                        bitmap = it, contentDescription = null,
+//                        contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()
+//                    )
+//            }
             AsyncImage(
                 model = image.value,
                 contentDescription = null,
@@ -123,14 +122,14 @@ fun EditScreen(
                 .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Button(
-                onClick = { viewModel.saveSongFile(image.value) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = IconTintColor
-                ), shape = RectangleShape, modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Save")
-            }
+//            Button(
+//                onClick = { viewModel.saveSongFile(image.value,) },
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = IconTintColor
+//                ), shape = RectangleShape, modifier = Modifier.weight(1f)
+//            ) {
+//                Text(text = "Save")
+//            }
             Button(
                 onClick = { navController.popBackStack() },
                 colors = ButtonDefaults.buttonColors(

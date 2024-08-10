@@ -1,5 +1,6 @@
 package com.example.mymusicapp.ui.screen.song
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.mymusicapp.R
 import com.example.mymusicapp.enums.PlaylistState
@@ -45,16 +48,16 @@ import com.example.mymusicapp.ui.theme.IconTintColor
 import com.example.mymusicapp.ui.theme.MyBrush
 import com.example.mymusicapp.ui.theme.MyMusicAppTheme
 import com.example.mymusicapp.ui.theme.TextColor
-import com.example.mymusicapp.util.MediaControllerManager
 import kotlinx.coroutines.delay
 
 @Preview(showSystemUi = true)
 @Composable
 fun SongScreen(
     navController: NavHostController = NavHostController(LocalContext.current),
+    viewModel: SongViewModel = hiltViewModel()
 ) {
 
-    val song = MediaControllerManager.currentSong
+    val song = viewModel.currentSong
     MyMusicAppTheme {
         Column(
             modifier = Modifier
@@ -120,22 +123,23 @@ fun SongScreen(
                             brush = MyBrush
                         )
                 ) {
-                    song.value.imageBitmap?.let {
+                    song.value?.artworkData?.let {
+                        val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                         Image(
-                            bitmap = it, contentDescription = null,
+                            bitmap = bitmap.asImageBitmap(), contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
                 Text(
-                    text = song.value.title ?: "Unknown",
+                    text = song.value?.title.toString(),
                     color = TextColor,
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = song.value.artist ?: "Unknown",
+                    text = song.value?.artist.toString(),
                     color = TextColor,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
@@ -143,7 +147,7 @@ fun SongScreen(
                 var sliderPosition by remember { mutableFloatStateOf(0f) }
                 LaunchedEffect(Unit) {
                     while (true) {
-                        sliderPosition = MediaControllerManager.getCurrentPosition()
+//                        sliderPosition = MediaControllerManager.getCurrentPosition()
                         delay(1000L)
                     }
                 }
@@ -152,7 +156,7 @@ fun SongScreen(
                     value = sliderPosition,
                     onValueChange = {
                         sliderPosition = it
-                        MediaControllerManager.seekTo(sliderPosition)
+                        viewModel.seekTo(sliderPosition)
                     },
                     colors = SliderDefaults.colors(
                         thumbColor = TextColor,
@@ -170,7 +174,7 @@ fun SongScreen(
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = when (MediaControllerManager.playListState.value) {
+                            id = when (viewModel.playListState.value) {
                                 PlaylistState.SHUFFLE -> R.drawable.shuffle
                                 PlaylistState.REPEAT_ALL -> R.drawable.repeat
                                 else -> R.drawable.repeat_one
@@ -179,7 +183,7 @@ fun SongScreen(
                         modifier = Modifier
                             .size(iconSize)
                             .clickable {
-                                MediaControllerManager.changePlayListState()
+                                viewModel.changePlayListState()
                             },
                         tint = IconTintColor
                     )
@@ -190,14 +194,14 @@ fun SongScreen(
                         modifier = Modifier
                             .size(iconSize)
                             .clickable {
-                                MediaControllerManager.playPrevious()
+                                viewModel.playPrevious()
                             },
                         tint = IconTintColor
                     )
 
                     Icon(
                         painter = painterResource(
-                            id = when (MediaControllerManager.isPlayingState.value) {
+                            id = when (viewModel.isPlayingState.value) {
                                 true -> R.drawable.pause
                                 else -> R.drawable.play
                             }
@@ -205,7 +209,7 @@ fun SongScreen(
                         modifier = Modifier
                             .size(iconSize)
                             .clickable {
-                                MediaControllerManager.playOrPause()
+                                viewModel.playOrPause()
                             },
                         tint = IconTintColor
                     )
@@ -216,7 +220,7 @@ fun SongScreen(
                         modifier = Modifier
                             .size(iconSize)
                             .clickable {
-                                MediaControllerManager.playNext()
+                                viewModel.playNext()
                             },
                         tint = IconTintColor
                     )

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mymusicapp.domain.model.Playlist
 import com.example.mymusicapp.ui.theme.Background
 import com.example.mymusicapp.ui.theme.IconTintColor
@@ -44,7 +45,7 @@ import androidx.navigation.NavHostController
 @Composable
 @OptIn(UnstableApi::class)
 fun PlaylistScreen(
-    viewModel: PlaylistViewModel = viewModel(),
+    viewModel: PlaylistViewModel = hiltViewModel(),
 ) {
     Scaffold(
         floatingActionButton = {

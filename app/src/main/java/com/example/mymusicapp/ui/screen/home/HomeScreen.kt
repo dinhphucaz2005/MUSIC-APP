@@ -1,5 +1,6 @@
 package com.example.mymusicapp.ui.screen.home
 
+import android.graphics.BitmapFactory
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
@@ -65,12 +68,9 @@ fun HomeScreen(
     navController: NavHostController = NavHostController(
         LocalContext.current
     ),
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    var query by remember {
-        mutableStateOf("")
-    }
     val songs = viewModel.songList
 
     Column(
@@ -89,7 +89,7 @@ fun HomeScreen(
         ) {
             itemsIndexed(songs) { index, song ->
                 SongItem(song = song) {
-                    MediaControllerManager.playIndex(index)
+                    viewModel.playIndex(index)
                 }
             }
         }
@@ -147,11 +147,16 @@ fun SongItem(
     }
 }
 
+@OptIn(UnstableApi::class)
 @Preview
 @Composable
-fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+fun SongPreview(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    onClick: () -> Unit = {},
+) {
 
-    val currentSong = MediaControllerManager.currentSong
+    val currentSong = viewModel.currentSong
 
     Row(
         modifier = modifier
@@ -168,9 +173,10 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 .fillMaxHeight()
                 .aspectRatio(1f)
         ) {
-            currentSong.value.imageBitmap?.let {
+            currentSong.value?.artworkData?.let {
+                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                 Image(
-                    bitmap = it, contentDescription = null,
+                    bitmap = bitmap.asImageBitmap(), contentDescription = null,
                     modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
                 )
             }
@@ -183,7 +189,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = currentSong.value.title ?: "Unknown",
+                text = currentSong.value?.title.toString(),
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable { onClick() },
@@ -192,7 +198,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 color = Background
             )
             Text(
-                text = currentSong.value.artist ?: "Unknown",
+                text = currentSong.value?.artist.toString(),
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .clickable { onClick() },
@@ -209,7 +215,7 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
         }
         Icon(
             painter = painterResource(
-                id = when (MediaControllerManager.isPlayingState.value) {
+                id = when (viewModel.isPlayingState.value) {
                     true -> R.drawable.pause
                     else -> R.drawable.play
                 }
@@ -220,12 +226,12 @@ fun SongPreview(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
                 .fillMaxHeight()
                 .aspectRatio(1f)
                 .clickable {
-                    MediaControllerManager.playOrPause()
+                    viewModel.playOrPause()
                 },
             tint = Background
         )
         IconButton(onClick = {
-            MediaControllerManager.playNext()
+            viewModel.playNext()
         }) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

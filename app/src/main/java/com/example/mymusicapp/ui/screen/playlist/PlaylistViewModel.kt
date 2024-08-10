@@ -7,11 +7,14 @@ import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.di.AppModule
 import com.example.mymusicapp.domain.model.Playlist
 import com.example.mymusicapp.domain.repository.PlaylistRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @UnstableApi
-class PlaylistViewModel(
-    private val repository: PlaylistRepository = AppModule.providePlaylistRepository()
+@HiltViewModel
+class PlaylistViewModel @Inject constructor(
+    private val repository: PlaylistRepository
 ) : ViewModel() {
 
     val playlistState = mutableStateListOf<Playlist>()
@@ -21,7 +24,6 @@ class PlaylistViewModel(
             playlistState.addAll(repository.getPlaylist())
         }
     }
-
 
 
 }
