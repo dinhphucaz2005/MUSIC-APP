@@ -20,10 +20,18 @@ object AppCommon {
     const val WIDGET_PLAY_NEXT = "WIDGET_PLAY_NEXT"
     const val WIDGET_PLAY = "WIDGET_PLAY"
 
+    const val CHANGE_PLAYLIST_STATE = "CHANGE_PLAYLIST_STATE"
+    const val CHANGE_PLAYLIST_STATE_CODE = 1
+
 
     const val SHARED_PREF_NAME = "UserPreferences"
     const val SHARED_PREF_EMAIL = "email"
     const val SHARED_PREF_DISPLAY_NAME = "displayName"
     const val SHARED_PREF_PHOTO_URL = "photoUrl"
     const val SHARED_PREF_UID = "uid"
+
+    const val BROADCAST_ACTION_UPDATE_SONG_LIST = "UPDATE_SONG_LIST"
+
+    //Room Database
+    const val DATABASE_NAME = "app_database"
 }
