@@ -3,6 +3,7 @@ package com.example.mymusicapp.data.repository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.domain.model.Song
@@ -29,12 +30,6 @@ class SongRepositoryImpl @Inject constructor(
 
     private val _songList = MutableStateFlow<List<Song>>(emptyList())
     private val songList: StateFlow<List<Song>> = _songList
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            _songList.value = fetchAllAudioFiles()
-        }
-    }
 
     private suspend fun fetchAllAudioFiles(): List<Song> {
         return withContext(Dispatchers.IO) {
@@ -72,7 +67,17 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun reload() {
         CoroutineScope(Dispatchers.IO).launch {
-            _songList.value = fetchAllAudioFiles()
+            val songs = fetchAllAudioFiles()
+            if (songs.size != _songList.value.size) {
+                _songList.value = songs
+            } else {
+                for (i in songs.indices) {
+                    if (songs[i].path != _songList.value[i].path) {
+                        _songList.value = songs
+                        break
+                    }
+                }
+            }
         }
     }
 }

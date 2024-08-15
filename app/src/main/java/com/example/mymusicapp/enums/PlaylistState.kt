@@ -1,7 +1,12 @@
 package com.example.mymusicapp.enums
 
-enum class PlaylistState {
-    SHUFFLE,
-    REPEAT_ALL,
-    REPEAT_ONE
+import androidx.annotation.DrawableRes
+import com.example.mymusicapp.R
+
+enum class PlaylistState(
+    @DrawableRes val resource: Int
+) {
+    SHUFFLE(R.drawable.shuffle),
+    REPEAT_ALL(R.drawable.repeat),
+    REPEAT_ONE(R.drawable.repeat_one),
 }

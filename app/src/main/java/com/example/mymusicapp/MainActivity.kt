@@ -8,17 +8,21 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import com.example.mymusicapp.common.AppCommon
 import com.example.mymusicapp.data.service.MusicService
-import com.example.mymusicapp.di.AppModule
+import com.example.mymusicapp.domain.repository.SongFileRepository
 import com.example.mymusicapp.util.EventData
 import com.example.mymusicapp.util.MediaControllerManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,15 +37,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
-    init {
-        System.loadLibrary("mymusicapp")
+    companion object {
+        const val TAG = "MainActivity"
     }
 
     @Inject
     lateinit var mediaControllerManager: MediaControllerManager
 
-    external fun stringComparison(str1: String, str2: String): Boolean
 
     private var isBound = false
     private var myMusicService: MusicService? = null
@@ -54,7 +56,6 @@ class MainActivity : AppCompatActivity() {
             isBound = true
             val sessionToken = myMusicService!!.getSession().token
             mediaControllerManager.initController(sessionToken)
-            myMusicService?.updateSong()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -62,14 +63,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Inject
+    lateinit var songFileRepository: SongFileRepository
+
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         startMusicService()
         setContent {
-            App()
+            val viewModel = hiltViewModel<AppViewModel>()
+            App(viewModel)
         }
         if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            //TODO("Not yet implemented")
+            CoroutineScope(Dispatchers.IO).launch {
+                songFileRepository.reload()
+            }
         } else {
             requestPermission()
         }
@@ -81,6 +90,14 @@ class MainActivity : AppCompatActivity() {
             EventBus.getDefault().register(this)
         }
     }
+
+    override fun onRestart() {
+        super.onRestart()
+        CoroutineScope(Dispatchers.IO).launch {
+            songFileRepository.reload()
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -102,7 +119,12 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == AppCommon.REQUEST_CODE_PERMISSION && permissions[0] == Manifest.permission.READ_MEDIA_AUDIO) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //TODO("Not yet implemented")
+                println("Permission granted")
+                CoroutineScope(Dispatchers.IO).launch {
+                    songFileRepository.reload()
+                }
+            } else {
+                println("Permission denied")
             }
         }
     }

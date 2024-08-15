@@ -1,6 +1,3 @@
 <resources>
-    <style name="Base.Theme.MyMusicApp" parent="Theme.Material3.Dark.NoActionBar">
-    </style>
-
-    <style name="Theme.MyMusicApp" parent="Base.Theme.MyMusicApp" />
+    <style name="Theme.MyMusicApp" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

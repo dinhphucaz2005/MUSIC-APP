@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.mymusicapp.R
+import com.example.mymusicapp.ui.theme.myBackgroundColor
+import com.example.mymusicapp.ui.theme.myTextColor
 
 @Preview
 @Composable
@@ -29,7 +31,7 @@ fun LoginScreen() {
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.image2),
+            painter = painterResource(id = R.drawable.icon),
             modifier = Modifier.fillMaxSize(), contentDescription = null
         )
         Column(
@@ -44,7 +46,7 @@ fun LoginScreen() {
                     .clip(CircleShape)
                     .border(
                         width = 5.dp,
-                        color = Color.White,
+                        color = Color(myTextColor),
                         shape = CircleShape
                     ),
                 contentDescription = null

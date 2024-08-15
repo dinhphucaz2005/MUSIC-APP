@@ -34,13 +34,7 @@ class MusicService : MediaLibraryService() {
 
     companion object {
         private const val TAG = "MusicService"
-        const val LOCAL_FILE = 0
-        const val ROOM_DATABASE_FILE = 1
-        const val FIREBASE_FILE = 2
-        const val PLAY_LIST_INDEX = -1
     }
-
-    private var currentType = -1
 
     private lateinit var player: ExoPlayer
     private lateinit var session: MediaLibrarySession
@@ -70,19 +64,30 @@ class MusicService : MediaLibraryService() {
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
         }
 
-        session = MediaLibrarySession.Builder(this, player, object : MediaLibrarySession.Callback {
-            override fun onMediaButtonEvent(
-                session: MediaSession,
-                controllerInfo: MediaSession.ControllerInfo,
-                intent: Intent
-            ): Boolean {
-                Log.d(TAG, "onMediaButtonEvent:")
-                return super.onMediaButtonEvent(session, controllerInfo, intent)
+        Log.d(TAG, "onCreate: $TAG is created")
+        CoroutineScope(Dispatchers.IO).launch {
+            songRepository.getLocal().collect { songs ->
+                if (songs.isEmpty()) return@collect
+                CoroutineScope(Dispatchers.Main).launch {
+                    player.pause()
+                    player.clearMediaItems()
+                    songs.forEach { song -> song.uri?.let { loadMediaItem(it) } }
+                    player.prepare()
+                    player.play()
+                }
             }
-        }).build()
+        }
+
+        session = MediaLibrarySession.Builder(
+            this,
+            player,
+            object : MediaLibrarySession.Callback {}
+        ).build()
 
         notificationManager = NotificationManagerCompat.from(this)
         notificationManager.createNotificationChannel(NotificationHelper.createNotificationChannel())
+
+
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -102,21 +107,6 @@ class MusicService : MediaLibraryService() {
 
     fun getSession(): MediaLibrarySession = session
 
-    private fun loadData(
-        songList: List<Song>,
-        fileFromType: Int = LOCAL_FILE
-    ) {
-        player.pause()
-        player.clearMediaItems()
-        player.clearMediaItems()
-        songList.forEach {
-            Log.d(TAG, "loadData: ${it.fileName}")
-            if (it.uri != null) loadMediaItem(it.uri)
-        }
-        player.prepare()
-        player.play()
-    }
-
     private fun loadMediaItem(uri: Uri) {
         player.addMediaItem(MediaItem.fromUri(uri))
         player.prepare()
@@ -134,18 +124,5 @@ class MusicService : MediaLibraryService() {
         player.clearMediaItems()
         player.release()
         session.release()
-    }
-
-    fun updateSong() {
-        CoroutineScope(Dispatchers.IO).launch {
-            songRepository.getLocal().collect {
-                if (it.isEmpty()) return@collect
-//                MediaControllerManager.addSongs(it)
-                CoroutineScope(Dispatchers.Main).launch {
-                    Log.d(TAG, "updateSong: ${it.size}")
-                    loadData(it)
-                }
-            }
-        }
     }
 }

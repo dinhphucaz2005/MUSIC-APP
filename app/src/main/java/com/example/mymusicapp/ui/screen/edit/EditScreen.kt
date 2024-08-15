@@ -41,8 +41,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.mymusicapp.R
-import com.example.mymusicapp.ui.theme.Background
-import com.example.mymusicapp.ui.theme.IconTintColor
+import com.example.mymusicapp.ui.theme.tempColor
 
 @OptIn(UnstableApi::class)
 @Preview
@@ -63,7 +62,7 @@ fun EditScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Background)
+            .background(Color(tempColor))
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -74,7 +73,7 @@ fun EditScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.back), contentDescription = null,
-                tint = IconTintColor, modifier = Modifier.fillMaxSize()
+                tint = Color(tempColor), modifier = Modifier.fillMaxSize()
             )
         }
 //        MyTextField(labelString = "File Name", state = viewModel.fileName)
@@ -154,8 +153,8 @@ fun MyTextField(
         singleLine = true,
         value = state.value,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = IconTintColor.copy(0.8f),
-            focusedContainerColor = IconTintColor.copy(0.8f),
+            unfocusedContainerColor = Color(tempColor).copy(0.8f),
+            focusedContainerColor = Color(tempColor).copy(0.8f),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent
