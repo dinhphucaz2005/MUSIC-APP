@@ -122,12 +122,12 @@ class MusicService : MediaLibraryService() {
 
     private fun loadMediaItem(uri: Uri) {
         player.addMediaItem(MediaItem.fromUri(uri))
-        player.prepare()
     }
 
     private fun updateNotification() {
         startForeground(
-            NotificationHelper.NOTIFICATION_ID, NotificationHelper.createNotification(this, session)
+            NotificationHelper.NOTIFICATION_ID,
+            NotificationHelper.createNotification(this, session)
         )
     }
 

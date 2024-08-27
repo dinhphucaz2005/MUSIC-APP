@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaLibraryService
+import com.example.musicapp.R
 
 @UnstableApi
 object NotificationHelper {
@@ -24,12 +25,11 @@ object NotificationHelper {
 
 
     fun createNotification(
-        context: Context, mediaSession: MediaLibraryService.MediaLibrarySession
+        context: Context,
+        mediaSession: MediaLibraryService.MediaLibrarySession,
     ): Notification {
-
-
         return NotificationCompat.Builder(context, ID).apply {
-            setSmallIcon(androidx.media3.session.R.drawable.media3_icon_circular_play, 0)
+            setSmallIcon(R.drawable.ic_disc)
             setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionCompatToken)
