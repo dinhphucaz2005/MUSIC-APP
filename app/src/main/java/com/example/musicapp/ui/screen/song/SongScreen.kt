@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,32 +35,38 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavHostController
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.ui.AppViewModel
-import com.example.musicapp.ui.screen.edit.EditScreen
-import com.example.musicapp.ui.screen.edit.EditViewModel
+import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @UnstableApi
 @Preview
@@ -67,9 +74,8 @@ import com.example.musicapp.ui.theme.commonShape
 fun SongScreenPreview() {
     MusicTheme {
         SongScreen(
-            onDismiss = {},
+            navHostController = NavHostController(LocalContext.current),
             viewModel = FakeModule.provideViewModel(),
-            editViewModel = FakeModule.provideEditViewModel()
         )
     }
 }
@@ -79,9 +85,8 @@ fun SongScreenPreview() {
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    viewModel: AppViewModel,
-    editViewModel: EditViewModel = hiltViewModel()
+    navHostController: NavHostController,
+    viewModel: MainViewModel,
 ) {
     val isPlaying by viewModel.isPlaying().collectAsState()
     val thumbnail by viewModel.getThumbnail().collectAsState()
@@ -90,13 +95,34 @@ fun SongScreen(
     val playListState by viewModel.getPlayListState().collectAsState()
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(coroutineScope) {
+        while (true) {
+            CoroutineScope(Dispatchers.Main).launch {
+                sliderPosition = viewModel.getSliderPosition()
+            }
+            delay(1000)
+        }
+    }
+
     val painter = painterResource(id = R.drawable.image)
     val iconSize = 32.dp
+
+    var isPopBackStack by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) {
+                detectDragGestures { _, dragAmount ->
+                    if (dragAmount.y >= 50 && !isPopBackStack) {
+                        isPopBackStack = true
+                        navHostController.popBackStack()
+                    }
+                }
+            }
     ) {
         val (backgroundRef, boxRef, backButton, editButton, titleRef, artistRef, image, sliderRef, startTime, endTime, bottomRow) = createRefs()
 
@@ -133,11 +159,13 @@ fun SongScreen(
         )
 
         Icon(
-            painter = painterResource(id = R.drawable.back),
+            painter = painterResource(id = R.drawable.ic_back),
             contentDescription = null,
             modifier = Modifier
                 .size(iconSize)
-                .clickable { onDismiss() }
+                .clickable {
+                    navHostController.popBackStack()
+                }
                 .constrainAs(backButton) {
                     top.linkTo(parent.top, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
@@ -179,15 +207,15 @@ fun SongScreen(
                 IconButton(
                     onClick = { viewModel.rewind() },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.rewind)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_rewind)) }
                 IconButton(
                     onClick = { viewModel.togglePlayPause() },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = isPlaying.resource)) }
+                ) { CommonIcon(painter = painterResource(id = isPlaying.resource)) }
                 IconButton(
                     onClick = { viewModel.fastForward() },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.fast_fwd)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_fast_forward)) }
             }
             Row(
                 modifier = Modifier
@@ -199,23 +227,23 @@ fun SongScreen(
                 IconButton(
                     onClick = { viewModel.refreshPlayListState() },
                     modifier = iconModifier
-                ) { Icon(painterResource(id = playListState.resource)) }
+                ) { CommonIcon(painterResource(id = playListState.resource)) }
                 IconButton(
                     onClick = { viewModel.playPreviousTrack() },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.skip_back)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_back)) }
                 IconButton(
                     onClick = { viewModel.skipToNextTrack() },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.skip_fwd)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_forward)) }
                 IconButton(
                     onClick = { TODO("Not yet implemented") },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.home)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_setting)) }
                 IconButton(
                     onClick = { TODO("Not yet implemented") },
                     modifier = iconModifier
-                ) { Icon(painter = painterResource(id = R.drawable.share)) }
+                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_share)) }
             }
         }
         Text(
@@ -281,7 +309,6 @@ fun SongScreen(
             )
         }
 
-
         Slider(
             value = sliderPosition,
             onValueChange = { sliderPosition = it },
@@ -302,7 +329,9 @@ fun SongScreen(
         )
 
         val startText = "00:00"
-        val endText by viewModel.getDuration().collectAsState()
+        val endText by viewModel
+            .getDuration()
+            .collectAsState()
         Text(
             text = startText,
             modifier = Modifier.constrainAs(startTime) {
@@ -323,9 +352,6 @@ fun SongScreen(
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.labelSmall
         )
-
-
-
         AnimatedVisibility(
             visible = showEditScreen,
             enter = slideInVertically(
@@ -355,19 +381,9 @@ fun SongScreen(
         ) {
             EditScreen(
                 song = viewModel.getCurrentSong(),
-                onDismiss = { showEditScreen = false },
-                viewModel = editViewModel
+                onDismiss = { showEditScreen = false }
             )
         }
     }
 }
 
-@Composable
-fun Icon(painter: Painter) {
-    Icon(
-        painter = painter,
-        contentDescription = null,
-        modifier = Modifier.fillMaxSize(),
-        tint = MaterialTheme.colorScheme.primary
-    )
-}

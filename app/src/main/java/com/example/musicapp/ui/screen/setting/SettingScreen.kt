@@ -23,15 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.ui.AppViewModel
-import com.example.musicapp.di.FakeModule
-import com.example.musicapp.ui.theme.MusicTheme
+import com.example.musicapp.ui.MainViewModel
 import com.godaddy.android.colorpicker.HsvColor
 import com.godaddy.android.colorpicker.harmony.ColorHarmonyMode
 import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
@@ -39,7 +35,7 @@ import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
 @UnstableApi
 @Composable
 fun SettingScreen(
-    appViewModel: AppViewModel
+    mainViewModel: MainViewModel
 ) {
     ConstraintLayout(
         modifier = Modifier.fillMaxSize()

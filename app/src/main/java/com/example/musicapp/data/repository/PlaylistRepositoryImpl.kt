@@ -1,64 +1,226 @@
 package com.example.musicapp.data.repository
 
-import com.example.musicapp.callback.ResultCallback
-import com.example.musicapp.data.database.AppDatabase
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import android.provider.MediaStore
+import androidx.room.Index
+import com.example.musicapp.callback.AppResource
+import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.entity.PlaylistEntity
+import com.example.musicapp.data.database.entity.SongEntity
 import com.example.musicapp.domain.model.Playlist
+import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.helper.MediaRetrieverHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class PlaylistRepositoryImpl @Inject constructor(
-    val database: AppDatabase
+    private val context: Context,
+    private val dao: AppDAO
 ) : PlaylistRepository {
 
-    private val appDao = database.appDAO()
+    companion object {
+        const val RESTRICTED_PLAYLIST_ID = -1L
+        const val RESTRICTED_PLAYLIST_NAME = "Local Music"
+    }
 
-    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
+    private val fileModificationDates = ConcurrentHashMap<String, Long>()
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = appDao.getAllPlayLists().map {
-                Playlist.create(it)
+    private val _currentPlaylist = MutableStateFlow<Playlist?>(null)
+
+    private val _localPlaylist = MutableStateFlow<Playlist?>(null)
+    private val _allPlaylistFromDatabase = MutableStateFlow<List<Playlist>>(emptyList())
+
+    private suspend fun fetchAllPlaylistFromDatabase(): List<Playlist>? {
+        return withContext(Dispatchers.IO) {
+            val result = mutableListOf<Playlist>()
+            val retriever = MediaMetadataRetriever()
+            try {
+                val tmp = dao.getPlaylistWithSongs()
+                tmp.forEach {
+                    it.apply {
+                        if (songPath == null) {
+                            result.add(Playlist(id, name))
+                            return@forEach
+                        }
+                        songId?.let { it1 ->
+                            MediaRetrieverHelper.getSongInfo(retriever, songPath, it1).let { song ->
+                                if (id != result.lastOrNull()?.id)
+                                    result.add(Playlist(id, name, mutableListOf(song)))
+                                else
+                                    result.last().songs.add(song)
+                            }
+                        }
+                    }
+                }
+                retriever.release()
+                result
+            } catch (e: Exception) {
+                retriever.release()
+                null
             }
-            _playlists.value = result
         }
     }
 
-    override fun getPlaylist(): StateFlow<List<Playlist>> = _playlists
+    private suspend fun fetchPlaylistFromLocal(): Playlist? {
+        return withContext(Dispatchers.IO) {
+            val filePaths = mutableListOf<String>()
+            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            val projection = arrayOf(MediaStore.Audio.Media.DATA)
+            val selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0"
+            val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
+            val cursor =
+                context.contentResolver.query(uri, projection, selection, null, sortOrder)
+            cursor?.use {
+                val dataIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                while (it.moveToNext()) {
+                    val filePath = it.getString(dataIndex)
+                    filePaths.add(filePath)
+                }
+            }
 
-    override suspend fun addPlaylist(playlist: Playlist, onResult: ResultCallback<String>?) {
-        try {
-            val playlistEntity = PlaylistEntity(name = playlist.name)
-            val id = appDao.addPlayList(playlistEntity)
-            onResult?.onSuccess("Playlist added with ID $id")
-        } catch (e: Exception) {
-            onResult?.onFailure(e)
+            val currentSongs = _localPlaylist.value?.songs
+            val songs = mutableListOf<Song>()
+            var changed = false
+
+            filePaths.forEachIndexed { index, path ->
+                val file = File(path)
+                val lastModified = file.lastModified()
+
+                val song =
+                    if (fileModificationDates[path] == lastModified) currentSongs?.find { it.path == path } else null
+
+                if (song != null) {
+                    songs.add(song)
+                } else {
+                    changed = true
+                    MediaRetrieverHelper.getSongInfo(
+                        MediaMetadataRetriever(),
+                        path,
+                        index.toLong()
+                    ).let {
+                        songs.add(it)
+                    }
+                }
+                fileModificationDates[path] = lastModified
+            }
+            if (changed || songs.size != currentSongs?.size)
+                Playlist(RESTRICTED_PLAYLIST_ID, RESTRICTED_PLAYLIST_NAME, songs)
+            else
+                null
         }
     }
 
-    override suspend fun removePlaylist(playlist: Playlist, onResult: ResultCallback<String>?) {
-        try {
-            appDao.deleteSongById(playlist.id)
-            appDao.deletePlayList(playlist.id)
-            onResult?.onSuccess("Playlist removed")
-        } catch (e: Exception) {
-            onResult?.onFailure(e)
+    override suspend fun reload(): AppResource<Nothing> {
+        return withContext(Dispatchers.IO) {
+            val playlistFromLocalDeferred = async { fetchPlaylistFromLocal() }
+            val allPlaylistsFromDatabaseDeferred = async { fetchAllPlaylistFromDatabase() }
+            val playlistFromLocal = playlistFromLocalDeferred.await()
+            val allPlaylistsFromDatabase = allPlaylistsFromDatabaseDeferred.await()
+            try {
+                playlistFromLocal?.let {
+                    _localPlaylist.value = it
+                    _currentPlaylist.value = it
+                }
+                _allPlaylistFromDatabase.value = allPlaylistsFromDatabase ?: emptyList()
+                AppResource.Success(null)
+            } catch (e: Exception) {
+                AppResource.Error(e)
+            }
         }
     }
 
-    override suspend fun updatePlaylist(playlist: Playlist, onResult: ResultCallback<String>?) {
-        try {
-            appDao.updatePlayList(PlaylistEntity(playlist.id, playlist.name))
-            onResult?.onSuccess("Playlist updated")
-        } catch (e: Exception) {
-            onResult?.onFailure(e)
+    override suspend fun addPlaylist(name: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val playlistId = dao.addPlayList(PlaylistEntity(name = name))
+            val playlist = Playlist(playlistId, name)
+            _allPlaylistFromDatabase.value =
+                _allPlaylistFromDatabase.value.toMutableList().apply { add(playlist) }
+        }
+    }
+
+    override suspend fun savePlaylist(id: Long, name: String, songs: List<Song>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val playlist = _allPlaylistFromDatabase.value.find { it.id == id }
+            if (playlist != null) {
+                dao.addPlayList(PlaylistEntity(id, name))
+                playlist.name = name
+                songs.forEach {
+                    if (it.path == null)
+                        return@forEach
+                    dao.addSong(
+                        SongEntity(
+                            playlistId = id,
+                            path = it.path,
+                            title = it.fileName
+                        )
+                    )
+                }
+                playlist.songs.addAll(songs)
+            }
+        }
+    }
+
+    override fun setLocal(index: Int) {
+        if (_currentPlaylist.value?.id != RESTRICTED_PLAYLIST_ID) {
+            _localPlaylist.value?.currentSong = index
+            _currentPlaylist.value = _localPlaylist.value
+        }
+    }
+
+    override fun setPlaylist(playlistId: Long, index: Int) {
+        if (_currentPlaylist.value?.id != playlistId) {
+            val target = _allPlaylistFromDatabase.value.find { it.id == playlistId }
+            target?.currentSong = index
+            _currentPlaylist.value = target
+        }
+    }
+
+    override fun observeLocalPlaylist(): StateFlow<Playlist?> = _localPlaylist.asStateFlow()
+
+    override fun observeCurrentPlaylist(): StateFlow<Playlist?> = _currentPlaylist.asStateFlow()
+
+    override fun observeAllPlaylistsFromDatabase(): StateFlow<List<Playlist>> =
+        _allPlaylistFromDatabase.asStateFlow()
+
+    override suspend fun deleteSongs(deleteSongIndex: MutableList<Int>, id: Long) {
+        return withContext(Dispatchers.IO) {
+            val playlists = _allPlaylistFromDatabase.value.toMutableList()
+            val playlistIndex = playlists.indexOfFirst { it.id == id }
+            if (playlistIndex != -1) {
+                val playlist =
+                    playlists[playlistIndex].copy(songs = playlists[playlistIndex].songs.toMutableList())
+                deleteSongIndex.sortDescending()
+                deleteSongIndex.forEach {
+                    playlist.songs[it].id?.let { it1 -> dao.deleteSongById(it1) }
+                    playlist.songs.removeAt(it)
+                }
+                playlists[playlistIndex] = playlist
+                _allPlaylistFromDatabase.value = playlists
+            }
+        }
+    }
+
+    override suspend fun deletePlaylist(id: Long) {
+        return withContext(Dispatchers.IO) {
+            val playlists = _allPlaylistFromDatabase.value.toMutableList()
+            val playlistIndex = playlists.indexOfFirst { it.id == id }
+            if (playlistIndex != -1) {
+                playlists.removeAt(playlistIndex)
+                _allPlaylistFromDatabase.value = playlists
+            }
+            dao.deletePlayList(id)
+            dao.deleteSongByPlaylistId(id)
         }
     }
 }
-
-

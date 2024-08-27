@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.SongFileRepository
+import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.enums.PlayingState
 import com.example.musicapp.enums.PlaylistState
 import com.example.musicapp.extension.getFileNameWithoutExtension
@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 @UnstableApi
 @HiltViewModel
-class AppViewModel @Inject constructor(
-    private val repository: SongFileRepository,
+class MainViewModel @Inject constructor(
+    private val repository: PlaylistRepository,
     private val mediaControllerManager: MediaControllerManager,
 ) : ViewModel() {
 
@@ -35,7 +35,8 @@ class AppViewModel @Inject constructor(
 
     fun getCurrentSong(): Song? {
         val index = mediaControllerManager.getCurrentSongIndex() ?: return null
-        return songList[index]
+        val songs = repository.observeCurrentPlaylist().value?.songs
+        return songs?.getOrNull(index)
     }
 
     fun getTitle(): StateFlow<String> = _title
@@ -55,9 +56,11 @@ class AppViewModel @Inject constructor(
         Log.d(TAG, "HomeViewModel: init")
         viewModelScope.launch {
             launch {
-                repository.getLocal().collect {
+                repository.observeLocalPlaylist().collect { playlist ->
                     songList.clear()
-                    songList.addAll(it)
+                    playlist?.songs?.let {
+                        songList.addAll(it)
+                    }
                 }
             }
             launch {
@@ -119,6 +122,7 @@ class AppViewModel @Inject constructor(
 
 
     fun playTrackAtIndex(index: Int) {
+        repository.setLocal(index)
         mediaControllerManager.playSongAtIndex(index)
     }
 
@@ -130,24 +134,5 @@ class AppViewModel @Inject constructor(
         mediaControllerManager.seekToPosition(sliderPosition)
     }
 
-    @Deprecated("No longer used")
-    fun fetchCurrentPosition(): Float {
-        return mediaControllerManager.getCurrentPlaybackPosition()
-    }
-
-    @Deprecated("No longer used")
-    fun performSearch(searchQuery: String) {
-        viewModelScope.launch {
-            Log.d(TAG, "search: $searchQuery")
-            songList.clear()
-            repository.search(searchQuery)?.let { songList.addAll(it) }
-        }
-    }
-
-    @Deprecated("No longer used")
-    fun reloadRepository() {
-        viewModelScope.launch {
-            repository.reload()
-        }
-    }
+    fun getSliderPosition(): Float = mediaControllerManager.computePlaybackFraction()
 }

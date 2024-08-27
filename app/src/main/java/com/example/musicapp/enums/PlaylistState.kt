@@ -7,6 +7,6 @@ enum class PlaylistState(
     @DrawableRes val resource: Int
 ) {
     SHUFFLE(R.drawable.shuffle),
-    REPEAT_ALL(R.drawable.repeat),
-    REPEAT_ONE(R.drawable.repeat_one),
+    REPEAT_ALL(R.drawable.ic_repeat),
+    REPEAT_ONE(R.drawable.ic_repeat_one),
 }

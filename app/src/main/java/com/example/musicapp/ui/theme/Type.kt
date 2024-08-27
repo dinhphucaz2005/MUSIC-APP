@@ -41,12 +41,12 @@ val Typography = Typography(
     ),
     labelMedium = TextStyle(
         fontFamily = MyFontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Black,
         fontSize = 14.sp
     ),
     labelSmall = TextStyle(
         fontFamily = MyFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Black,
         fontSize = 12.sp
     )
 )

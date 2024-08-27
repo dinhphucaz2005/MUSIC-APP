@@ -59,8 +59,10 @@ class MediaControllerManager @Inject constructor(
             try {
                 controller = controllerFuture.get()
                 controller.playWhenReady = true
-                updatePlayListState()
                 controller.addListener(controllerListener)
+
+                getPlayListState()
+                setControllerByPlaylistState()
 
                 Log.d(TAG, "initController: ")
             } catch (e: Exception) {
@@ -69,13 +71,41 @@ class MediaControllerManager @Inject constructor(
         }, MoreExecutors.directExecutor())
     }
 
-    fun updatePlayListState() {
-        // Determine the new playlist state
-        val newState = when {
+    private fun setShuffleModeEnabled() {
+        controller.shuffleModeEnabled = true
+        controller.repeatMode = Player.REPEAT_MODE_ALL
+    }
+
+    private fun setRepeatMode() {
+        controller.shuffleModeEnabled = false
+        controller.repeatMode = Player.REPEAT_MODE_ALL
+    }
+
+    private fun setRepeatOneMode() {
+        controller.shuffleModeEnabled = false
+        controller.repeatMode = Player.REPEAT_MODE_ONE
+    }
+
+    private fun getPlayListState(): PlaylistState {
+        if (!::controller.isInitialized) return PlaylistState.REPEAT_ALL
+        return when {
             controller.shuffleModeEnabled -> PlaylistState.SHUFFLE
             controller.repeatMode == Player.REPEAT_MODE_ONE -> PlaylistState.REPEAT_ONE
             else -> PlaylistState.REPEAT_ALL
         }
+    }
+
+    private fun setControllerByPlaylistState() {
+        when (_playListState.value) {
+            PlaylistState.SHUFFLE -> setShuffleModeEnabled()
+            PlaylistState.REPEAT_ALL -> setRepeatMode()
+            PlaylistState.REPEAT_ONE -> setRepeatOneMode()
+        }
+    }
+
+    fun updatePlayListState() {
+        // Determine the new playlist state
+        val newState = getPlayListState()
 
         // Update the playlist state
         _playListState.value = when (newState) {
@@ -85,22 +115,7 @@ class MediaControllerManager @Inject constructor(
         }
 
         // Apply the new playlist state to the controller
-        when (_playListState.value) {
-            PlaylistState.SHUFFLE -> {
-                controller.shuffleModeEnabled = true
-                controller.repeatMode = Player.REPEAT_MODE_ALL
-            }
-
-            PlaylistState.REPEAT_ALL -> {
-                controller.shuffleModeEnabled = false
-                controller.repeatMode = Player.REPEAT_MODE_ALL
-            }
-
-            PlaylistState.REPEAT_ONE -> {
-                controller.shuffleModeEnabled = false
-                controller.repeatMode = Player.REPEAT_MODE_ONE
-            }
-        }
+        setControllerByPlaylistState()
     }
 
     fun getCurrentSongIndex(): Int? {
@@ -131,7 +146,7 @@ class MediaControllerManager @Inject constructor(
         }
     }
 
-    fun getCurrentPlaybackPosition(): Float { // 0 <= position <= 1
+    fun computePlaybackFraction(): Float { // 0 <= position <= 1
         return controller.currentPosition.toFloat() / controller.duration
     }
 

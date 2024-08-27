@@ -6,15 +6,14 @@ import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
 import androidx.room.Room
 import com.example.musicapp.common.AppCommon
+import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.AppDatabase
 import com.example.musicapp.data.repository.EditSongRepositoryImpl
 import com.example.musicapp.data.repository.PlaylistRepositoryImpl
-import com.example.musicapp.data.repository.SongRepositoryImpl
 import com.example.musicapp.data.repository.UserRepositoryImpl
 import com.example.musicapp.data.service.MusicService
 import com.example.musicapp.domain.repository.EditSongRepository
 import com.example.musicapp.domain.repository.PlaylistRepository
-import com.example.musicapp.domain.repository.SongFileRepository
 import com.example.musicapp.domain.repository.UserRepository
 import com.example.musicapp.util.MediaControllerManager
 import dagger.Module
@@ -42,6 +41,10 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideDao(database: AppDatabase): AppDAO = database.appDAO()
+
+    @Provides
+    @Singleton
     fun provideApplicationContext(app: Application): Context {
         return app.applicationContext
     }
@@ -50,24 +53,6 @@ object AppModule {
     @Singleton
     fun provideMusicService(): MusicService {
         return MusicService()
-    }
-
-    @Provides
-    @Singleton
-    fun provideSongFileRepository(context: Context): SongFileRepository {
-        return SongRepositoryImpl(context)
-    }
-
-    @Provides
-    @Singleton
-    fun providePlaylistRepository(context: Context): PlaylistRepository {
-        return PlaylistRepositoryImpl(provideRoomDatabase(context))
-    }
-
-    @Provides
-    @Singleton
-    fun provideEditSongRepository(context: Context): EditSongRepository {
-        return EditSongRepositoryImpl(context)
     }
 
     @Provides
@@ -82,6 +67,21 @@ object AppModule {
     @Singleton
     fun provideSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(AppCommon.PREF_NAME, Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideEditSongRepository(context: Context): EditSongRepository {
+        return EditSongRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePlaylistRepository(
+        context: Context,
+        dao: AppDAO
+    ): PlaylistRepository {
+        return PlaylistRepositoryImpl(context, dao)
     }
 
     @Provides

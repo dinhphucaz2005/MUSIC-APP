@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
-import com.example.musicapp.ui.AppViewModel
+import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.theme.commonShape
 
 
@@ -47,7 +47,7 @@ import com.example.musicapp.ui.theme.commonShape
 @Composable
 fun SongPreview(
     modifier: Modifier = Modifier,
-    viewModel: AppViewModel,
+    viewModel: MainViewModel,
     showSongScreen: () -> Unit
 ) {
     val playingState by viewModel.isPlaying().collectAsState()

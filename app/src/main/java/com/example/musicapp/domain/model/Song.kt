@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 
 data class Song(
+    val id: Long? = 0,
     val fileName: String = "", // File name with out extension and path: "file_name"
     val uri: Uri? = null,
     val path: String? = null, // File path with extension: "/storage/emulated/0/file_name.mp3"

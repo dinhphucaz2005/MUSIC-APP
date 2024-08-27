@@ -1,17 +1,29 @@
 package com.example.musicapp.domain.repository
 
-import com.example.musicapp.callback.ResultCallback
+import com.example.musicapp.callback.AppResource
 import com.example.musicapp.domain.model.Playlist
+import com.example.musicapp.domain.model.Song
 import kotlinx.coroutines.flow.StateFlow
 
 interface PlaylistRepository {
 
-    fun getPlaylist(): StateFlow<List<Playlist>>
+    suspend fun reload(): AppResource<Nothing>
 
-    suspend fun addPlaylist(playlist: Playlist, onResult: ResultCallback<String>? = null)
+    suspend fun addPlaylist(name: String)
 
-    suspend fun removePlaylist(playlist: Playlist, onResult: ResultCallback<String>? = null)
+    suspend fun savePlaylist(id: Long, name: String, songs: List<Song>)
 
-    suspend fun updatePlaylist(playlist: Playlist, onResult: ResultCallback<String>? = null)
+    suspend fun deleteSongs(deleteSongIndex: MutableList<Int>, id: Long)
 
+    suspend fun deletePlaylist(id: Long)
+
+    fun setLocal(index: Int)
+
+    fun setPlaylist(playlistId: Long, index: Int)
+
+    fun observeCurrentPlaylist(): StateFlow<Playlist?>
+
+    fun observeLocalPlaylist(): StateFlow<Playlist?>
+
+    fun observeAllPlaylistsFromDatabase(): StateFlow<List<Playlist>>
 }

@@ -14,12 +14,13 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import com.example.musicapp.domain.repository.SongFileRepository
+import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.helper.NotificationHelper
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,7 +29,7 @@ import javax.inject.Inject
 class MusicService : MediaLibraryService() {
 
     @Inject
-    lateinit var songRepository: SongFileRepository
+    lateinit var repository: PlaylistRepository
 
     companion object {
         private const val TAG = "MusicService"
@@ -47,6 +48,8 @@ class MusicService : MediaLibraryService() {
         }
     }
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override fun onCreate() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
@@ -62,14 +65,20 @@ class MusicService : MediaLibraryService() {
         }
 
         Log.d(TAG, "onCreate: $TAG is created")
-        CoroutineScope(Dispatchers.IO).launch {
-            songRepository.getLocal().collect { songs ->
-                if (songs.isEmpty()) return@collect
+        coroutineScope.launch {
+            repository.observeCurrentPlaylist().collect {
+                if (it == null || it.songs.isEmpty())
+                    return@collect
                 CoroutineScope(Dispatchers.Main).launch {
                     player.pause()
                     player.clearMediaItems()
-                    songs.forEach { song -> song.uri?.let { loadMediaItem(it) } }
+                    it.songs.forEach { song ->
+                        song.uri?.let { uri -> loadMediaItem(uri) }
+                    }
                     player.prepare()
+                    it.currentSong?.let { index ->
+                        player.seekTo(index, 0)
+                    }
                     player.play()
                 }
             }
@@ -92,8 +101,6 @@ class MusicService : MediaLibraryService() {
 
         notificationManager = NotificationManagerCompat.from(this)
         notificationManager.createNotificationChannel(NotificationHelper.createNotificationChannel())
-
-
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -126,8 +133,10 @@ class MusicService : MediaLibraryService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        coroutineScope.cancel()
         player.clearMediaItems()
         player.release()
         session.release()
+        notificationManager.cancel(NotificationHelper.NOTIFICATION_ID)
     }
 }

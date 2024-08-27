@@ -131,4 +131,10 @@ dependencies {
 
     //Swipe Refresh
     implementation("com.google.accompanist:accompanist-swiperefresh:0.30.1")
+
+    //Drag select
+    implementation("com.dragselectcompose:dragselect:2.3.0")
+
+    //Nav animation
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
 }

@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.edit
+package com.example.musicapp.ui.screen.song
 
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -17,14 +17,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,9 +69,9 @@ fun EditScreen(
         onResult = { if (it != null) imageUri = it }
     )
 
-    val fileName = remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
-    val title = remember { mutableStateOf(song?.title ?: "") }
-    val artist = remember { mutableStateOf(song?.artist ?: "") }
+    var fileName by remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
+    var title by remember { mutableStateOf(song?.title ?: "") }
+    var artist by remember { mutableStateOf(song?.artist ?: "") }
 
     LazyColumn(
         modifier = Modifier
@@ -84,24 +87,39 @@ fun EditScreen(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        item { MyTextField(label = "File Name", state = fileName) }
-        item { MyTextField(label = "Title", state = title) }
-        item { MyTextField(label = "Artist", state = artist) }
+        item {
+            MyTextField(
+                label = "File Name",
+                value = fileName,
+                onValueChange = { fileName = it })
+        }
+        item {
+            MyTextField(label = "Title", value = title, onValueChange = {
+                title = it
+            })
+        }
+        item {
+            MyTextField(label = "Artist", value = artist, onValueChange = {
+                artist = it
+            })
+        }
         item {
             ImageSelector(
                 imageUri = imageUri,
                 song = song,
                 photoPickerLauncher = photoPickerLauncher
-            )
+            ) {
+                imageUri = null
+            }
         }
         item {
             ActionButtons(
                 onSaveClick = {
                     song?.let {
                         viewModel.saveSongFile(
-                            fileName = fileName.value,
-                            title = title.value,
-                            artist = artist.value,
+                            fileName = fileName,
+                            title = title,
+                            artist = artist,
                             imageUri = imageUri,
                             song = it
                         ) {
@@ -118,13 +136,14 @@ fun EditScreen(
 @Composable
 fun MyTextField(
     modifier: Modifier = Modifier,
-    state: MutableState<String>,
-    label: String
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "",
 ) {
     OutlinedTextField(
         singleLine = true,
-        value = state.value,
-        onValueChange = { state.value = it },
+        value = value,
+        onValueChange = { onValueChange(it) },
         label = { Text(text = label) },
         colors = OutlinedTextFieldDefaults.colors(
             cursorColor = MaterialTheme.colorScheme.primary,
@@ -144,7 +163,8 @@ fun MyTextField(
 fun ImageSelector(
     imageUri: Uri?,
     song: Song?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
+    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
+    onDismiss: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -165,6 +185,16 @@ fun ImageSelector(
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )
+                IconButton(
+                    onClick = { onDismiss() },
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
             song?.thumbnail != null -> {
@@ -184,6 +214,7 @@ fun ImageSelector(
                 )
             }
         }
+
     }
 }
 

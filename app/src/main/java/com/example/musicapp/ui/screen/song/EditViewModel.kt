@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.edit
+package com.example.musicapp.ui.screen.song
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -7,10 +7,12 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.callback.ResultCallback
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
-import com.example.musicapp.domain.repository.SongFileRepository
+import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.extension.getFileNameWithoutExtension
 import com.example.musicapp.util.EventData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
@@ -19,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditViewModel @Inject constructor(
     private val editSongRepository: EditSongRepository,
-    private val songFileRepository: SongFileRepository,
+    private val playlistRepository: PlaylistRepository,
 ) : ViewModel() {
 
     companion object {
@@ -43,7 +45,9 @@ class EditViewModel @Inject constructor(
                 fileName, title, artist, imageUri, song,
                 object : ResultCallback<String> {
                     override fun onSuccess(result: String) {
-                        songFileRepository.reload()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            playlistRepository.reload()
+                        }
                         onSaved?.invoke()
                         EventBus.getDefault().postSticky(EventData(result))
                     }

@@ -16,11 +16,10 @@ import androidx.compose.ui.res.painterResource
 import com.example.musicapp.R
 import com.example.musicapp.extension.myFormat
 
-const val backgroundTemp = 0xFF2b324c
+const val backgroundTemp = 0xFF1a2730
 val MyColorScheme = lightColorScheme().copy(
     background = Color(0xFF1a2730),
     primary = Color(0xFFafcee2),
-
     secondary = Color(0xFF46586c),
     onSecondary = Color(0xFFafcee2),
     error = Color(0xFFFF5252),

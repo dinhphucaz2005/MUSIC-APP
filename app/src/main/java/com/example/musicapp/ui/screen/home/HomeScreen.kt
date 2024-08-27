@@ -44,7 +44,7 @@ import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.extension.getFileNameWithoutExtension
-import com.example.musicapp.ui.AppViewModel
+import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
 
@@ -63,7 +63,7 @@ fun Preview() {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: AppViewModel
+    viewModel: MainViewModel
 ) {
     val songs = viewModel.songList
     val playingState by viewModel.isPlaying().collectAsState()
@@ -141,9 +141,9 @@ fun HomeScreen(
 
             listOf(
                 playListState.resource,
-                R.drawable.skip_back,
+                R.drawable.ic_skip_back,
                 playingState.resource,
-                R.drawable.skip_fwd
+                R.drawable.ic_skip_forward
             ).forEachIndexed { index, resId ->
                 IconButton(
                     onClick = {
