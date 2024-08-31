@@ -1,6 +1,6 @@
-package com.example.musicapp.data.database.entity
+package com.example.musicapp.data.dto
 
-data class PlaylistWithSong(
+data class PlaylistDTO(
     val id: Long,
     val name: String,
     val songId: Long?,

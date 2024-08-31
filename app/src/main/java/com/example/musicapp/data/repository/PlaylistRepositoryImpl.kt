@@ -3,7 +3,7 @@ package com.example.musicapp.data.repository
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
-import androidx.room.Index
+import android.util.Log
 import com.example.musicapp.callback.AppResource
 import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.entity.PlaylistEntity
@@ -30,6 +30,7 @@ class PlaylistRepositoryImpl @Inject constructor(
 ) : PlaylistRepository {
 
     companion object {
+        const val TAG = "PlaylistRepositoryImpl"
         const val RESTRICTED_PLAYLIST_ID = -1L
         const val RESTRICTED_PLAYLIST_NAME = "Local Music"
     }
@@ -41,34 +42,33 @@ class PlaylistRepositoryImpl @Inject constructor(
     private val _localPlaylist = MutableStateFlow<Playlist?>(null)
     private val _allPlaylistFromDatabase = MutableStateFlow<List<Playlist>>(emptyList())
 
-    private suspend fun fetchAllPlaylistFromDatabase(): List<Playlist>? {
+    private suspend fun fetchAllPlaylistFromDatabase(): List<Playlist> {
         return withContext(Dispatchers.IO) {
             val result = mutableListOf<Playlist>()
-            val retriever = MediaMetadataRetriever()
-            try {
-                val tmp = dao.getPlaylistWithSongs()
-                tmp.forEach {
-                    it.apply {
-                        if (songPath == null) {
-                            result.add(Playlist(id, name))
-                            return@forEach
-                        }
-                        songId?.let { it1 ->
-                            MediaRetrieverHelper.getSongInfo(retriever, songPath, it1).let { song ->
-                                if (id != result.lastOrNull()?.id)
-                                    result.add(Playlist(id, name, mutableListOf(song)))
-                                else
-                                    result.last().songs.add(song)
-                            }
-                        }
-                    }
+            val playlistDTO = dao.getPlaylist() // order by playlist.id, song.id
+            if (playlistDTO.isEmpty())
+                return@withContext result
+            Log.d(TAG, "fetchAllPlaylistFromDatabase: $playlistDTO")
+            result.add(Playlist(playlistDTO[0].id, playlistDTO[0].name))
+            playlistDTO.forEach { dto ->
+                if (dto.songId == null) {
+                    return@forEach
                 }
-                retriever.release()
-                result
-            } catch (e: Exception) {
-                retriever.release()
-                null
+                if (result.last().id != dto.id) {
+                    result.add(Playlist(dto.id, dto.name))
+                }
+                result.add(Playlist(dto.id, dto.name))
+                if (dto.songPath == null) {
+                    dao.deleteSongById(dto.songId)
+                    return@forEach
+                }
+                val song = _localPlaylist.value?.songs?.find { song -> song.path == dto.songPath }
+                if (song != null)
+                    result.last().songs.add(song)
+                else
+                    dao.deleteSongById(dto.songId)
             }
+            result
         }
     }
 
@@ -123,16 +123,14 @@ class PlaylistRepositoryImpl @Inject constructor(
 
     override suspend fun reload(): AppResource<Nothing> {
         return withContext(Dispatchers.IO) {
-            val playlistFromLocalDeferred = async { fetchPlaylistFromLocal() }
-            val allPlaylistsFromDatabaseDeferred = async { fetchAllPlaylistFromDatabase() }
-            val playlistFromLocal = playlistFromLocalDeferred.await()
-            val allPlaylistsFromDatabase = allPlaylistsFromDatabaseDeferred.await()
             try {
+                val playlistFromLocal = async { fetchPlaylistFromLocal() }.await()
+                val allPlaylistsFromDatabase = async { fetchAllPlaylistFromDatabase() }.await()
                 playlistFromLocal?.let {
                     _localPlaylist.value = it
                     _currentPlaylist.value = it
                 }
-                _allPlaylistFromDatabase.value = allPlaylistsFromDatabase ?: emptyList()
+                _allPlaylistFromDatabase.value = allPlaylistsFromDatabase
                 AppResource.Success(null)
             } catch (e: Exception) {
                 AppResource.Error(e)

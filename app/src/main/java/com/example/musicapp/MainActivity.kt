@@ -20,20 +20,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.data.service.MusicService
@@ -42,7 +31,6 @@ import com.example.musicapp.ui.Main
 import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.screen.song.SongScreen
-import com.example.musicapp.ui.screen.song.SongScreenPreview
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.util.EventData
 import com.example.musicapp.util.MediaControllerManager
@@ -51,12 +39,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Route
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
+
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalAnimationApi::class)
 @UnstableApi
 @AndroidEntryPoint
@@ -139,6 +127,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        startMusicService()
+        handlePermissions()
+    }
+
+    private fun handlePermissions() {
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (permissions[Manifest.permission.READ_MEDIA_AUDIO] == true) {
@@ -149,8 +142,6 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
-        startMusicService()
-
         if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             CoroutineScope(Dispatchers.IO).launch {
                 playlistRepository.reload()
@@ -170,7 +161,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
 
     override fun onStart() {
         super.onStart()
