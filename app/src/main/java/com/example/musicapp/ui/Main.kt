@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +22,9 @@ import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.ui.components.BottomBar
 import com.example.musicapp.ui.navigation.Routes
-import com.example.musicapp.ui.navigation.playlist
+import com.example.musicapp.ui.navigation.playlistNavigation
 import com.example.musicapp.ui.screen.home.HomeScreen
+import com.example.musicapp.ui.screen.playlist.PlaylistViewModel
 import com.example.musicapp.ui.screen.theme.ThemeScreen
 import com.example.musicapp.ui.theme.MusicTheme
 
@@ -73,7 +75,7 @@ fun Main(mainViewModel: MainViewModel, showSongScreen: () -> Unit) {
                 .fillMaxSize()
         ) {
             composable(Routes.HOME.name) { HomeScreen(viewModel = mainViewModel) }
-            playlist(navController)
+            playlistNavigation(navController)
             composable(Routes.PERSON.name) { ThemeScreen() }
             composable(Routes.SETTING.name) { Text(text = "Setting") }
         }

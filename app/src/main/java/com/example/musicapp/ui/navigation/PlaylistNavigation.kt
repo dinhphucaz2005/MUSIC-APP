@@ -14,7 +14,7 @@ import com.example.musicapp.ui.screen.playlist.PlaylistHome
 import com.example.musicapp.ui.screen.playlist.SelectSongViewModel
 
 @UnstableApi
-fun NavGraphBuilder.playlist(navController: NavHostController) {
+fun NavGraphBuilder.playlistNavigation(navController: NavHostController) {
     navigation(startDestination = Routes.PLAYLIST_HOME.name, route = Routes.PLAYLIST.name) {
         composable(route = Routes.PLAYLIST_HOME.name) {
             PlaylistHome(navController = navController, hiltViewModel())

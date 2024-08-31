@@ -13,51 +13,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.offset
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.data.service.MusicService
 import com.example.musicapp.domain.repository.PlaylistRepository
-import com.example.musicapp.ui.Main
-import com.example.musicapp.ui.MainViewModel
-import com.example.musicapp.ui.navigation.Routes
-import com.example.musicapp.ui.screen.song.SongScreen
-import com.example.musicapp.ui.screen.song.SongScreenPreview
+import com.example.musicapp.ui.navigation.AppNavigation
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.util.EventData
 import com.example.musicapp.util.MediaControllerManager
-import com.google.accompanist.navigation.animation.AnimatedNavHost
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Route
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
-@OptIn(ExperimentalAnimationApi::class)
+
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -88,57 +59,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MusicTheme {
-                val navController = rememberNavController()
-                val mainViewModel = hiltViewModel<MainViewModel>()
-
-                AnimatedNavHost(
-                    navController = navController,
-                    startDestination = Routes.OTHER.name
-                ) {
-                    composable(Routes.OTHER.name) {
-                        Main(mainViewModel) { navController.navigate(Routes.SONG.name) }
-                    }
-                    composable(
-                        route = Routes.SONG.name,
-                        enterTransition = {
-                            slideInVertically(
-                                initialOffsetY = { it },
-                                animationSpec = tween(
-                                    durationMillis = 600,
-                                    easing = EaseInOut
-                                )
-                            ) + scaleIn(
-                                animationSpec = tween(
-                                    durationMillis = 600,
-                                    easing = EaseInOut
-                                )
-                            )
-                        },
-                        exitTransition = {
-                            slideOutVertically(
-                                targetOffsetY = { it },
-                                animationSpec = tween(
-                                    durationMillis = 600,
-                                    easing = EaseInOut
-                                )
-                            ) + scaleOut(
-                                animationSpec = tween(
-                                    durationMillis = 600,
-                                    easing = EaseInOut
-                                )
-                            )
-                        }
-                    ) {
-                        SongScreen(navHostController = navController, viewModel = mainViewModel)
-                    }
-                }
+                AppNavigation()
             }
         }
+        startMusicService()
+        handlePermissions()
+    }
+
+    private fun handlePermissions() {
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (permissions[Manifest.permission.READ_MEDIA_AUDIO] == true) {
@@ -149,8 +81,6 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
-        startMusicService()
-
         if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             CoroutineScope(Dispatchers.IO).launch {
                 playlistRepository.reload()
@@ -170,7 +100,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
 
     override fun onStart() {
         super.onStart()

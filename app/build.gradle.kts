@@ -13,7 +13,6 @@ android {
     defaultConfig {
         applicationId = "com.example.musicapp"
         minSdk = 26
-        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -21,8 +20,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        ndk {
+            abiFilters += listOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+        }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -52,12 +53,14 @@ android {
         }
     }
 }
+
+//noinspection GradleDependency
 dependencies {
     // Media3
     implementation("androidx.media:media:1.7.0")
 
     // Jetpack Compose
-    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -137,4 +140,7 @@ dependencies {
 
     //Nav animation
     implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
+
+    //Gson
+    implementation("com.google.code.gson:gson:2.8.9")
 }

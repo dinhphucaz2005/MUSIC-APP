@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.musicapp.data.database.entity.PlaylistEntity
-import com.example.musicapp.data.database.entity.PlaylistWithSong
+import com.example.musicapp.data.dto.PlaylistDTO
 import com.example.musicapp.data.database.entity.SongEntity
 
 @Dao
@@ -52,7 +52,7 @@ interface AppDAO {
             ORDER BY playlist.id, song.id;
         """
     )
-    fun getPlaylistWithSongs(): List<PlaylistWithSong>
+    fun getPlaylist(): List<PlaylistDTO>
 
     @Query("DELETE FROM song WHERE playlist_id = :playlistId")
     fun deleteSongByPlaylistId(playlistId: Long)

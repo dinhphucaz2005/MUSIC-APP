@@ -77,10 +77,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlaylistRepository(
-        context: Context,
-        dao: AppDAO
-    ): PlaylistRepository {
+    fun providePlaylistRepository(context: Context, dao: AppDAO): PlaylistRepository {
         return PlaylistRepositoryImpl(context, dao)
     }
 
