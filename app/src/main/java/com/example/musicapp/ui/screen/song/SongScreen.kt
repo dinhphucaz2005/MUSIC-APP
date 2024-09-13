@@ -117,7 +117,7 @@ fun SongScreen(
             .background(MaterialTheme.colorScheme.background)
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
-                    if (dragAmount.y >= 50 && !isPopBackStack) {
+                    if (dragAmount.y >= 25 && !isPopBackStack) {
                         isPopBackStack = true
                         navHostController.popBackStack()
                     }

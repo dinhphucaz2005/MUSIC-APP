@@ -21,6 +21,7 @@ import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.screen.song.SongScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
+@OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 @Composable
 fun AppNavigation() {

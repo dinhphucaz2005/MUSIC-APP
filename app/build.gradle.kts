@@ -6,11 +6,19 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+val apiKey: String = System.getenv("API_KEY") ?: "SDLF"
+
+//noinspection OldTargetApi
 android {
     namespace = "com.example.musicapp"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
         applicationId = "com.example.musicapp"
         minSdk = 26
         targetSdk = 34
@@ -20,16 +28,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        ndk {
-            abiFilters += listOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
-        }
     }
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
     }
@@ -50,6 +54,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }
@@ -87,9 +94,6 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
     implementation("androidx.media3:media3-ui:$media3Version")
     implementation("androidx.media3:media3-common:$media3Version")
-
-    //CircleImageView
-    implementation("de.hdodenhof:circleimageview:3.1.0")
 
     //Room Database
     implementation("androidx.room:room-runtime:2.6.1")
@@ -141,6 +145,9 @@ dependencies {
     //Nav animation
     implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
 
-    //Gson
+    //Retrofit
     implementation("com.google.code.gson:gson:2.8.9")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 }

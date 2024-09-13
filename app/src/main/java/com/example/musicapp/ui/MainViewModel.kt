@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.UploadRepository
 import com.example.musicapp.enums.PlayingState
 import com.example.musicapp.enums.PlaylistState
 import com.example.musicapp.extension.getFileNameWithoutExtension
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val repository: PlaylistRepository,
     private val mediaControllerManager: MediaControllerManager,
+    private val uploadRepository: UploadRepository
 ) : ViewModel() {
 
     private val _isPlaying = MutableStateFlow(PlayingState.FALSE)
@@ -38,6 +40,8 @@ class MainViewModel @Inject constructor(
         val songs = repository.observeCurrentPlaylist().value?.songs
         return songs?.getOrNull(index)
     }
+
+
 
     fun getTitle(): StateFlow<String> = _title
     fun getArtist(): StateFlow<String> = _artist
@@ -69,7 +73,7 @@ class MainViewModel @Inject constructor(
                     _bitmap.value = currentSong.thumbnail
                     _title.value =
                         currentSong.title ?: currentSong.fileName.getFileNameWithoutExtension()
-                    _artist.value = currentSong.artist ?: "NO ARTIST FOUND"
+                    _artist.value = currentSong.author ?: "NO ARTIST FOUND"
                 }
             }
             launch {
@@ -135,4 +139,12 @@ class MainViewModel @Inject constructor(
     }
 
     fun getSliderPosition(): Float = mediaControllerManager.computePlaybackFraction()
+
+    fun upload() {
+        viewModelScope.launch {
+            songList.forEachIndexed { index, song ->
+                uploadRepository.upload(song, index)
+            }
+        }
+    }
 }

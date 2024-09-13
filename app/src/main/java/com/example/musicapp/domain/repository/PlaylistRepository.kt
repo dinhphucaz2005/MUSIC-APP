@@ -17,9 +17,9 @@ interface PlaylistRepository {
 
     suspend fun deletePlaylist(id: Long)
 
-    fun setLocal(index: Int)
+    fun setLocal(index: Int) // Play music from local file
 
-    fun setPlaylist(playlistId: Long, index: Int)
+    fun setPlaylist(playlistId: Long, index: Int) // Play music from play list in local database
 
     fun observeCurrentPlaylist(): StateFlow<Playlist?>
 

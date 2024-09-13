@@ -1,7 +1,6 @@
 package com.example.musicapp.data.repository
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import android.util.Log
 import com.example.musicapp.callback.AppResource
@@ -14,7 +13,6 @@ import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.helper.MediaRetrieverHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,29 +43,25 @@ class PlaylistRepositoryImpl @Inject constructor(
     private suspend fun fetchAllPlaylistFromDatabase(): List<Playlist> {
         return withContext(Dispatchers.IO) {
             val result = mutableListOf<Playlist>()
-            val playlistDTO = dao.getPlaylist() // order by playlist.id, song.id
-            if (playlistDTO.isEmpty())
-                return@withContext result
-            Log.d(TAG, "fetchAllPlaylistFromDatabase: $playlistDTO")
-            result.add(Playlist(playlistDTO[0].id, playlistDTO[0].name))
+            val playlistDTO =
+                dao.getPlaylist() // order by playlist.id, song.id
+            playlistDTO.forEach { Log.d(TAG, "fetchAllPlaylistFromDatabase: $it") }
+            playlistDTO.firstOrNull()?.apply { result.add(Playlist(id, name)) }
             playlistDTO.forEach { dto ->
-                if (dto.songId == null) {
-                    return@forEach
-                }
-                if (result.last().id != dto.id) {
+                if (result.last().id != dto.id)
                     result.add(Playlist(dto.id, dto.name))
-                }
-                result.add(Playlist(dto.id, dto.name))
+                if (dto.songId == null)
+                    return@forEach
                 if (dto.songPath == null) {
                     dao.deleteSongById(dto.songId)
                     return@forEach
                 }
+                println(_localPlaylist.value?.songs)
                 val song = _localPlaylist.value?.songs?.find { song -> song.path == dto.songPath }
-                if (song != null)
-                    result.last().songs.add(song)
-                else
-                    dao.deleteSongById(dto.songId)
+                    ?.copy(id = dto.songId)
+                song?.let { result.last().songs.add(it) }
             }
+            println(result)
             result
         }
     }
@@ -91,28 +85,28 @@ class PlaylistRepositoryImpl @Inject constructor(
 
             val currentSongs = _localPlaylist.value?.songs
             val songs = mutableListOf<Song>()
-            var changed = false
 
-            filePaths.forEachIndexed { index, path ->
+            val unInitializerFilePaths = mutableListOf<String>()
+
+            filePaths.forEachIndexed { _, path ->
                 val file = File(path)
                 val lastModified = file.lastModified()
+                fileModificationDates[path] = lastModified //
 
                 val song = if (fileModificationDates[path] == lastModified)
                     currentSongs?.find { it.path == path } else null
 
-                if (song != null) {
+                if (song != null)
                     songs.add(song)
-                } else {
-                    changed = true
-                    MediaRetrieverHelper.getSongInfo(
-                        MediaMetadataRetriever(),
-                        path,
-                        index.toLong()
-                    ).let { songs.add(it) }
-                }
-                fileModificationDates[path] = lastModified
+                else
+                    unInitializerFilePaths.add(path)
             }
-            if (changed || songs.size != currentSongs?.size)
+
+            songs.addAll(MediaRetrieverHelper.getSongsInfo(unInitializerFilePaths))
+            songs.sortWith(compareBy<Song> { it.author }.thenBy { it.title })
+            for (i in songs.indices) songs[i].id = i.toLong()
+
+            if (unInitializerFilePaths.isNotEmpty() || songs.size != currentSongs?.size)
                 Playlist(RESTRICTED_PLAYLIST_ID, RESTRICTED_PLAYLIST_NAME, songs)
             else
                 null
@@ -120,19 +114,17 @@ class PlaylistRepositoryImpl @Inject constructor(
     }
 
     override suspend fun reload(): AppResource<Nothing> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val playlistFromLocal = async { fetchPlaylistFromLocal() }.await()
-                val allPlaylistsFromDatabase = async { fetchAllPlaylistFromDatabase() }.await()
-                playlistFromLocal?.let {
-                    _localPlaylist.value = it
-                    _currentPlaylist.value = it
-                }
-                _allPlaylistFromDatabase.value = allPlaylistsFromDatabase
-                AppResource.Success(null)
-            } catch (e: Exception) {
-                AppResource.Error(e)
+        try {
+            val playlistFromLocal = fetchPlaylistFromLocal()
+            val allPlaylistsFromDatabase = fetchAllPlaylistFromDatabase()
+            playlistFromLocal?.let {
+                _localPlaylist.value = it
+                _currentPlaylist.value = it
             }
+            _allPlaylistFromDatabase.value = allPlaylistsFromDatabase
+            return AppResource.Success(null)
+        } catch (e: Exception) {
+            return AppResource.Error(e)
         }
     }
 
@@ -194,11 +186,10 @@ class PlaylistRepositoryImpl @Inject constructor(
             val playlists = _allPlaylistFromDatabase.value.toMutableList()
             val playlistIndex = playlists.indexOfFirst { it.id == id }
             if (playlistIndex != -1) {
-                val playlist =
-                    playlists[playlistIndex].copy(songs = playlists[playlistIndex].songs.toMutableList())
+                val playlist = playlists[playlistIndex].copy()
                 deleteSongIndex.sortDescending()
                 deleteSongIndex.forEach {
-                    playlist.songs[it].id?.let { it1 -> dao.deleteSongById(it1) }
+                    playlist.songs[it].id?.let { songId -> dao.deleteSongById(songId) }
                     playlist.songs.removeAt(it)
                 }
                 playlists[playlistIndex] = playlist

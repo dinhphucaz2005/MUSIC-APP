@@ -11,6 +11,7 @@ import com.example.musicapp.domain.model.Playlist
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
 import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.UploadRepository
 import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.screen.song.EditViewModel
 import com.example.musicapp.ui.screen.playlist.PlaylistViewModel
@@ -37,12 +38,10 @@ object FakeModule {
         ) {
             TODO("Not yet implemented")
         }
-
     }
 
     @Composable
     fun mediaControllerManager() = MediaControllerManager(LocalContext.current)
-
 
     private val playlistRepository = object : PlaylistRepository {
         override suspend fun reload(): AppResource<Nothing> {
@@ -85,12 +84,18 @@ object FakeModule {
         override fun setPlaylist(playlistId: Long, index: Int) {
             TODO("Not yet implemented")
         }
+    }
 
+    private val uploadRepository = object : UploadRepository {
+        override suspend fun upload(song: Song, index: Int) {
+            TODO("Not yet implemented")
+        }
     }
 
     @Composable
     @UnstableApi
-    fun provideViewModel() = MainViewModel(playlistRepository, mediaControllerManager())
+    fun provideViewModel() =
+        MainViewModel(playlistRepository, mediaControllerManager(), uploadRepository)
 
     @Composable
     @OptIn(UnstableApi::class)

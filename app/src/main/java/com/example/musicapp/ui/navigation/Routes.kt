@@ -10,7 +10,7 @@ enum class Routes {
             PLAYLIST_DETAIL,
             PLAYLIST_EDIT,
         SETTING,
-        PERSON,
+        CLOUD,
 }
 
 /*

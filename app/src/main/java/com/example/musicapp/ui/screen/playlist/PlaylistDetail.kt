@@ -235,65 +235,67 @@ fun PlaylistDetail(
             val toggleSelectionSong: (Int) -> Unit = { index ->
                 selectedSongs[index] = !selectedSongs[index]
             }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(lazyRow) {
-                        top.linkTo(horizontalDivider.bottom, margin = 12.dp)
-                        bottom.linkTo(parent.bottom)
-                        height = Dimension.fillToConstraints
-                    }
-            ) {
-                itemsIndexed(items = songs) { index, song ->
-                    Row(
-                        modifier = songItemModifier
-                            .clip(commonShape)
-                            .background(
-                                if (selectedSongs[index]) Color(0xFF48576e)
-                                else Color.Transparent
-                            )
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        inSelectionMode = true
-                                        selectedSongs[index] = true
-                                    },
-                                    onTap = {
-                                        if (inSelectionMode)
-                                            toggleSelectionSong(index)
-                                        else {
-                                            viewModel.playTrackAtIndex(index)
-                                        }
-                                    }
+            if (songs.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .constrainAs(lazyRow) {
+                            top.linkTo(horizontalDivider.bottom, margin = 12.dp)
+                            bottom.linkTo(parent.bottom)
+                            height = Dimension.fillToConstraints
+                        }
+                ) {
+                    itemsIndexed(items = songs) { index, song ->
+                        Row(
+                            modifier = songItemModifier
+                                .clip(commonShape)
+                                .background(
+                                    if (selectedSongs[index]) Color(0xFF48576e)
+                                    else Color.Transparent
                                 )
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CommonImage(
-                            bitmap = song.smallBitmap,
-                            painter = thumbnail,
-                            modifier = thumbnailModifier
-                        )
-                        Text(
-                            text = song.fileName.getFileNameWithoutExtension(),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        if (inSelectionMode) {
-                            Icon(
-                                imageVector = if (selectedSongs[index]) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
-                                tint = MaterialTheme.colorScheme.primary, contentDescription = null,
-                                modifier = Modifier
-                                    .padding(6.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            inSelectionMode = true
+                                            selectedSongs[index] = true
+                                        },
+                                        onTap = {
+                                            if (inSelectionMode)
+                                                toggleSelectionSong(index)
+                                            else {
+                                                viewModel.playTrackAtIndex(index)
+                                            }
+                                        }
+                                    )
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CommonImage(
+                                bitmap = song.smallBitmap,
+                                painter = thumbnail,
+                                modifier = thumbnailModifier
                             )
+                            Text(
+                                text = song.fileName.getFileNameWithoutExtension(),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 8.dp),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            if (inSelectionMode) {
+                                Icon(
+                                    imageVector = if (selectedSongs[index]) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(6.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-
     }
 }

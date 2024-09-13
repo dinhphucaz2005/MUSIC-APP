@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.musicapp.data.database.entity.PlaylistEntity
-import com.example.musicapp.data.dto.PlaylistDTO
+import com.example.musicapp.data.database.dto.PlaylistDTO
 import com.example.musicapp.data.database.entity.SongEntity
 
 @Dao
@@ -56,5 +56,4 @@ interface AppDAO {
 
     @Query("DELETE FROM song WHERE playlist_id = :playlistId")
     fun deleteSongByPlaylistId(playlistId: Long)
-
 }

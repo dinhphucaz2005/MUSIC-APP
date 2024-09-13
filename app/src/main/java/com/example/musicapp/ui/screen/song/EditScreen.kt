@@ -71,7 +71,7 @@ fun EditScreen(
 
     var fileName by remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
     var title by remember { mutableStateOf(song?.title ?: "") }
-    var artist by remember { mutableStateOf(song?.artist ?: "") }
+    var artist by remember { mutableStateOf(song?.author ?: "") }
 
     LazyColumn(
         modifier = Modifier

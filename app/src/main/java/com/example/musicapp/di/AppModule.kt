@@ -6,16 +6,23 @@ import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
 import androidx.room.Room
 import com.example.musicapp.common.AppCommon
+import com.example.musicapp.data.api.ApiService
 import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.AppDatabase
+import com.example.musicapp.data.repository.CloudRepositoryImpl
 import com.example.musicapp.data.repository.EditSongRepositoryImpl
 import com.example.musicapp.data.repository.PlaylistRepositoryImpl
+import com.example.musicapp.data.repository.UploadRepositoryImpl
 import com.example.musicapp.data.repository.UserRepositoryImpl
 import com.example.musicapp.data.service.MusicService
+import com.example.musicapp.domain.repository.CloudRepository
 import com.example.musicapp.domain.repository.EditSongRepository
 import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.UploadRepository
 import com.example.musicapp.domain.repository.UserRepository
 import com.example.musicapp.util.MediaControllerManager
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.storage.StorageReference
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -77,7 +84,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlaylistRepository(context: Context, dao: AppDAO): PlaylistRepository {
+    fun providePlaylistRepository(
+        context: Context,
+        dao: AppDAO,
+    ): PlaylistRepository {
         return PlaylistRepositoryImpl(context, dao)
     }
 
@@ -85,5 +95,22 @@ object AppModule {
     @Singleton
     fun provideUserRepository(sharedPreferences: SharedPreferences): UserRepository {
         return UserRepositoryImpl(sharedPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUploadRepository(
+        storage: StorageReference,
+        database: DatabaseReference
+    ): UploadRepository {
+        return UploadRepositoryImpl(storage, database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCloudRepository(
+        apiService: ApiService
+    ): CloudRepository {
+        return CloudRepositoryImpl(apiService)
     }
 }

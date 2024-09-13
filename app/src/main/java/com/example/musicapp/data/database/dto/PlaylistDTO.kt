@@ -1,4 +1,4 @@
-package com.example.musicapp.data.dto
+package com.example.musicapp.data.database.dto
 
 data class PlaylistDTO(
     val id: Long,
