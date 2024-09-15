@@ -28,7 +28,6 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
 
-
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
