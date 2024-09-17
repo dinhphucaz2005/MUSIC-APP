@@ -1,7 +1,6 @@
 package com.example.musicapp.util
 
 import android.content.Context
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -41,7 +40,6 @@ class MediaControllerManager @Inject constructor(
         }
 
         override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            Log.d(TAG, "onMediaMetadataChanged: $mediaMetadata")
             _currentSong.value = mediaMetadata
             _duration.value = controller.duration
         }
@@ -63,10 +61,8 @@ class MediaControllerManager @Inject constructor(
 
                 getPlayListState()
                 setControllerByPlaylistState()
-
-                Log.d(TAG, "initController: ")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize MediaController", e)
+                TODO("Handle exception with ${e.message}")
             }
         }, MoreExecutors.directExecutor())
     }

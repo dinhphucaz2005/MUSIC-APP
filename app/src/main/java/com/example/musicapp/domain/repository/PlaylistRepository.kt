@@ -7,15 +7,15 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface PlaylistRepository {
 
-    suspend fun reload(): AppResource<Nothing>
+    suspend fun reload(): AppResource<Void>
 
     suspend fun addPlaylist(name: String)
 
     suspend fun savePlaylist(id: Long, name: String, songs: List<Song>)
 
-    suspend fun deleteSongs(deleteSongIndex: MutableList<Int>, id: Long)
-
     suspend fun deletePlaylist(id: Long)
+
+    suspend fun deleteSongs(deleteSongIndex: MutableList<Int>, id: Long)
 
     fun setLocal(index: Int) // Play music from local file
 

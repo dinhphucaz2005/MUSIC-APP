@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import com.example.musicapp.callback.ResultCallback
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
@@ -44,7 +43,6 @@ class EditSongRepositoryImpl @Inject constructor(
                     val originalBitmap = BitmapFactory.decodeStream(input)
                     val width = originalBitmap.width
                     val height = originalBitmap.height
-                    Log.d(TAG, "saveSongFile: $width*$height")
 
                     var newWidth = 400
                     var newHeight = 400
@@ -56,8 +54,6 @@ class EditSongRepositoryImpl @Inject constructor(
                     val scaleFactor = min(width, height).toFloat() / newWidth.toFloat()
                     newWidth = (width / scaleFactor).toInt()
                     newHeight = (height / scaleFactor).toInt()
-
-                    Log.d(TAG, "saveSongFile: $newWidth*$newHeight")
 
                     val scaleBitmap =
                         Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false)

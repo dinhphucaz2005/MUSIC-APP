@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.util.Log
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.extension.getFileNameExtension
@@ -46,7 +45,6 @@ object MediaRetrieverHelper {
                 for (i in 0..<NUMBER_OF_THREADS)
                     threads[i].join()
             }
-            Log.d(TAG, "getSongsInfo: Time execution with $NUMBER_OF_THREADS $timeTaken ms")
             result
         }
     }

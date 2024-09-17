@@ -1,6 +1,5 @@
 package com.example.musicapp.ui
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
@@ -42,7 +41,6 @@ class MainViewModel @Inject constructor(
     }
 
 
-
     fun getTitle(): StateFlow<String> = _title
     fun getArtist(): StateFlow<String> = _artist
     fun getThumbnail(): StateFlow<ImageBitmap?> = _bitmap
@@ -53,11 +51,10 @@ class MainViewModel @Inject constructor(
     val songList = mutableStateListOf<Song>()
 
     companion object {
-        private const val TAG = "AppViewModel"
+        private const val TAG = "MainViewModel"
     }
 
     init {
-        Log.d(TAG, "HomeViewModel: init")
         viewModelScope.launch {
             launch {
                 repository.observeLocalPlaylist().collect { playlist ->

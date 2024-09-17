@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -64,7 +63,6 @@ class MusicService : MediaLibraryService() {
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
         }
 
-        Log.d(TAG, "onCreate: $TAG is created")
         coroutineScope.launch {
             repository.observeCurrentPlaylist().collect {
                 if (it == null || it.songs.isEmpty())
@@ -93,7 +91,6 @@ class MusicService : MediaLibraryService() {
                     browser: MediaSession.ControllerInfo,
                     params: LibraryParams?
                 ): ListenableFuture<LibraryResult<MediaItem>> {
-                    Log.d(TAG, "onGetLibraryRoot: ")
                     return super.onGetLibraryRoot(session, browser, params)
                 }
             }
