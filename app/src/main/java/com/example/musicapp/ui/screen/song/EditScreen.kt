@@ -174,7 +174,7 @@ fun ImageSelector(
                 photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
             .background(
-                color = if (song?.thumbnail == null && imageUri == null)
+                color = if (song?.smallBitmap == null && imageUri == null)
                     MaterialTheme.colorScheme.tertiary else Color.Transparent
             )
     ) {
@@ -197,9 +197,9 @@ fun ImageSelector(
                 }
             }
 
-            song?.thumbnail != null -> {
+            song?.smallBitmap != null -> {
                 Image(
-                    bitmap = song.thumbnail,
+                    bitmap = song.smallBitmap,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )

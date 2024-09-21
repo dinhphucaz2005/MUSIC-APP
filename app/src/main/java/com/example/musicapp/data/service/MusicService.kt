@@ -1,7 +1,6 @@
 package com.example.musicapp.data.service
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationManagerCompat
@@ -13,6 +12,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.helper.NotificationHelper
 import com.google.common.util.concurrent.ListenableFuture
@@ -70,9 +70,7 @@ class MusicService : MediaLibraryService() {
                 CoroutineScope(Dispatchers.Main).launch {
                     player.pause()
                     player.clearMediaItems()
-                    it.songs.forEach { song ->
-                        song.uri?.let { uri -> loadMediaItem(uri) }
-                    }
+                    it.songs.forEach { song -> loadMediaItem(song) }
                     player.prepare()
                     it.currentSong?.let { index ->
                         player.seekTo(index, 0)
@@ -114,11 +112,20 @@ class MusicService : MediaLibraryService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession =
         session
 
-
     fun getSession(): MediaLibrarySession = session
 
-    private fun loadMediaItem(uri: Uri) {
-        player.addMediaItem(MediaItem.fromUri(uri))
+    private fun loadMediaItem(song: Song) {
+        song.apply {
+            val mediaMetadata = MediaMetadata.Builder().apply {
+                setTitle(title)
+                setArtist(author)
+            }.build()
+            val mediaItem = MediaItem.Builder().apply {
+                setUri(uri)
+                setMediaMetadata(mediaMetadata)
+            }.build()
+            player.addMediaItem(mediaItem)
+        }
     }
 
     private fun updateNotification() {

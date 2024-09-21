@@ -15,6 +15,7 @@ import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -27,32 +28,14 @@ class MainViewModel @Inject constructor(
     private val uploadRepository: UploadRepository
 ) : ViewModel() {
 
-    private val _isPlaying = MutableStateFlow(PlayingState.FALSE)
-    private val _bitmap = MutableStateFlow<ImageBitmap?>(null)
-    private val _title = MutableStateFlow("NO SONG FOUND")
-    private val _artist = MutableStateFlow("NO ARTIST FOUND")
-    private val _playlistState = MutableStateFlow(PlaylistState.REPEAT_ALL)
-    private val _duration = MutableStateFlow("(>.<)")
-
-    fun getCurrentSong(): Song? {
-        val index = mediaControllerManager.getCurrentSongIndex() ?: return null
-        val songs = repository.observeCurrentPlaylist().value?.songs
-        return songs?.getOrNull(index)
-    }
-
-
-    fun getTitle(): StateFlow<String> = _title
-    fun getArtist(): StateFlow<String> = _artist
-    fun getThumbnail(): StateFlow<ImageBitmap?> = _bitmap
-    fun isPlaying(): StateFlow<PlayingState> = _isPlaying
-    fun getDuration(): StateFlow<String> = _duration
-    fun getPlayListState(): StateFlow<PlaylistState> = _playlistState
-
     val songList = mutableStateListOf<Song>()
+    private val _isPlaying = MutableStateFlow(PlayingState.FALSE)
+    private val _playlistState = MutableStateFlow(PlaylistState.REPEAT_ALL)
+    private val _currentSong = MutableStateFlow(Song())
 
-    companion object {
-        private const val TAG = "MainViewModel"
-    }
+    val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
+    val isPlaying: StateFlow<PlayingState> = _isPlaying.asStateFlow()
+    val playlistState: StateFlow<PlaylistState> = _playlistState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -65,12 +48,8 @@ class MainViewModel @Inject constructor(
                 }
             }
             launch {
-                mediaControllerManager.currentSong.collect { _ ->
-                    val currentSong = getCurrentSong() ?: return@collect
-                    _bitmap.value = currentSong.thumbnail
-                    _title.value =
-                        currentSong.title ?: currentSong.fileName.getFileNameWithoutExtension()
-                    _artist.value = currentSong.author ?: "NO ARTIST FOUND"
+                mediaControllerManager.currentSong.collect { mediaMetadata ->
+                    mediaMetadata?.let { _currentSong.value = Song(mediaMetadata) }
                 }
             }
             launch {
@@ -93,7 +72,6 @@ class MainViewModel @Inject constructor(
                                 durationMs / 60000,
                                 (durationMs % 60000) / 1000
                             )
-                            _duration.value = durationFormatted
                         }
                     }
                 }

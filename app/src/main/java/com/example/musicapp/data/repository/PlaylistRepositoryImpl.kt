@@ -26,7 +26,6 @@ class PlaylistRepositoryImpl @Inject constructor(
 ) : PlaylistRepository {
 
     companion object {
-        const val TAG = "PlaylistRepositoryImpl"
         const val PLAYLIST_ID = -1L
         const val PLAYLIST_NAME = "Local Music"
     }
@@ -170,7 +169,7 @@ class PlaylistRepositoryImpl @Inject constructor(
                 }
                 println(_localPlaylist.value?.songs)
                 _localPlaylist.value?.songs?.find { song -> song.path == dto.songPath }
-                    ?.copy(id = dto.songId)
+                    ?.copy()
                     ?.let { result.last().songs.add(it) }
             }
             result
@@ -202,7 +201,7 @@ class PlaylistRepositoryImpl @Inject constructor(
             for (i in songs.indices) songs[i].id = i.toLong()
 
             if (unInitializerFilePaths.isNotEmpty()) {
-                songs.forEachIndexed { index, song -> LocalPlaylistCaching.add(song.path!!, index) }
+                songs.forEachIndexed { index, song -> LocalPlaylistCaching.add(song.path, index) }
                 Playlist(PLAYLIST_ID, PLAYLIST_NAME, songs)
             } else null
         }

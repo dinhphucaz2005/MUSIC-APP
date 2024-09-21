@@ -13,3 +13,7 @@ fun Bitmap.toScaledBitmap(scaleFactor: Float): Bitmap {
     val byteArray = outputStream.toByteArray()
     return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
 }
+
+fun ByteArray.toBitmap(): Bitmap {
+    return BitmapFactory.decodeByteArray(this, 0, this.size)
+}

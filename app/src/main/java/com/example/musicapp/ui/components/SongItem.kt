@@ -38,8 +38,6 @@ import com.example.musicapp.ui.theme.commonShape
 fun SongItem(
     modifier: Modifier = Modifier, song: Song, colors: List<Color> = listOf()
 ) {
-
-
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
@@ -77,14 +75,14 @@ fun SongItem(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = song.fileName.getFileNameWithoutExtension(),
+                text = song.title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = song.author ?: "Unknown",
+                text = song.author,
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                 color = MaterialTheme.colorScheme.primary,
             )

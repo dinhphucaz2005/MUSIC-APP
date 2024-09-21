@@ -58,9 +58,9 @@ fun HomeScreen(
     modifier: Modifier = Modifier, viewModel: MainViewModel
 ) {
     val songs = viewModel.songList
-    val bitmap by viewModel.getThumbnail().collectAsState()
-    val playingState by viewModel.isPlaying().collectAsState()
-    val playListState by viewModel.getPlayListState().collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val currentSong by viewModel.currentSong.collectAsState()
+    val playlistState by viewModel.playlistState.collectAsState()
 
     val thumbnail = painterResource(id = R.drawable.image)
 
@@ -79,7 +79,7 @@ fun HomeScreen(
                 start.linkTo(parent.start, margin = 12.dp)
             }
 
-        bitmap?.let {
+        currentSong.smallBitmap?.let {
             Image(
                 contentScale = ContentScale.Crop,
                 bitmap = it,
@@ -106,13 +106,13 @@ fun HomeScreen(
             .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.SpaceEvenly) {
             Text(
-                text = viewModel.getTitle().collectAsState().value,
+                text = currentSong.title,
                 style = MaterialTheme.typography.titleLarge,
                 softWrap = true,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = viewModel.getArtist().collectAsState().value,
+                text = currentSong.author,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -129,9 +129,9 @@ fun HomeScreen(
                 .padding(8.dp)
 
             listOf(
-                playListState.resource,
+                playlistState.resource,
                 R.drawable.ic_skip_back,
-                playingState.resource,
+                isPlaying.resource,
                 R.drawable.ic_skip_forward
             ).forEachIndexed { index, resId ->
                 IconButton(onClick = {

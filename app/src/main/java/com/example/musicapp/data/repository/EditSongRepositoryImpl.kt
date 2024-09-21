@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.example.musicapp.callback.ResultCallback
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
@@ -31,6 +32,7 @@ class EditSongRepositoryImpl @Inject constructor(
         song: Song,
         onSaveFile: ResultCallback<String>
     ) {
+        Log.d(TAG, "saveSongFile: $fileName")
         try {
             val mp3File = Mp3File(song.path)
             val id3v2Tag = mp3File.id3v2Tag
