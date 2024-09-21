@@ -3,6 +3,7 @@
 package com.example.musicapp.ui
 
 import androidx.annotation.OptIn
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ data class Item(
 )
 
 
+@ExperimentalFoundationApi
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @UnstableApi
 @Preview(showBackground = true)
@@ -44,6 +46,7 @@ fun Preview() {
     }
 }
 
+@ExperimentalFoundationApi
 @OptIn(UnstableApi::class)
 @ExperimentalMaterial3Api
 @Composable

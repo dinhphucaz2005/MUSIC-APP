@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.data.service.MusicService
 import com.example.musicapp.domain.repository.PlaylistRepository
@@ -29,6 +30,7 @@ import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
 
 
+@ExperimentalFoundationApi
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

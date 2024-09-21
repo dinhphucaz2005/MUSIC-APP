@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.extension.getFileNameExtension
+import com.example.musicapp.extension.getFileNameWithoutExtension
 import com.example.musicapp.extension.toScaledBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,7 +56,8 @@ object MediaRetrieverHelper {
 
             val fileName = File(filePath).name
             val title =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) ?: fileName.getFileNameExtension()
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                    ?: fileName.getFileNameWithoutExtension()
             val author =
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Unknown"
             val durationStr =
@@ -68,14 +70,12 @@ object MediaRetrieverHelper {
             }
 
             Song(
-                id = null,
                 fileName = fileName,
                 uri = Uri.fromFile(File(filePath)),
                 path = filePath,
                 title = title,
                 author = author,
                 smallBitmap = bitmap?.toScaledBitmap(0.3f)?.asImageBitmap(),
-                thumbnail = bitmap?.asImageBitmap(),
                 duration = duration
             )
         } catch (e: Exception) {

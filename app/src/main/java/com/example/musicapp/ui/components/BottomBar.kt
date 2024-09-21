@@ -1,5 +1,6 @@
 package com.example.musicapp.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.Item
 import com.example.musicapp.ui.navigation.Routes
 
+@ExperimentalFoundationApi
 @UnstableApi
 @Composable
 fun BottomBar(

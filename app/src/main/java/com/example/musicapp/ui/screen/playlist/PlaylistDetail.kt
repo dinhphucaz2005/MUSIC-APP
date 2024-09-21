@@ -100,7 +100,7 @@ fun PlaylistDetail(
         val verticalChain = createGuidelineFromStart(0.5f)
 
         CommonImage(
-            bitmap = curPlaylist?.songs?.firstOrNull()?.thumbnail,
+            bitmap = curPlaylist?.songs?.firstOrNull()?.smallBitmap,
             painter = thumbnail,
             modifier = Modifier
                 .padding(8.dp)
@@ -235,16 +235,16 @@ fun PlaylistDetail(
             val toggleSelectionSong: (Int) -> Unit = { index ->
                 selectedSongs[index] = !selectedSongs[index]
             }
-            if (songs.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .constrainAs(lazyRow) {
-                            top.linkTo(horizontalDivider.bottom, margin = 12.dp)
-                            bottom.linkTo(parent.bottom)
-                            height = Dimension.fillToConstraints
-                        }
-                ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(lazyRow) {
+                        top.linkTo(horizontalDivider.bottom, margin = 12.dp)
+                        bottom.linkTo(parent.bottom)
+                        height = Dimension.fillToConstraints
+                    }
+            ) {
+                if (songs.isNotEmpty()) {
                     itemsIndexed(items = songs) { index, song ->
                         Row(
                             modifier = songItemModifier

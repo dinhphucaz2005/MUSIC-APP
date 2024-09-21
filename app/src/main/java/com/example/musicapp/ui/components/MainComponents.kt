@@ -1,8 +1,3 @@
-@file:OptIn(
-    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
-)
-
 package com.example.musicapp.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -43,6 +38,7 @@ import com.example.musicapp.ui.MainViewModel
 import com.example.musicapp.ui.theme.commonShape
 
 
+@ExperimentalFoundationApi
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun SongPreview(
@@ -50,11 +46,8 @@ fun SongPreview(
     viewModel: MainViewModel,
     showSongScreen: () -> Unit
 ) {
-    val playingState by viewModel.isPlaying().collectAsState()
-
-    val title by viewModel.getTitle().collectAsState()
-    val artist by viewModel.getArtist().collectAsState()
-    val thumbnail by viewModel.getThumbnail().collectAsState()
+    val playingState by viewModel.isPlaying.collectAsState()
+    val currentSong by viewModel.currentSong.collectAsState()
 
     Row(
         modifier = modifier
@@ -73,7 +66,7 @@ fun SongPreview(
             .fillMaxHeight()
             .aspectRatio(1f)
 
-        thumbnail?.let {
+        currentSong.smallBitmap?.let {
             Image(
                 bitmap = it,
                 modifier = imageModifier,
@@ -92,11 +85,10 @@ fun SongPreview(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = title,
+                text = currentSong.title,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .basicMarquee(
-                        delayMillis = 0,
                         iterations = Int.MAX_VALUE,
                         spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
                     ),
@@ -105,7 +97,7 @@ fun SongPreview(
                 color = MaterialTheme.colorScheme.onSecondary
             )
             Text(
-                text = artist,
+                text = currentSong.author,
                 modifier = Modifier
                     .padding(start = 8.dp),
                 fontWeight = FontWeight.Bold,

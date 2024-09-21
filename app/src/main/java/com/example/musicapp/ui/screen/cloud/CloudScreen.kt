@@ -10,13 +10,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.R
 import com.example.musicapp.common.AppResource
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.CloudRepository
@@ -44,7 +42,6 @@ private fun Preview() {
 fun CloudScreen(modifier: Modifier = Modifier, viewModel: CloudViewModel) {
 
     val songs = viewModel.songs
-    val thumbnail = painterResource(R.drawable.image)
     val colors = listOf(
         listOf(Color(0xFF2b4ea2), Color(0xFF1ee3f0)),
         listOf(Color(0xFFda2b56), Color(0xFFf69d3f)),

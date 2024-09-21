@@ -24,7 +24,7 @@ object FakeModule {
     val playlist = Playlist(
         id = 0,
         name = "UNNAMED",
-        songs = List(20) { Song(fileName = "Anh da xa em that roi ${it}.mp3") }.toMutableList()
+        songs = List(20) { Song() }.toMutableList()
     )
 
     private val editSongRepository = object : EditSongRepository {

@@ -110,6 +110,7 @@ dependencies {
 
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.github.skydoves:landscapist-coil:2.2.6")
 
     //ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")

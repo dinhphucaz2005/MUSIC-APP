@@ -68,6 +68,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
 @UnstableApi
 @Preview
 @Composable
@@ -80,20 +81,18 @@ fun SongScreenPreview() {
     }
 }
 
+@ExperimentalFoundationApi
 @UnstableApi
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
     viewModel: MainViewModel,
 ) {
-    val isPlaying by viewModel.isPlaying().collectAsState()
-    val thumbnail by viewModel.getThumbnail().collectAsState()
-    val title by viewModel.getTitle().collectAsState()
-    val artist by viewModel.getArtist().collectAsState()
-    val playListState by viewModel.getPlayListState().collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val playListState by viewModel.playlistState.collectAsState()
     var sliderPosition by remember { mutableFloatStateOf(0f) }
+    val currentSong by viewModel.currentSong.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -133,7 +132,7 @@ fun SongScreen(
                 start.linkTo(parent.start)
             }
 
-        thumbnail?.let {
+        currentSong.smallBitmap?.let {
             Image(
                 bitmap = it,
                 contentScale = ContentScale.Crop,
@@ -247,7 +246,7 @@ fun SongScreen(
             }
         }
         Text(
-            text = title,
+            text = currentSong.title,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             style = MaterialTheme.typography.titleLarge,
@@ -258,14 +257,13 @@ fun SongScreen(
                     end.linkTo(editButton.end)
                 }
                 .basicMarquee(
-                    delayMillis = 0,
                     iterations = Int.MAX_VALUE,
                     spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
                 )
         )
 
         Text(
-            text = artist,
+            text = currentSong.author,
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.constrainAs(artistRef) {
@@ -294,7 +292,7 @@ fun SongScreen(
 
         Box(modifier = boxModifier) {
             val imageModifier = Modifier.fillMaxSize()
-            thumbnail?.let {
+            currentSong.smallBitmap?.let {
                 Image(
                     bitmap = it,
                     contentDescription = null,
@@ -329,9 +327,7 @@ fun SongScreen(
         )
 
         val startText = "00:00"
-        val endText by viewModel
-            .getDuration()
-            .collectAsState()
+        val endText = "00:00"
         Text(
             text = startText,
             modifier = Modifier.constrainAs(startTime) {
@@ -380,7 +376,7 @@ fun SongScreen(
             )
         ) {
             EditScreen(
-                song = viewModel.getCurrentSong(),
+                song = currentSong,
                 onDismiss = { showEditScreen = false }
             )
         }
