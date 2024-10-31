@@ -41,7 +41,7 @@ object FakeModule {
     }
 
     @Composable
-    fun mediaControllerManager() = MediaControllerManager(LocalContext.current)
+    fun mediaControllerManager() = MediaControllerManager(LocalContext.current, playlistRepository)
 
     private val playlistRepository = object : PlaylistRepository {
         override suspend fun reload(): AppResource<Nothing> {

@@ -66,8 +66,9 @@ object AppModule {
     @Singleton
     fun provideMediaControllerManager(
         context: Context,
+        playlistRepository: PlaylistRepository
     ): MediaControllerManager {
-        return MediaControllerManager(context)
+        return MediaControllerManager(context, playlistRepository)
     }
 
     @Provides

@@ -25,27 +25,25 @@ object MediaRetrieverHelper {
     ): List<Song> {
         return withContext(Dispatchers.IO) {
             val result = Collections.synchronizedList(mutableListOf<Song>())
-            val timeTaken = measureTimeMillis {
 
-                val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
+            val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
 
-                val threads = mutableListOf<Thread>()
+            val threads = mutableListOf<Thread>()
 
 
-                for (i in 0..<NUMBER_OF_THREADS)
-                    threads.add(Thread {
-                        val retriever = MediaMetadataRetriever()
-                        for (j in i * chunkSize..<minOf((i + 1) * chunkSize, filePaths.size)) {
-                            getSongInfo(retriever, filePaths[j])?.let { result.add(it) }
-                        }
-                        retriever.release()
-                    })
+            for (i in 0..<NUMBER_OF_THREADS)
+                threads.add(Thread {
+                    val retriever = MediaMetadataRetriever()
+                    for (j in i * chunkSize..<minOf((i + 1) * chunkSize, filePaths.size)) {
+                        getSongInfo(retriever, filePaths[j])?.let { result.add(it) }
+                    }
+                    retriever.release()
+                })
 
-                for (i in 0..<NUMBER_OF_THREADS)
-                    threads[i].start()
-                for (i in 0..<NUMBER_OF_THREADS)
-                    threads[i].join()
-            }
+            for (i in 0..<NUMBER_OF_THREADS)
+                threads[i].start()
+            for (i in 0..<NUMBER_OF_THREADS)
+                threads[i].join()
             result
         }
     }

@@ -32,7 +32,7 @@ class EditSongRepositoryImpl @Inject constructor(
         song: Song,
         onSaveFile: ResultCallback<String>
     ) {
-        Log.d(TAG, "saveSongFile: $fileName")
+        Log.d(TAG, "saveSongFile: $song")
         try {
             val mp3File = Mp3File(song.path)
             val id3v2Tag = mp3File.id3v2Tag
@@ -43,38 +43,13 @@ class EditSongRepositoryImpl @Inject constructor(
                 val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
                 inputStream?.use { input ->
                     val originalBitmap = BitmapFactory.decodeStream(input)
-                    val width = originalBitmap.width
-                    val height = originalBitmap.height
-
-                    var newWidth = 400
-                    var newHeight = 400
-
-                    if (newWidth > width || newHeight > height) {
-                        throw Exception("Image dimensions are too small")
-                    }
-
-                    val scaleFactor = min(width, height).toFloat() / newWidth.toFloat()
-                    newWidth = (width / scaleFactor).toInt()
-                    newHeight = (height / scaleFactor).toInt()
-
-                    val scaleBitmap =
-                        Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false)
-
-                    val left = (scaleBitmap.width - newWidth) / 2
-                    val top = (scaleBitmap.height - newHeight) / 2
-                    val right = left + newWidth
-                    val bottom = top + newHeight
-
-                    val croppedBitmap =
-                        Bitmap.createBitmap(scaleBitmap, left, top, right, bottom)
-
                     val outputStream = ByteArrayOutputStream()
-                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                     val imageData = outputStream.toByteArray()
                     id3v2Tag.setAlbumImage(imageData, "image/jpeg")
                 }
             }
-            val fileExtension = song.path?.getFileNameExtension() ?: "mp3"
+            val fileExtension = song.path.getFileNameExtension()
             val path = "/storage/emulated/0/Music/$fileName.$fileExtension"
             mp3File.save(path)
             MediaStoreHelper.scanFile(

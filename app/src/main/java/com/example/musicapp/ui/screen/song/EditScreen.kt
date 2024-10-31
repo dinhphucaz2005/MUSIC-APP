@@ -1,7 +1,6 @@
 package com.example.musicapp.ui.screen.song
 
 import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,12 +62,8 @@ fun EditScreen(
     onDismiss: () -> Unit = {},
     viewModel: EditViewModel = hiltViewModel(),
 ) {
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { if (it != null) imageUri = it }
-    )
 
+    var imageUri: Uri? = null
     var fileName by remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
     var title by remember { mutableStateOf(song?.title ?: "") }
     var artist by remember { mutableStateOf(song?.author ?: "") }
@@ -77,8 +72,7 @@ fun EditScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
+            .padding(16.dp), verticalArrangement = Arrangement.SpaceEvenly
     ) {
         item {
             Text(
@@ -88,10 +82,7 @@ fun EditScreen(
             )
         }
         item {
-            MyTextField(
-                label = "File Name",
-                value = fileName,
-                onValueChange = { fileName = it })
+            MyTextField(label = "File Name", value = fileName, onValueChange = { fileName = it })
         }
         item {
             MyTextField(label = "Title", value = title, onValueChange = {
@@ -104,13 +95,7 @@ fun EditScreen(
             })
         }
         item {
-            ImageSelector(
-                imageUri = imageUri,
-                song = song,
-                photoPickerLauncher = photoPickerLauncher
-            ) {
-                imageUri = null
-            }
+            ImageSelector(song = song) { imageUri = it }
         }
         item {
             ActionButtons(
@@ -126,8 +111,7 @@ fun EditScreen(
                             onDismiss()
                         }
                     }
-                },
-                onCancelClick = onDismiss
+                }, onCancelClick = onDismiss
             )
         }
     }
@@ -161,33 +145,29 @@ fun MyTextField(
 
 @Composable
 fun ImageSelector(
-    imageUri: Uri?,
-    song: Song?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-    onDismiss: () -> Unit
+    song: Song?, onImageChange: (imageUri: Uri?) -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .clip(commonShape)
-            .aspectRatio(1f)
-            .clickable {
-                photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            }
-            .background(
-                color = if (song?.smallBitmap == null && imageUri == null)
-                    MaterialTheme.colorScheme.tertiary else Color.Transparent
-            )
-    ) {
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val photoPickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
+            onResult = { if (it != null) imageUri = it })
+    Box(modifier = Modifier
+        .clip(commonShape)
+        .aspectRatio(1f)
+        .clickable {
+            photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        .background(
+            color = if (song?.smallBitmap == null && imageUri == null) MaterialTheme.colorScheme.tertiary else Color.Transparent
+        )) {
         when {
             imageUri != null -> {
+                onImageChange.invoke(imageUri)
                 AsyncImage(
-                    model = imageUri,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
+                    model = imageUri, contentDescription = null, modifier = Modifier.fillMaxSize()
                 )
                 IconButton(
-                    onClick = { onDismiss() },
-                    modifier = Modifier.align(Alignment.TopEnd)
+                    onClick = { imageUri = null }, modifier = Modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -214,7 +194,6 @@ fun ImageSelector(
                 )
             }
         }
-
     }
 }
 

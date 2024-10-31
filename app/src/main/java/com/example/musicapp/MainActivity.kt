@@ -88,18 +88,14 @@ class MainActivity : ComponentActivity() {
                 playlistRepository.reload()
             }
         } else {
-            requestPermissions()
-        }
-    }
-
-    private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.POST_NOTIFICATIONS
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
                 )
-            )
+            }
         }
     }
 

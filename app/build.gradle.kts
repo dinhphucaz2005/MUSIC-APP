@@ -86,15 +86,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    val media3Version = "1.3.1"
-
-    // Warning: Update version of Media3. This may affect background playback functionality
-    implementation("androidx.media3:media3-session:$media3Version")
-    implementation("androidx.media3:media3-exoplayer:$media3Version")
-    implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
-    implementation("androidx.media3:media3-ui:$media3Version")
-    implementation("androidx.media3:media3-common:$media3Version")
-
     //Room Database
     implementation("androidx.room:room-runtime:2.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
@@ -151,4 +142,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    implementation(project(":shared"))
 }

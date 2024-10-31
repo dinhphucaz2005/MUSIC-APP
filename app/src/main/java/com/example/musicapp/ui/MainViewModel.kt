@@ -48,8 +48,8 @@ class MainViewModel @Inject constructor(
                 }
             }
             launch {
-                mediaControllerManager.currentSong.collect { mediaMetadata ->
-                    mediaMetadata?.let { _currentSong.value = Song(mediaMetadata) }
+                mediaControllerManager.currentSong.collect { song ->
+                    _currentSong.value = song ?: Song()
                 }
             }
             launch {

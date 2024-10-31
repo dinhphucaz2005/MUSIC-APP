@@ -38,6 +38,9 @@ class PlaylistRepositoryImpl @Inject constructor(
     override suspend fun reload(): AppResource<Void> {
         try {
             val playlistFromLocal = fetchPlaylistFromLocal()
+            playlistFromLocal?.songs?.forEach {
+                println(it)
+            }
             playlistFromLocal?.let {
                 _localPlaylist.value = it
                 _currentPlaylist.value = it
