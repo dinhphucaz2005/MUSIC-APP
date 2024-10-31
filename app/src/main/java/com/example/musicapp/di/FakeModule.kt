@@ -12,10 +12,10 @@ import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
 import com.example.musicapp.domain.repository.PlaylistRepository
 import com.example.musicapp.domain.repository.UploadRepository
-import com.example.musicapp.ui.MainViewModel
-import com.example.musicapp.ui.screen.song.EditViewModel
-import com.example.musicapp.ui.screen.playlist.PlaylistViewModel
-import com.example.musicapp.ui.screen.playlist.SelectSongViewModel
+import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.viewmodels.EditViewModel
+import com.example.musicapp.viewmodels.PlaylistViewModel
+import com.example.musicapp.viewmodels.SelectSongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import kotlinx.coroutines.flow.StateFlow
 

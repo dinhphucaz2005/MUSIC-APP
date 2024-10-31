@@ -27,6 +27,7 @@ import com.example.musicapp.ui.navigation.playlistNavigation
 import com.example.musicapp.ui.screen.cloud.CloudScreen
 import com.example.musicapp.ui.screen.home.HomeScreen
 import com.example.musicapp.ui.theme.MusicTheme
+import com.example.musicapp.viewmodels.MainViewModel
 
 data class Item(
     val painter: Painter,

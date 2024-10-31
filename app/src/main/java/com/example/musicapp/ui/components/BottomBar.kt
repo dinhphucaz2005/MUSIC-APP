@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
-import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.ui.Item
 import com.example.musicapp.ui.navigation.Routes
 

@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.song
+package com.example.musicapp.viewmodels
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -13,6 +13,7 @@ import com.example.musicapp.util.EventData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
@@ -36,11 +37,11 @@ class EditViewModel @Inject constructor(
         song: Song,
         onSaved: (() -> Unit)? = null
     ) {
+        if (fileName == song.fileName.getFileNameWithoutExtension()) {
+            EventBus.getDefault().postSticky(EventData("File name already exist"))
+            return
+        }
         viewModelScope.launch {
-            if (fileName == song.fileName.getFileNameWithoutExtension()) {
-                EventBus.getDefault().postSticky(EventData("File name already exist"))
-                return@launch
-            }
             editSongRepository.saveSongFile(
                 fileName, title, artist, imageUri, song,
                 object : ResultCallback<String> {

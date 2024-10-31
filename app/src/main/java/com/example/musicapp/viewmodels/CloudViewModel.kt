@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.cloud
+package com.example.musicapp.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel

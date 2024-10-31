@@ -1,12 +1,6 @@
 package com.example.musicapp.ui.screen.song
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.MarqueeSpacing
@@ -41,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -59,7 +52,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.extension.toDuration
+import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.ui.animation.Animator
 import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
@@ -89,17 +84,21 @@ fun SongScreen(
     navHostController: NavHostController,
     viewModel: MainViewModel,
 ) {
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val playListState by viewModel.playlistState.collectAsState()
+    val activeSong by viewModel.activeSong.collectAsState()
     var sliderPosition by remember { mutableFloatStateOf(0f) }
-    val currentSong by viewModel.currentSong.collectAsState()
+    val isCurrentlyPlaying by viewModel.isCurrentlyPlaying.collectAsState()
+    val currentPlaylistState by viewModel.currentPlaylistState.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
+    var pause by remember { mutableStateOf(false) }
+    var current by remember { mutableStateOf("00:00") }
 
-    LaunchedEffect(coroutineScope) {
-        while (true) {
+
+
+    LaunchedEffect(pause) {
+        if (!pause) while (true) {
             CoroutineScope(Dispatchers.Main).launch {
-                sliderPosition = viewModel.getSliderPosition()
+                sliderPosition = viewModel.getCurrentSliderPosition()
+                current = viewModel.getCurrentTrackPosition().toDuration()
             }
             delay(1000)
         }
@@ -110,19 +109,17 @@ fun SongScreen(
 
     var isPopBackStack by remember { mutableStateOf(false) }
 
-    ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .pointerInput(Unit) {
-                detectDragGestures { _, dragAmount ->
-                    if (dragAmount.y >= 25 && !isPopBackStack) {
-                        isPopBackStack = true
-                        navHostController.popBackStack()
-                    }
+    ConstraintLayout(modifier = modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+        .pointerInput(Unit) {
+            detectDragGestures { _, dragAmount ->
+                if (dragAmount.y >= 25 && !isPopBackStack) {
+                    isPopBackStack = true
+                    navHostController.popBackStack()
                 }
             }
-    ) {
+        }) {
         val (backgroundRef, boxRef, backButton, editButton, titleRef, artistRef, image, sliderRef, startTime, endTime, bottomRow) = createRefs()
 
         val backgroundModifier = Modifier
@@ -132,7 +129,7 @@ fun SongScreen(
                 start.linkTo(parent.start)
             }
 
-        currentSong.smallBitmap?.let {
+        activeSong.smallBitmap?.let {
             Image(
                 bitmap = it,
                 contentScale = ContentScale.Crop,
@@ -147,18 +144,15 @@ fun SongScreen(
         )
 
 
-        Box(
-            modifier = Modifier
-                .constrainAs(boxRef) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                }
-                .fillMaxSize()
-                .background(Color.Black.copy(0.5f))
-        )
+        Box(modifier = Modifier
+            .constrainAs(boxRef) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+            }
+            .fillMaxSize()
+            .background(Color.Black.copy(0.5f)))
 
-        Icon(
-            painter = painterResource(id = R.drawable.ic_back),
+        Icon(painter = painterResource(id = R.drawable.ic_back),
             contentDescription = null,
             modifier = Modifier
                 .size(iconSize)
@@ -174,8 +168,7 @@ fun SongScreen(
 
         var showEditScreen by remember { mutableStateOf(false) }
 
-        Icon(
-            imageVector = Icons.Default.Edit,
+        Icon(imageVector = Icons.Default.Edit,
             contentDescription = null,
             modifier = Modifier
                 .size(iconSize)
@@ -187,13 +180,11 @@ fun SongScreen(
             tint = MaterialTheme.colorScheme.primary
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(bottomRow) {
-                    bottom.linkTo(parent.bottom, margin = 60.dp)
-                }
-        ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .constrainAs(bottomRow) {
+                bottom.linkTo(parent.bottom, margin = 60.dp)
+            }) {
             val iconModifier = Modifier
                 .fillMaxHeight()
                 .aspectRatio(1f)
@@ -204,16 +195,13 @@ fun SongScreen(
                     .height(60.dp)
             ) {
                 IconButton(
-                    onClick = { viewModel.rewind() },
-                    modifier = iconModifier
+                    onClick = { viewModel.rewindTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_rewind)) }
                 IconButton(
-                    onClick = { viewModel.togglePlayPause() },
-                    modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = isPlaying.resource)) }
+                    onClick = { viewModel.togglePlayback() }, modifier = iconModifier
+                ) { CommonIcon(painter = painterResource(id = isCurrentlyPlaying.resource)) }
                 IconButton(
-                    onClick = { viewModel.fastForward() },
-                    modifier = iconModifier
+                    onClick = { viewModel.fastForwardTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_fast_forward)) }
             }
             Row(
@@ -224,29 +212,23 @@ fun SongScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 IconButton(
-                    onClick = { viewModel.refreshPlayListState() },
-                    modifier = iconModifier
-                ) { CommonIcon(painterResource(id = playListState.resource)) }
+                    onClick = { viewModel.updatePlaylistState() }, modifier = iconModifier
+                ) { CommonIcon(painterResource(id = currentPlaylistState.resource)) }
                 IconButton(
-                    onClick = { viewModel.playPreviousTrack() },
-                    modifier = iconModifier
+                    onClick = { viewModel.playPreviousTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_back)) }
                 IconButton(
-                    onClick = { viewModel.skipToNextTrack() },
-                    modifier = iconModifier
+                    onClick = { viewModel.playNextTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_forward)) }
                 IconButton(
-                    onClick = { TODO("Not yet implemented") },
-                    modifier = iconModifier
+                    onClick = { TODO("Not yet implemented") }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_setting)) }
                 IconButton(
-                    onClick = { TODO("Not yet implemented") },
-                    modifier = iconModifier
+                    onClick = { TODO("Not yet implemented") }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_share)) }
             }
         }
-        Text(
-            text = currentSong.title,
+        Text(text = activeSong.title,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             style = MaterialTheme.typography.titleLarge,
@@ -259,19 +241,16 @@ fun SongScreen(
                 .basicMarquee(
                     iterations = Int.MAX_VALUE,
                     spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
-                )
-        )
+                ))
 
-        Text(
-            text = currentSong.author,
+        Text(text = activeSong.author,
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.constrainAs(artistRef) {
                 top.linkTo(titleRef.bottom, margin = 12.dp)
                 start.linkTo(titleRef.start)
                 end.linkTo(titleRef.end)
-            }
-        )
+            })
 
         val boxModifier = Modifier
             .padding(16.dp)
@@ -292,7 +271,7 @@ fun SongScreen(
 
         Box(modifier = boxModifier) {
             val imageModifier = Modifier.fillMaxSize()
-            currentSong.smallBitmap?.let {
+            activeSong.smallBitmap?.let {
                 Image(
                     bitmap = it,
                     contentDescription = null,
@@ -307,29 +286,27 @@ fun SongScreen(
             )
         }
 
-        Slider(
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
-            onValueChangeFinished = { viewModel.seekToPosition(sliderPosition) },
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(0.5f)
-            ),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .constrainAs(sliderRef) {
-                    start.linkTo(backButton.start)
-                    end.linkTo(editButton.end)
-                    bottom.linkTo(bottomRow.top, margin = 16.dp)
-                    width = Dimension.fillToConstraints
-                }
-        )
+        Slider(value = sliderPosition, onValueChange = {
+            sliderPosition = it
+            pause = true
+        }, onValueChangeFinished = {
+            viewModel.seekToSliderPosition(sliderPosition)
+            pause = false
+        }, colors = SliderDefaults.colors(
+            thumbColor = MaterialTheme.colorScheme.primary,
+            activeTrackColor = MaterialTheme.colorScheme.primary,
+            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+        ), modifier = Modifier
+            .padding(top = 16.dp)
+            .constrainAs(sliderRef) {
+                start.linkTo(backButton.start)
+                end.linkTo(editButton.end)
+                bottom.linkTo(bottomRow.top, margin = 16.dp)
+                width = Dimension.fillToConstraints
+            })
 
-        val startText = "00:00"
-        val endText = "00:00"
         Text(
-            text = startText,
+            text = current,
             modifier = Modifier.constrainAs(startTime) {
                 top.linkTo(sliderRef.bottom)
                 bottom.linkTo(sliderRef.bottom)
@@ -339,7 +316,7 @@ fun SongScreen(
             style = MaterialTheme.typography.labelSmall
         )
         Text(
-            text = endText,
+            text = activeSong.duration.toDuration(),
             modifier = Modifier.constrainAs(endTime) {
                 top.linkTo(sliderRef.bottom)
                 bottom.linkTo(sliderRef.bottom)
@@ -349,36 +326,9 @@ fun SongScreen(
             style = MaterialTheme.typography.labelSmall
         )
         AnimatedVisibility(
-            visible = showEditScreen,
-            enter = slideInVertically(
-                initialOffsetY = { -it },
-                animationSpec = tween(
-                    durationMillis = 600,
-                    easing = EaseInOut
-                )
-            ) + scaleIn(
-                animationSpec = tween(
-                    durationMillis = 600,
-                    easing = EaseInOut
-                )
-            ),
-            exit = slideOutVertically(
-                targetOffsetY = { -it },
-                animationSpec = tween(
-                    durationMillis = 600,
-                    easing = EaseInOut
-                )
-            ) + scaleOut(
-                animationSpec = tween(
-                    durationMillis = 600,
-                    easing = EaseInOut
-                )
-            )
+            visible = showEditScreen, enter = Animator.enterAnimation, exit = Animator.exitAnimation
         ) {
-            EditScreen(
-                song = currentSong,
-                onDismiss = { showEditScreen = false }
-            )
+            EditScreen(song = activeSong, onDismiss = { showEditScreen = false })
         }
     }
 }

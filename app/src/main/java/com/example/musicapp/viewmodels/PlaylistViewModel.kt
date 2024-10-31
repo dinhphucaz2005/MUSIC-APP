@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.playlist
+package com.example.musicapp.viewmodels
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel

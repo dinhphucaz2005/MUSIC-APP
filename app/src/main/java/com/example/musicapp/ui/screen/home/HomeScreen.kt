@@ -36,7 +36,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.ui.components.SongItem
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
@@ -58,10 +58,10 @@ fun Preview() {
 fun HomeScreen(
     modifier: Modifier = Modifier, viewModel: MainViewModel
 ) {
-    val songs = viewModel.songList
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val currentSong by viewModel.currentSong.collectAsState()
-    val playlistState by viewModel.playlistState.collectAsState()
+    val activeSong by viewModel.activeSong.collectAsState()
+    val isCurrentlyPlaying by viewModel.isCurrentlyPlaying.collectAsState()
+    val currentPlaylistSongs by viewModel.currentPlaylistSongs.collectAsState()
+    val currentPlaylistState by viewModel.currentPlaylistState.collectAsState()
 
     val thumbnail = painterResource(id = R.drawable.image)
 
@@ -80,7 +80,7 @@ fun HomeScreen(
                 start.linkTo(parent.start, margin = 12.dp)
             }
 
-        currentSong.smallBitmap?.let {
+        activeSong.smallBitmap?.let {
             Image(
                 contentScale = ContentScale.Crop,
                 bitmap = it,
@@ -107,13 +107,13 @@ fun HomeScreen(
             .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.SpaceEvenly) {
             Text(
-                text = currentSong.title,
+                text = activeSong.title,
                 style = MaterialTheme.typography.titleLarge,
                 softWrap = true,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = currentSong.author,
+                text = activeSong.author,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -130,17 +130,17 @@ fun HomeScreen(
                 .padding(8.dp)
 
             listOf(
-                playlistState.resource,
+                currentPlaylistState.resource,
                 R.drawable.ic_skip_back,
-                isPlaying.resource,
+                isCurrentlyPlaying.resource,
                 R.drawable.ic_skip_forward
             ).forEachIndexed { index, resId ->
                 IconButton(onClick = {
                     when (index) {
-                        0 -> viewModel.refreshPlayListState()
+                        0 -> viewModel.updatePlaylistState()
                         1 -> viewModel.playPreviousTrack()
-                        2 -> viewModel.togglePlayPause()
-                        else -> viewModel.skipToNextTrack()
+                        2 -> viewModel.togglePlayback()
+                        else -> viewModel.playNextTrack()
                     }
                 }) {
                     Icon(
@@ -153,9 +153,7 @@ fun HomeScreen(
             }
             val hidden = true
             if (!hidden) {
-                IconButton(onClick = {
-                    viewModel.upload()
-                }) {
+                IconButton(onClick = { TODO("No longer used") }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = null,
@@ -181,10 +179,10 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(80.dp)
                 .padding(vertical = 8.dp, horizontal = 4.dp)
-            items(songs.size) { index ->
+            items(currentPlaylistSongs.size) { index ->
                 SongItem(songItemModifier.clickable {
-                    viewModel.playTrackAtIndex(index)
-                }, songs[index])
+                    viewModel.playSongAtIndex(index)
+                }, currentPlaylistSongs[index])
             }
         }
     }

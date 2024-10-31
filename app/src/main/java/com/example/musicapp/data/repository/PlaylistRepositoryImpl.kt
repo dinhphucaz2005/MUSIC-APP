@@ -69,8 +69,6 @@ class PlaylistRepositoryImpl @Inject constructor(
                 dao.addPlayList(PlaylistEntity(id, name))
                 playlist.name = name
                 songs.forEach {
-                    if (it.path == null)
-                        return@forEach
                     dao.addSong(
                         SongEntity(
                             playlistId = id,

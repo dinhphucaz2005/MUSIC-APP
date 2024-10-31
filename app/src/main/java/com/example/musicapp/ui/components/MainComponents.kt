@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
-import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.ui.theme.commonShape
 
 
@@ -46,8 +46,8 @@ fun SongPreview(
     viewModel: MainViewModel,
     showSongScreen: () -> Unit
 ) {
-    val playingState by viewModel.isPlaying.collectAsState()
-    val currentSong by viewModel.currentSong.collectAsState()
+    val activeSong by viewModel.activeSong.collectAsState()
+    val isCurrentlyPlaying by viewModel.isCurrentlyPlaying.collectAsState()
 
     Row(
         modifier = modifier
@@ -66,7 +66,7 @@ fun SongPreview(
             .fillMaxHeight()
             .aspectRatio(1f)
 
-        currentSong.smallBitmap?.let {
+        activeSong.smallBitmap?.let {
             Image(
                 bitmap = it,
                 modifier = imageModifier,
@@ -85,7 +85,7 @@ fun SongPreview(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = currentSong.title,
+                text = activeSong.title,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .basicMarquee(
@@ -97,7 +97,7 @@ fun SongPreview(
                 color = MaterialTheme.colorScheme.onSecondary
             )
             Text(
-                text = currentSong.author,
+                text = activeSong.author,
                 modifier = Modifier
                     .padding(start = 8.dp),
                 fontWeight = FontWeight.Bold,
@@ -114,7 +114,7 @@ fun SongPreview(
         }
         Icon(
             painter = painterResource(
-                playingState.resource
+                isCurrentlyPlaying.resource
             ),
             contentDescription = null,
             modifier = Modifier
@@ -122,12 +122,12 @@ fun SongPreview(
                 .fillMaxHeight()
                 .aspectRatio(1f)
                 .clickable {
-                    viewModel.togglePlayPause()
+                    viewModel.togglePlayback()
                 },
             tint = MaterialTheme.colorScheme.onSecondary
         )
         IconButton(onClick = {
-            viewModel.skipToNextTrack()
+            viewModel.playNextTrack()
         }) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.theme.components
+package com.example.musicapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

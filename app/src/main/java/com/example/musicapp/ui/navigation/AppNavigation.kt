@@ -18,7 +18,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.ui.Main
-import com.example.musicapp.ui.MainViewModel
+import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.ui.screen.song.SongScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 

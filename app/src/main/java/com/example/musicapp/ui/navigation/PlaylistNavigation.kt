@@ -11,7 +11,7 @@ import androidx.navigation.navigation
 import com.example.musicapp.ui.screen.playlist.PlaylistDetail
 import com.example.musicapp.ui.screen.playlist.PlaylistEdit
 import com.example.musicapp.ui.screen.playlist.PlaylistHome
-import com.example.musicapp.ui.screen.playlist.SelectSongViewModel
+import com.example.musicapp.viewmodels.SelectSongViewModel
 
 @UnstableApi
 fun NavGraphBuilder.playlistNavigation(navController: NavHostController) {

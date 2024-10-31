@@ -1,4 +1,4 @@
-package com.example.musicapp.ui.screen.playlist
+package com.example.musicapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
