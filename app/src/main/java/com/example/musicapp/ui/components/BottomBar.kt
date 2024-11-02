@@ -51,11 +51,9 @@ fun BottomBar(
             ) {
                 list.forEachIndexed { _, item ->
                     RegularBottomBarItem(Modifier.weight(1f), item) {
-                        println("${navController.currentDestination?.route}")
                         if (!navController.currentDestination?.route.toString()
                                 .startsWith(item.route)
                         ) {
-                            println("${navController.currentDestination?.route}")
                             navController.navigate(item.route) {
                                 popUpTo(Routes.HOME.name) {
                                     inclusive = (item.route == Routes.HOME.name)

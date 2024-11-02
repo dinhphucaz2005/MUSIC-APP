@@ -1,59 +1,62 @@
 package com.example.musicapp.data.repository
 
-import android.net.Uri
+import android.util.Log
 import com.example.musicapp.common.AppResource
-import com.example.musicapp.data.api.ApiService
-import com.example.musicapp.data.api.dto.ResponseDTO
-import com.example.musicapp.data.api.dto.SongDTO
+import com.example.musicapp.domain.model.ServerSong
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.CloudRepository
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class CloudRepositoryImpl(
-    private val apiService: ApiService
+class CloudRepositoryImpl @Inject constructor(
+    private val storage: StorageReference,
+    private val database: DatabaseReference
 ) : CloudRepository {
-    override suspend fun loadSongs(title: String, page: Int, size: Int): AppResource<List<Song>> {
-        return suspendCoroutine { continuation ->
-            apiService.getSongs("", page, size)
-                .enqueue(object : Callback<ResponseDTO<List<SongDTO>>> {
-                    override fun onResponse(
-                        p0: Call<ResponseDTO<List<SongDTO>>>,
-                        p1: Response<ResponseDTO<List<SongDTO>>>
-                    ) {
-                        if (p1.isSuccessful) {
-                            val response = p1.body()
-                            if (response != null) {
-                                val songs = response.data?.map { songDTO ->
-                                    Song(
-                                        fileName = songDTO.title,
-                                        title = songDTO.title,
-                                        author = songDTO.author,
-                                        path = songDTO.url
-                                    )
-                                }
-                                continuation.resume(AppResource.Success(songs ?: emptyList()))
-                            } else {
-                                continuation.resume(AppResource.Error("Songs not found"))
-                            }
-                        } else {
-                            val json = JSONObject(p1.errorBody()?.string() ?: "{}")
-                            val errorMessage = json.optString("msg")
-                            continuation.resume(AppResource.Error("Failed: $errorMessage"))
-                        }
-                    }
 
-                    override fun onFailure(
-                        p0: Call<ResponseDTO<List<SongDTO>>>,
-                        p1: Throwable
-                    ) {
-                        continuation.resume(AppResource.Error("${p1.message}"))
-                    }
-                })
+    companion object {
+        private const val TAG = "CloudRepositoryImpl"
+    }
+
+    private val page: Int = 0
+    private val size: Int = 10
+
+    /**
+     * This method is deprecated and no longer used.
+     * Use `loadMore()` instead.
+     */
+    @Deprecated(
+        "No longer used. Use loadMore() instead.",
+        ReplaceWith("loadMore()")
+    )
+    override suspend fun loadSongs(title: String, page: Int, size: Int): AppResource<List<Song>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun loadMore(): AppResource<List<ServerSong>> = try {
+        val songList = mutableListOf<ServerSong>()
+        Log.d(TAG, "loadMore: $songList")
+
+        val startAfter = page * size
+        val snapshot = database
+            .child("songs")
+            .orderByKey()
+            .startAt(startAfter.toString())
+            .limitToFirst(size)
+            .get().await()
+
+        for (child in snapshot.children) {
+            val serverSong = child.getValue(ServerSong::class.java)
+            serverSong?.let { songList.add(it) }
         }
+        Log.d(TAG, "loadMore: $songList")
+        AppResource.Success(songList)
+    } catch (e: Exception) {
+        AppResource.Error(e.message ?: "An error occurred")
+    }
+
+    override suspend fun upload(song: Song) {
+        TODO("Not yet implemented")
     }
 }

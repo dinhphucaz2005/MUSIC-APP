@@ -1,8 +1,6 @@
 package com.example.musicapp.util
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
@@ -12,9 +10,9 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.musicapp.domain.model.Playlist
+import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.enums.PlaylistState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -28,7 +26,7 @@ import javax.inject.Inject
 
 @OptIn(UnstableApi::class)
 class MediaControllerManager @Inject constructor(
-    private val context: Context, private val playlistRepository: PlaylistRepository
+    private val context: Context, private val repository: PlayListRepository
 ) {
 
     companion object {
@@ -39,6 +37,10 @@ class MediaControllerManager @Inject constructor(
     private var controller: MediaController? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val mainScope = CoroutineScope(Dispatchers.Main)
+
+    private var currentPlayList = PlayList.INVALID_PLAYLIST
+
     private val _isPlaying = MutableStateFlow<Boolean?>(null)
     private val _playListState = MutableStateFlow(PlaylistState.REPEAT_ALL)
     private val _currentSong = MutableStateFlow<Song?>(null)
@@ -49,16 +51,20 @@ class MediaControllerManager @Inject constructor(
 
     init {
         coroutineScope.launch {
-            playlistRepository.observeCurrentPlaylist().collect { playlist ->
-                withController {
-                    playlist?.let {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            loadSongs(it)
-                            play()
-                        }
-                    }
-                }
-            }
+            observeLocalFiles()
+            observeSavedPlayLists()
+        }
+    }
+
+    private fun CoroutineScope.observeLocalFiles() = launch {
+        repository.localFiles().collect {
+            loadSongs(currentPlayList)
+        }
+    }
+
+    private fun CoroutineScope.observeSavedPlayLists() = launch {
+        repository.savedPlayList().collect {
+            loadSongs(currentPlayList)
         }
     }
 
@@ -68,7 +74,12 @@ class MediaControllerManager @Inject constructor(
         }
 
         override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            updateCurrentSong()
+            val index = controller?.currentMediaItemIndex ?: return
+            if (currentPlayList.id != PlayList.LOCAL_ID) {
+//                _currentSong.value = repository.getAllSongsByPlayListId(currentPlayList.id)[index]
+            } else {
+//                _currentSong.value = repository.localFiles().value[index]
+            }
         }
     }
 
@@ -87,8 +98,7 @@ class MediaControllerManager @Inject constructor(
         }, MoreExecutors.directExecutor())
 
         // Load initial playlist if available
-        playlistRepository.observeCurrentPlaylist().value?.let { loadSongs(it) }
-        controller?.play()
+        loadSongs(PlayList.LOCAL_PLAYLIST)
     }
 
     @MainThread
@@ -102,12 +112,6 @@ class MediaControllerManager @Inject constructor(
             action(this)
             play()
         }
-    }
-
-
-    private fun updateCurrentSong() {
-        val index = getCurrentSongIndex() ?: return
-        _currentSong.value = playlistRepository.observeCurrentPlaylist().value?.songs?.get(index)
     }
 
 
@@ -144,10 +148,17 @@ class MediaControllerManager @Inject constructor(
         _playListState.value = nextState
     }
 
-    private fun getCurrentSongIndex(): Int? = withController { currentMediaItemIndex }
-
-    fun playSongAtIndex(index: Int) = withControllerPlay {
-        seekTo(index, 0)
+    fun playSongAtIndex(index: Int, playlist: PlayList = currentPlayList) = withControllerPlay {
+        if (playlist.id == currentPlayList.id) {
+            seekTo(index, 0)
+            play()
+        } else {
+            loadSongs(playlist)
+            playlist.index?.let {
+                seekTo(it, 0)
+                play()
+            }
+        }
     }
 
     fun playNextSong() = withControllerPlay { seekToNext() }
@@ -171,14 +182,19 @@ class MediaControllerManager @Inject constructor(
 
     fun getCurrentTrackPosition(): Long? = withController { currentPosition }
 
-    private fun loadSongs(playlist: Playlist) = withController {
-        if (playlist.songs.isEmpty()) return@withController
-        CoroutineScope(Dispatchers.Main).launch {
-            pause()
+    fun loadSongs(playlist: PlayList) = withController {
+        mainScope.launch {
             clearMediaItems()
-            playlist.songs.forEach { song -> addMediaItem(song) }
+            if (playlist.id == PlayList.LOCAL_ID) {
+                repository.localFiles().value.forEach { song ->
+                    addMediaItem(song)
+                }
+            } else {
+                repository.getAllSongsByPlayListId(playlist.id).forEach { song ->
+                    addMediaItem(song)
+                }
+            }
             prepare()
-            playlist.currentSong?.let { index -> seekTo(index, 0) }
         }
     }
 

@@ -8,7 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.musicapp.ui.screen.playlist.PlaylistDetail
+import com.example.musicapp.ui.screen.playlist.PlayListDetail
 import com.example.musicapp.ui.screen.playlist.PlaylistEdit
 import com.example.musicapp.ui.screen.playlist.PlaylistHome
 import com.example.musicapp.viewmodels.SelectSongViewModel
@@ -24,7 +24,7 @@ fun NavGraphBuilder.playlistNavigation(navController: NavHostController) {
             arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
         ) { backStackEntry ->
             val playlistId = backStackEntry.arguments?.getLong("playlistId")
-            PlaylistDetail(
+            PlayListDetail(
                 navController = navController,
                 viewModel = hiltViewModel(),
                 playlistId

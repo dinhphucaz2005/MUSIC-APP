@@ -132,7 +132,9 @@ fun PlaylistEdit(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp)
         ) {
-            itemsIndexed(songs) { index, item ->
+            itemsIndexed(songs, key = { _, item ->
+                item.first.id
+            }) { index, item ->
                 SelectableSongItem(
                     modifier = selectableSongItemModifier.clickable {
                         viewModel.togglePlaylist(index)
@@ -170,7 +172,7 @@ fun SelectableSongItem(
 
 
         Text(
-            text = song.fileName.getFileNameWithoutExtension(),
+            text = song.title,
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp),

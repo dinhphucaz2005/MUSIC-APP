@@ -151,9 +151,9 @@ fun HomeScreen(
                     )
                 }
             }
-            val hidden = true
+            val hidden = false
             if (!hidden) {
-                IconButton(onClick = { TODO("No longer used") }) {
+                IconButton(onClick = { viewModel.uploadSongs() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = null,

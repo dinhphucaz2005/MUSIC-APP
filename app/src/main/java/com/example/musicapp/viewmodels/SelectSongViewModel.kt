@@ -3,7 +3,7 @@ package com.example.musicapp.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.PlayListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SelectSongViewModel @Inject constructor(
-    private val playlistRepository: PlaylistRepository
+    private val playlistRepository: PlayListRepository
 ) : ViewModel() {
 
     private val _localSongs = MutableStateFlow<List<Pair<Song, Boolean>>>(emptyList())
@@ -21,32 +21,29 @@ class SelectSongViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            playlistRepository.observeLocalPlaylist().value?.let {
-                _localSongs.value =
-                    MutableList(it.songs.size) { index -> Pair(it.songs[index], false) }
+            playlistRepository.localFiles().value.let {
+                _localSongs.value = it.map { song ->
+                    Pair(song, false)
+                }
             }
         }
     }
 
 
     fun togglePlaylist(index: Int) {
-        _localSongs.value = _localSongs.value.mapIndexed { i, pair ->
-            if (i == index) {
-                Pair(pair.first, !pair.second)
-            } else {
-                pair
-            }
+        _localSongs.value = _localSongs.value.toMutableList().apply {
+            this[index] = Pair(this[index].first, !this[index].second)
         }
     }
 
     fun savePlaylist(id: Long, name: String) {
         viewModelScope.launch {
             val songs = _localSongs.value.filter { it.second }.map { it.first }
-            playlistRepository.savePlaylist(id, name, songs)
+            playlistRepository.updatePlayList(id, name, songs)
         }
     }
 
     fun getPlaylistName(playlistId: Long): String =
-        playlistRepository.observeAllPlaylistsFromDatabase().value.find { it.id == playlistId }?.name
+        playlistRepository.savedPlayList().value.find { it.id == playlistId }?.name
             ?: ""
 }

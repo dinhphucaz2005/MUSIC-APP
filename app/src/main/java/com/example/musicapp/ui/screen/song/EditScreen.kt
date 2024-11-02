@@ -65,7 +65,7 @@ fun EditScreen(
 ) {
 
     var imageUri: Uri? = null
-    var fileName by remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
+    var fileName by remember { mutableStateOf(song?.getFileName()) }
     var title by remember { mutableStateOf(song?.title ?: "") }
     var artist by remember { mutableStateOf(song?.author ?: "") }
 
@@ -83,7 +83,12 @@ fun EditScreen(
             )
         }
         item {
-            MyTextField(label = "File Name", value = fileName, onValueChange = { fileName = it })
+            fileName?.let {
+                MyTextField(
+                    label = "File Name",
+                    value = it,
+                    onValueChange = { fileName = it })
+            }
         }
         item {
             MyTextField(label = "Title", value = title, onValueChange = {
@@ -102,14 +107,16 @@ fun EditScreen(
             ActionButtons(
                 onSaveClick = {
                     song?.let {
-                        viewModel.saveSongFile(
-                            fileName = fileName,
-                            title = title,
-                            artist = artist,
-                            imageUri = imageUri,
-                            song = it
-                        ) {
-                            onDismiss()
+                        fileName?.let { it1 ->
+                            viewModel.saveSongFile(
+                                fileName = it1,
+                                title = title,
+                                artist = artist,
+                                imageUri = imageUri,
+                                song = it
+                            ) {
+                                onDismiss()
+                            }
                         }
                     }
                 }, onCancelClick = onDismiss

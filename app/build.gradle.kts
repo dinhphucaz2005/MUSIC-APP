@@ -87,6 +87,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     //Room Database
+    implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.room:room-runtime:2.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

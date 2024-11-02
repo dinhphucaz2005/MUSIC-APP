@@ -7,13 +7,11 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.callback.ResultCallback
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
-import com.example.musicapp.domain.repository.PlaylistRepository
-import com.example.musicapp.extension.getFileNameWithoutExtension
+import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.util.EventData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
@@ -22,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditViewModel @Inject constructor(
     private val editSongRepository: EditSongRepository,
-    private val playlistRepository: PlaylistRepository,
+    private val playlistRepository: PlayListRepository,
 ) : ViewModel() {
 
     companion object {
@@ -37,7 +35,7 @@ class EditViewModel @Inject constructor(
         song: Song,
         onSaved: (() -> Unit)? = null
     ) {
-        if (fileName == song.fileName.getFileNameWithoutExtension()) {
+        if (fileName == song.getFileName()) {
             EventBus.getDefault().postSticky(EventData("File name already exist"))
             return
         }

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.PlaylistRepository
+import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.domain.repository.UploadRepository
 import com.example.musicapp.enums.PlayingState
 import com.example.musicapp.enums.PlaylistState
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @UnstableApi
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val playlistRepository: PlaylistRepository,
+    private val playlistRepository: PlayListRepository,
     private val mediaController: MediaControllerManager,
     private val uploadRepository: UploadRepository
 ) : ViewModel() {
@@ -42,8 +42,8 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                playlistRepository.observeLocalPlaylist().collect { playlist ->
-                    _currentPlaylistSongs.value = playlist?.songs ?: emptyList()
+                playlistRepository.localFiles().collect { playlist ->
+                    _currentPlaylistSongs.value = playlist
                 }
             }
             launch {
@@ -75,7 +75,6 @@ class MainViewModel @Inject constructor(
     fun fastForwardTrack() = mediaController.adjustPlaybackByOffset(DEFAULT_SKIP_OFFSET_MILLIS)
 
     fun playSongAtIndex(index: Int) {
-        playlistRepository.setLocal(index)
         mediaController.playSongAtIndex(index)
     }
 
@@ -91,8 +90,8 @@ class MainViewModel @Inject constructor(
     @Deprecated("Test function")
     fun uploadSongs() {
         viewModelScope.launch {
-            _currentPlaylistSongs.value.forEachIndexed { index, song ->
-                uploadRepository.upload(song, index)
+            _currentPlaylistSongs.value.forEach { song ->
+                uploadRepository.upload(song)
             }
         }
     }

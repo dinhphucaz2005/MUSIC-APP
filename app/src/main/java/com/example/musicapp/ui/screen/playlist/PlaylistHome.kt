@@ -33,11 +33,11 @@ import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.screen.song.MyTextField
 import com.example.musicapp.ui.screen.playlist.components.EmptyPlaylistScreen
 import com.example.musicapp.ui.screen.playlist.components.PlayListItem
-import com.example.musicapp.viewmodels.PlaylistViewModel
+import com.example.musicapp.viewmodels.PlayListViewModel
 
 @UnstableApi
 @Composable
-fun PlaylistHome(navController: NavHostController, viewModel: PlaylistViewModel) {
+fun PlaylistHome(navController: NavHostController, viewModel: PlayListViewModel) {
 
     val playlists by viewModel.playlists.collectAsState()
 

@@ -33,33 +33,33 @@ class EditSongRepositoryImpl @Inject constructor(
         onSaveFile: ResultCallback<String>
     ) {
         Log.d(TAG, "saveSongFile: $song")
-        try {
-            val mp3File = Mp3File(song.path)
-            val id3v2Tag = mp3File.id3v2Tag
-            title?.let { id3v2Tag.title = it }
-            artist?.let { id3v2Tag.artist = it }
-            val contentResolver = context.contentResolver
-            imageUri?.let {
-                val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
-                inputStream?.use { input ->
-                    val originalBitmap = BitmapFactory.decodeStream(input)
-                    val outputStream = ByteArrayOutputStream()
-                    originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-                    val imageData = outputStream.toByteArray()
-                    id3v2Tag.setAlbumImage(imageData, "image/jpeg")
-                }
-            }
-            val fileExtension = song.path.getFileNameExtension()
-            val path = "/storage/emulated/0/Music/$fileName.$fileExtension"
-            mp3File.save(path)
-            MediaStoreHelper.scanFile(
-                path,
-                context,
-            ) { _, _ ->
-                onSaveFile.onSuccess("Saved successfully")
-            }
-        } catch (e: Exception) {
-            onSaveFile.onFailure(e)
-        }
+//        try {
+//            val mp3File = Mp3File(song.path)
+//            val id3v2Tag = mp3File.id3v2Tag
+//            title?.let { id3v2Tag.title = it }
+//            artist?.let { id3v2Tag.artist = it }
+//            val contentResolver = context.contentResolver
+//            imageUri?.let {
+//                val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
+//                inputStream?.use { input ->
+//                    val originalBitmap = BitmapFactory.decodeStream(input)
+//                    val outputStream = ByteArrayOutputStream()
+//                    originalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+//                    val imageData = outputStream.toByteArray()
+//                    id3v2Tag.setAlbumImage(imageData, "image/jpeg")
+//                }
+//            }
+//            val fileExtension = song.path.getFileNameExtension()
+//            val path = "/storage/emulated/0/Music/$fileName.$fileExtension"
+//            mp3File.save(path)
+//            MediaStoreHelper.scanFile(
+//                path,
+//                context,
+//            ) { _, _ ->
+//                onSaveFile.onSuccess("Saved successfully")
+//            }
+//        } catch (e: Exception) {
+//            onSaveFile.onFailure(e)
+//        }
     }
 }

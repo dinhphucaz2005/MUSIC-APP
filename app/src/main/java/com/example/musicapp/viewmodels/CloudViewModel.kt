@@ -1,12 +1,15 @@
 package com.example.musicapp.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicapp.common.AppResource
-import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.model.ServerSong
 import com.example.musicapp.domain.repository.CloudRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,28 +18,34 @@ class CloudViewModel @Inject constructor(
     private val cloudRepository: CloudRepository
 ) : ViewModel() {
 
-    private var currentPage = 0
-    private val pageSize = 10
+    companion object {
+        private const val TAG = "CloudViewModel"
+    }
 
-    private val _songs = mutableStateListOf<Song>()
-    val songs: List<Song> = _songs
+    private val _songs = MutableStateFlow<List<ServerSong>>(emptyList())
+    val songs: StateFlow<List<ServerSong>> = _songs.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            cloudRepository.loadSongs("", currentPage++, pageSize).let { result ->
-                when (result) {
-                    is AppResource.Success -> {
-                        result.data?.forEachIndexed { _, song ->
-                            _songs.add(song)
-                        }
-                    }
+        fetchSongs()
+    }
 
-                    is AppResource.Error -> {
-                        println(result.error)
+    private fun fetchSongs() {
+        viewModelScope.launch {
+            Log.d(TAG, "fetchSongs: ")
+            when (val result = cloudRepository.loadMore()) {
+                is AppResource.Success -> {
+                    result.data?.let {
+                        _songs.value = _songs.value.toMutableList().apply { addAll(it) }
                     }
+                }
+
+                is AppResource.Error -> {
+                    _errorMessage.value = result.error
                 }
             }
         }
     }
-
 }

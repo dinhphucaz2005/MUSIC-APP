@@ -1,9 +1,15 @@
 package com.example.musicapp
 
+import com.example.musicapp.data.database.entity.PlayListEntity
+import com.example.musicapp.data.database.entity.SongEntity
+import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.model.SongInfo
+import com.example.musicapp.extension.getId
 import com.example.musicapp.extension.toDuration
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
+import java.io.File
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -65,5 +71,39 @@ class ExampleUnitTest {
         val input = 7200000L // 2 hours
         val expectedOutput = "02:00:00"
         assertEquals(expectedOutput, input.toDuration())
+    }
+
+    @Test
+    fun `mapping songs to SongInfo`() {
+
+        val caching = mutableMapOf<Long, Int>() // <song id, index in local files>
+
+        val songEntities = listOf(
+            SongEntity(1, "Song 1", "/storage/emulated/0/Music/test1.mp3", 1),
+            SongEntity(2, "Song 2", "/storage/emulated/0/Music/test2.mp3", 1),
+            SongEntity(3, "Song 3", "/storage/emulated/0/Music/test3.mp3", 1),
+            SongEntity(4, "Song 4", "/storage/emulated/0/Music/test4.mp3", 2),
+            SongEntity(5, "Song 5", "/storage/emulated/0/Music/test5.mp3", 2)
+        )
+
+        songEntities.forEachIndexed { index, songEntity ->
+            val fileId = File(songEntity.path).getId()
+            caching[fileId] = index
+        }
+
+        val playListEntities = listOf(
+            PlayListEntity(id = 1, name = "Playlist 1"), PlayListEntity(id = 2, name = "Playlist 2")
+        )
+        val playlist: List<PlayList> = playListEntities.map { playListEntity ->
+            val songInfos = songEntities.filter { it.playlistId == playListEntity.id }.mapNotNull {
+                val file = File(it.path)
+//                if (file.exists())
+                SongInfo(it.id, file.getId())
+//                else
+//                    null
+            }
+            PlayList(playListEntity.id, playListEntity.name, songInfos)
+        }
+        println(playlist)
     }
 }

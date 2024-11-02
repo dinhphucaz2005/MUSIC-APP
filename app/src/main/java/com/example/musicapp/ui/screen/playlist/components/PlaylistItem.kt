@@ -25,19 +25,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.domain.model.Playlist
+import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.ui.components.CommonImage
-import com.example.musicapp.viewmodels.PlaylistViewModel
+import com.example.musicapp.viewmodels.PlayListViewModel
 import com.example.musicapp.ui.theme.commonShape
 
 @UnstableApi
 @Composable
 fun PlayListItem(
     modifier: Modifier,
-    playList: Playlist = Playlist(),
+    playList: PlayList = PlayList(),
     thumbnail: Painter,
     showDeleteButton: Boolean,
-    viewModel: PlaylistViewModel
+    viewModel: PlayListViewModel
 ) {
     Row(
         modifier = modifier
@@ -46,7 +46,7 @@ fun PlayListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CommonImage(
-            bitmap = playList.songs.firstOrNull()?.smallBitmap,
+            bitmap = playList.getSong().firstOrNull()?.smallBitmap,
             painter = thumbnail,
             modifier = Modifier
                 .clip(commonShape)

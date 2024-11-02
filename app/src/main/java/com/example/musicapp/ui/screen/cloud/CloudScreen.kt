@@ -2,20 +2,27 @@ package com.example.musicapp.ui.screen.cloud
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.common.AppResource
+import com.example.musicapp.domain.model.ServerSong
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.CloudRepository
 import com.example.musicapp.ui.components.SongItem
@@ -27,11 +34,20 @@ import com.example.musicapp.viewmodels.CloudViewModel
 private fun Preview() {
     MusicTheme {
         CloudScreen(viewModel = CloudViewModel(object : CloudRepository {
+            @Deprecated("No longer used")
             override suspend fun loadSongs(
                 title: String,
                 page: Int,
                 size: Int
             ): AppResource<List<Song>> {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun loadMore(): AppResource<List<ServerSong>> {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun upload(song: Song) {
                 TODO("Not yet implemented")
             }
         }))
@@ -42,7 +58,7 @@ private fun Preview() {
 @Composable
 fun CloudScreen(modifier: Modifier = Modifier, viewModel: CloudViewModel) {
 
-    val songs = viewModel.songs
+    val songs by viewModel.songs.collectAsState()
     val colors = listOf(
         listOf(Color(0xFF2b4ea2), Color(0xFF1ee3f0)),
         listOf(Color(0xFFda2b56), Color(0xFFf69d3f)),
@@ -68,14 +84,14 @@ fun CloudScreen(modifier: Modifier = Modifier, viewModel: CloudViewModel) {
             },
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            itemsIndexed(items = songs) { index, song ->
-                SongItem(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(80.dp),
-                    song,
-                    colors[index % colors.size]
-                )
+            itemsIndexed(
+                items = songs,
+//                key = { _, item -> item.id }
+            ) { _, song ->
+                Column {
+                    Text(song.title, color = Color.White, fontSize = 26.sp)
+                    Text(song.artist, color = Color.White, fontSize = 26.sp)
+                }
             }
         }
     }
