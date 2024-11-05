@@ -4,11 +4,9 @@ package com.example.musicapp.ui.screen.home
 
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +16,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
@@ -33,15 +28,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,9 +48,11 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.ui.components.LazyColumnWithAnimation
+import com.example.musicapp.ui.components.Thumbnail
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
+import com.example.musicapp.viewmodels.MainViewModel
 
 @ExperimentalMaterial3Api
 @UnstableApi
@@ -79,51 +75,34 @@ fun HomeScreen(
     val playList by viewModel.playList.collectAsState()
     val playBackState by viewModel.playBackState.collectAsState()
 
-    val thumbnail = painterResource(id = R.drawable.image)
-
     ConstraintLayout(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
     ) {
 
         val (image, textRef, row, divider, lazyColumn) = createRefs()
 
-
-        val imageModifier = Modifier
-            .clip(commonShape)
-            .size(120.dp)
-            .constrainAs(image) {
-                top.linkTo(parent.top, margin = 16.dp)
-                start.linkTo(parent.start, margin = 12.dp)
-            }
-
-        currentSong.smallBitmap?.let {
-            Image(
-                contentScale = ContentScale.Crop,
-                bitmap = it,
-                contentDescription = null,
-                modifier = imageModifier
-            )
-        } ?: Image(
-            painter = thumbnail,
-            contentDescription = null,
-            modifier = imageModifier,
-            contentScale = ContentScale.Crop
+        Thumbnail(
+            Modifier
+                .clip(commonShape)
+                .size(120.dp)
+                .constrainAs(image) {
+                    top.linkTo(parent.top, margin = 16.dp)
+                    start.linkTo(parent.start, margin = 12.dp)
+                }, currentSong.smallBitmap
         )
 
-
-        Column(
-            modifier = Modifier
-                .constrainAs(textRef) {
-                    top.linkTo(image.top)
-                    bottom.linkTo(image.bottom)
-                    start.linkTo(image.end)
-                    end.linkTo(parent.end, margin = 12.dp)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+        Column(modifier = Modifier
+            .constrainAs(textRef) {
+                top.linkTo(image.top)
+                bottom.linkTo(image.bottom)
+                start.linkTo(image.end)
+                end.linkTo(parent.end, margin = 12.dp)
+                width = Dimension.fillToConstraints
+                height = Dimension.fillToConstraints
+            }
+            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.SpaceEvenly) {
             Text(
                 text = currentSong.title,
                 style = MaterialTheme.typography.titleLarge,
@@ -187,44 +166,24 @@ fun HomeScreen(
                 top.linkTo(row.bottom)
             }, color = MaterialTheme.colorScheme.onSecondary
         )
-        SongList(
-            Modifier
+        LazyColumnWithAnimation(
+            modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(lazyColumn) {
                     top.linkTo(divider.bottom)
                     bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
-                }, playList.songs
-        ) { index ->
-            viewModel.playSongAtIndex(index)
-        }
-    }
-}
-
-@OptIn(UnstableApi::class)
-@Composable
-fun SongList(modifier: Modifier, songs: List<Song>, onItemCLick: (index: Int) -> Unit) {
-    val itemModifier = Modifier
-        .fillMaxWidth()
-        .height(80.dp)
-        .padding(vertical = 8.dp, horizontal = 4.dp)
-    LazyColumn(
-        modifier = modifier
-    ) {
-        itemsIndexed(items = songs, key = { _, item -> item.id }) { index, song ->
-            val offsetX = remember { Animatable(100f) }
-
-            LaunchedEffect(song) {
-                offsetX.animateTo(
-                    targetValue = 0f, animationSpec = tween(durationMillis = 150)
-                )
-            }
-
+                }, playList.songs,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) { modifier, index, item ->
             SongItem(
-                itemModifier
-                    .clickable { onItemCLick.invoke(index) }
-                    .offset(x = offsetX.value.dp),
-                song
+                modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { viewModel.playSongAtIndex(index) })
+                    },
+                item as Song,
             )
         }
     }
@@ -256,11 +215,9 @@ fun SongItem(
             Box(
                 modifier = imageModifier.background(
                     brush = Brush.linearGradient(
-                        if (colors.size >= 2) colors else
-                            listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
+                        if (colors.size >= 2) colors else listOf(
+                            MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary
+                        )
                     )
                 )
             )

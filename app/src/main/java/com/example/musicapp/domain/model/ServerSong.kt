@@ -5,13 +5,13 @@ import java.util.UUID
 
 @Immutable
 data class ServerSong(
-    val id: String,
+    override val id: String,
     val title: String,
     val songUri: String,
     val artist: String = "Unknown artist",
     val duration: Long? = null, // millis
     val thumbnailUri: String? = null,
-) {
+) : Identifiable {
     constructor() : this(
         UUID.randomUUID().toString(),
         "No title",

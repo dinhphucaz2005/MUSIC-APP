@@ -1,14 +1,10 @@
 package com.example.musicapp.ui.screen.playlist
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.AlertDialog
@@ -31,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.example.musicapp.R
+import com.example.musicapp.domain.model.PlayList
+import com.example.musicapp.ui.components.LazyColumnWithAnimation
 import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.screen.song.MyTextField
 import com.example.musicapp.ui.screen.playlist.components.EmptyPlaylistScreen
@@ -53,33 +51,31 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
         name = ""
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp),
-        floatingActionButton = {
-            if (playlists.isNotEmpty()) {
-                Button(
-                    onClick = { showDialog = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    ),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.AddCircle,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onTertiary
-                    )
-                    Text(
-                        text = "New playlist", modifier = Modifier.padding(start = 8.dp),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onTertiary
-                    )
-                }
+    Scaffold(modifier = Modifier
+        .fillMaxSize()
+        .padding(12.dp), floatingActionButton = {
+        if (playlists.isNotEmpty()) {
+            Button(
+                onClick = { showDialog = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.AddCircle,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onTertiary
+                )
+                Text(
+                    text = "New playlist",
+                    modifier = Modifier.padding(start = 8.dp),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onTertiary
+                )
             }
         }
-    ) { contentPadding ->
+    }) { contentPadding ->
 
         val contentModifier = Modifier
             .fillMaxSize()
@@ -88,46 +84,41 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
         if (playlists.isEmpty()) {
             EmptyPlaylistScreen(contentModifier) { showDialog = true }
         } else {
-            LazyColumn(
+            LazyColumnWithAnimation(
                 modifier = contentModifier,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                itemsIndexed(items = playlists, key = { _, item -> item.id }) { _, item ->
-                    var showDeleteButton by remember { mutableStateOf(false) }
-                    PlayListItem(
-                        Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = {
-                                        navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.id)
-                                    },
-                                    onLongPress = {
-                                        showDeleteButton = true
-                                    }
-                                )
-                            }
-                            .animateItemPlacement(tween(250)),
-                        item,
-                        thumbnail,
-                        showDeleteButton,
-                        viewModel
-                    )
-                }
+                items = playlists,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) { itemModifier, _, item ->
+                var showDeleteButton by remember { mutableStateOf(false) }
+
+                PlayListItem(
+                    modifier = itemModifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.id)
+                                },
+                                onLongPress = {
+                                    showDeleteButton = true
+                                }
+                            )
+                        },
+                    playlist = item as PlayList,
+                    thumbnail = thumbnail,
+                    showDeleteButton = showDeleteButton,
+                    viewModel = viewModel
+                )
             }
         }
         if (showDialog) {
-            AlertDialog(
-                modifier = Modifier,
+            AlertDialog(modifier = Modifier,
                 containerColor = MaterialTheme.colorScheme.background,
                 onDismissRequest = {
                     dismissCreatePlaylist()
                 },
                 text = {
                     MyTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = "Playlist name"
+                        value = name, onValueChange = { name = it }, label = "Playlist name"
                     )
                 },
                 dismissButton = {
@@ -144,8 +135,7 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
                     }) {
                         Text(text = "Save", color = MaterialTheme.colorScheme.background)
                     }
-                }
-            )
+                })
         }
     }
 }

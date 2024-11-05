@@ -7,13 +7,13 @@ import com.example.musicapp.data.database.entity.SongEntity
 
 @Immutable
 data class Song(
-    val id: Long,
+    override val id: Long,
     val uri: Uri,
     val title: String,
     val author: String,
     val smallBitmap: ImageBitmap? = null,
     val duration: Long? = null
-) {
+) : Identifiable {
     companion object {
         fun unidentifiedSong(): Song {
             return Song(

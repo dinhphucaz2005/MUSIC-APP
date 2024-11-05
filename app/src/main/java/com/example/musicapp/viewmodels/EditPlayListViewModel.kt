@@ -27,8 +27,10 @@ class EditPlayListViewModel @Inject constructor(
     val localSongs = repository.getLocalPlayList()
 
     fun savePlaylist(name: String, selectedSongs: SnapshotStateList<Long>) = databaseScope.launch {
-        playListId?.let { repository.savePlayList(it, name) }
-        playListId?.let { repository.addSongs(it, selectedSongs.toList()) }
+        playListId?.let {
+            repository.savePlayList(it, name)
+            repository.addSongs(it, selectedSongs.toList())
+        }
     }
 
     fun loadPlaylist(id: Long) = databaseScope.launch {

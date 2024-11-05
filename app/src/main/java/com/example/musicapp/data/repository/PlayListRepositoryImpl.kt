@@ -8,6 +8,7 @@ import com.example.musicapp.domain.repository.PlayListRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
@@ -77,9 +78,19 @@ class PlayListRepositoryImpl @Inject constructor(
         roomDataSource.addSongs(selectedSongIds.mapNotNull { id ->
             localSongs.find { it.id == id }
         }, playListId)
-        val newPlayList = roomDataSource
-            .getPlayList(playListId, localSongs) ?: return
+        val newPlayList = roomDataSource.getPlayList(playListId, localSongs) ?: return
         _savedPlayLists.value = _savedPlayLists.value.toMutableList()
             .map { if (it.id == playListId) newPlayList else it }
+    }
+
+    override suspend fun deleteSongs(playListId: Long, selectedSongIds: List<Long>) {
+        _savedPlayLists.update {
+            it.map { playList ->
+                if (playList.id == playListId) {
+                    playList.copy(songs = playList.songs.filter { song -> song.id !in selectedSongIds })
+                } else playList
+            }
+        }
+        roomDataSource.deleteSongs(selectedSongIds)
     }
 }

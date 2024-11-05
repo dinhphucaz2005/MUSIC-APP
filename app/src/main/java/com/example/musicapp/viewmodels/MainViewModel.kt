@@ -2,7 +2,6 @@ package com.example.musicapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,8 +10,7 @@ import javax.inject.Inject
 @UnstableApi
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val mediaController: MediaControllerManager,
-    private val repository: PlayListRepository
+    private val mediaController: MediaControllerManager, private val repository: PlayListRepository
 ) : ViewModel() {
 
     companion object {
@@ -35,9 +33,7 @@ class MainViewModel @Inject constructor(
 
     fun fastForwardTrack() = mediaController.adjustPlaybackByOffset(DEFAULT_SKIP_OFFSET_MILLIS)
 
-    fun playSongAtIndex(index: Int) {
-        mediaController.playSongAtIndex(index, PlayList.LOCAL_ID)
-    }
+    fun playSongAtIndex(index: Int) = mediaController.playSongLocalPlayList(index)
 
     fun togglePlayback() = mediaController.togglePlayPause()
 

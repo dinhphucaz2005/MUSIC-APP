@@ -66,4 +66,8 @@ class RoomDataSource @Inject constructor(
         return PlayList(playListEntity.id, playListEntity.name, songEntities)
     }
 
+    suspend fun deleteSongs(selectedSongIds: List<Long>) {
+        selectedSongIds.forEach { dao.deleteSong(it) }
+    }
+
 }

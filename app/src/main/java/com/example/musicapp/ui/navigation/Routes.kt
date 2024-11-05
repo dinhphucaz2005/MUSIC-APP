@@ -3,7 +3,7 @@ package com.example.musicapp.ui.navigation
 enum class Routes {
 
     SONG,
-    OTHER,
+    MAIN,
         HOME,
         PLAYLIST,
             PLAYLIST_HOME,
@@ -15,7 +15,7 @@ enum class Routes {
 
 /*
     SONG,
-    OTHER,
+    MAIN,
         HOME,
         PLAYLIST,
             PLAYLIST_HOME,

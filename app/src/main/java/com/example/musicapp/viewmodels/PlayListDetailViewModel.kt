@@ -7,8 +7,11 @@ import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,8 +21,11 @@ class PlayListDetailViewModel @Inject constructor(
     private val mediaControllerManager: MediaControllerManager
 ) : ViewModel() {
 
+    private val backgroundScope = CoroutineScope(Dispatchers.IO)
+
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    private val _selectedItems = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
+    private val _selectedItems =
+        MutableStateFlow<Map<Long, Boolean>>(emptyMap()) // song id in database to Boolean
 
     private val _playList = MutableStateFlow<PlayList?>(null)
     private val _inSelectionMode = MutableStateFlow(false)
@@ -45,25 +51,22 @@ class PlayListDetailViewModel @Inject constructor(
 
 
     fun toggleSelection(id: Long) {
-        _selectedItems.value = _selectedItems.value.toMutableMap().apply {
-            this[id] = !(this[id] ?: false)
+        _selectedItems.update {
+            it.toMutableMap().apply {
+                this[id] = !(this[id] ?: false)
+            }
         }
     }
 
 
     fun playTrack(index: Int) {
-        playList.value?.let {
-            mediaControllerManager.playSongAtIndex(index, it.id)
-        }
+        mediaControllerManager.playSongInSavedPlayList(index, _playList.value ?: return)
     }
 
     fun deleteSelectedSongs() {
         val selectedIds = _selectedItems.value.filter { it.value }.keys.toList()
-        viewModelScope.launch {
-//            repository.deleteSongsFromPlayList(
-//                selectedIds,
-//                currentPlayList.value?.id ?: return@launch
-//            )
+        backgroundScope.launch {
+            repository.deleteSongs(_playList.value?.id ?: return@launch, selectedIds)
         }
         exitSelectionMode()
     }

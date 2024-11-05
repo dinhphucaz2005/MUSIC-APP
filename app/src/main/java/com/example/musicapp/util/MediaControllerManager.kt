@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,7 +47,7 @@ class MediaControllerManager @Inject constructor(
     private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
     val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
 
-    private var currentPlayList = PlayList.INVALID_PLAYLIST
+    private var currentPlayList = PlayList.getInvalidPlayList()
 
     init {
         backgroundScope.launch {
@@ -59,14 +58,17 @@ class MediaControllerManager @Inject constructor(
 
     private fun CoroutineScope.observeLocalFiles() = launch {
         repository.getLocalPlayList().collect {
-            loadSongs(it)
+            if (it != currentPlayList) loadSongsAndPlay(it)
         }
     }
 
     private fun CoroutineScope.observeSavedPlayList() = launch {
-        repository.getSavedPlayLists().collect {
-            if (currentPlayList.id != PlayList.LOCAL_ID)
-                loadSongs(currentPlayList)
+        repository.getSavedPlayLists().collect { playLists ->
+            for (playList in playLists) {
+                if (playList.id == currentPlayList.id) {
+                    if (playList != currentPlayList) loadSongsAndPlay(playList)
+                }
+            }
         }
     }
 
@@ -97,9 +99,7 @@ class MediaControllerManager @Inject constructor(
                 Log.d(TAG, "initializeMediaController: ${e.message}")
             }
         }, MoreExecutors.directExecutor())
-
-        loadSongs(currentPlayList)
-        playSongAtIndex(0)
+        loadSongsAndPlay(currentPlayList)
     }
 
     @MainThread
@@ -137,16 +137,19 @@ class MediaControllerManager @Inject constructor(
         }
     }
 
-    fun playSongAtIndex(index: Int, playListId: Long = currentPlayList.id) = withControllerPlay {
-        if (playListId == currentPlayList.id) {
-            seekTo(index, 0)
-            play()
-        } else {
-            val newPlayList = repository.getPlayList(playListId) ?: return@withControllerPlay
-            loadSongs(newPlayList)
-            seekTo(index, 0)
-            play()
-        }
+    private fun playAtIndex(index: Int) = withController {
+        seekTo(index, 0)
+        play()
+    }
+
+    fun playSongLocalPlayList(index: Int) = withController {
+        if (currentPlayList.id == PlayList.LOCAL_ID) playAtIndex(index)
+        else loadSongsAndPlay(repository.getLocalPlayList().value, index)
+    }
+
+    fun playSongInSavedPlayList(index: Int, playList: PlayList) = withController {
+        if (currentPlayList.id != playList.id) loadSongsAndPlay(playList, index)
+        else playAtIndex(index)
     }
 
     fun playNextSong() = withControllerPlay {
@@ -172,13 +175,14 @@ class MediaControllerManager @Inject constructor(
 
     fun getCurrentTrackPosition(): Long? = withController { currentPosition }
 
-    private fun loadSongs(playlist: PlayList) {
+    private fun loadSongsAndPlay(playlist: PlayList, index: Int = 0) {
         currentPlayList = playlist
         withController {
             mainScope.launch {
                 clearMediaItems()
                 for (song in playlist.songs) addMediaItem(song)
                 prepare()
+                playAtIndex(index)
             }
         }
     }

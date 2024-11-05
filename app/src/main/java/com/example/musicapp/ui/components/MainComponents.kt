@@ -1,147 +1,31 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.example.musicapp.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.MarqueeSpacing
-import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
-import com.example.musicapp.di.FakeModule
-import com.example.musicapp.viewmodels.MainViewModel
-import com.example.musicapp.ui.theme.commonShape
 
-@UnstableApi
-@Preview
 @Composable
-private fun TestPreview() {
-    SongPreview(viewModel = FakeModule.provideMainViewModel()) { }
-}
-
-@ExperimentalFoundationApi
-@UnstableApi
-@Composable
-fun SongPreview(
-    modifier: Modifier = Modifier, viewModel: MainViewModel, showSongScreen: () -> Unit
+fun Thumbnail(
+    modifier: Modifier = Modifier, bitmap: ImageBitmap?
 ) {
-    val currentSong by viewModel.currentSong.collectAsState()
-    val playBackState by viewModel.playBackState.collectAsState()
-
-    Row(modifier = modifier
-        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.secondary)
-        .height(72.dp)
-        .clickable {
-            showSongScreen()
-        }
-        .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-
-        val imageModifier = Modifier
-            .clip(commonShape)
-            .fillMaxHeight()
-            .aspectRatio(1f)
-
-        currentSong.smallBitmap?.let {
-            Image(
-                bitmap = it,
-                modifier = imageModifier,
-                contentDescription = null,
-                contentScale = ContentScale.Crop
-            )
-        } ?: Image(
-            painter = painterResource(id = R.drawable.image),
+    bitmap?.let {
+        Image(
+            bitmap = it,
+            contentScale = ContentScale.Crop,
             contentDescription = null,
-            modifier = imageModifier
+            modifier = modifier
         )
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Text(
-                text = currentSong.title,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .basicMarquee(
-                        iterations = Int.MAX_VALUE,
-                        spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
-                    ),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
-            Text(
-                text = currentSong.author,
-                modifier = Modifier.padding(start = 8.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSecondary,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-        }
-        IconButton(onClick = { TODO("Add song to favourite") }) {
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondary,
-            )
-        }
-        Icon(
-            painter = painterResource(playBackState.playerState.resource),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxHeight()
-                .aspectRatio(1f)
-                .clickable {
-                    viewModel.togglePlayback()
-                },
-            tint = MaterialTheme.colorScheme.onSecondary
-        )
-        IconButton(
-            onClick = { viewModel.playNextTrack() }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondary
-            )
-        }
-    }
+    } ?: Image(
+        painter = painterResource(R.drawable.image),
+        contentScale = ContentScale.Crop,
+        contentDescription = null,
+        modifier = modifier
+    )
 }
+
+
+

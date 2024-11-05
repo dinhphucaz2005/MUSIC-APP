@@ -74,6 +74,10 @@ object FakeModule {
         override suspend fun addSongs(playListId: Long, selectedSongIds: List<Long>) {
             TODO("Not yet implemented")
         }
+
+        override suspend fun deleteSongs(playListId: Long, selectedSongIds: List<Long>) {
+            TODO("Not yet implemented")
+        }
     }
 
     private val uploadRepository = object : UploadRepository {

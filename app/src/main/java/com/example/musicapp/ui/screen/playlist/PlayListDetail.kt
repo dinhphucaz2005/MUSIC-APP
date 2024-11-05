@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -52,7 +50,9 @@ import androidx.navigation.NavHostController
 import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
+import com.example.musicapp.domain.model.Song
 import com.example.musicapp.ui.components.CommonImage
+import com.example.musicapp.ui.components.LazyColumnWithAnimation
 import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
@@ -155,8 +155,7 @@ fun PlayListDetail(
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
             }
-            .aspectRatio(1f), verticalArrangement = Arrangement.SpaceEvenly)
-        {
+            .aspectRatio(1f), verticalArrangement = Arrangement.SpaceEvenly) {
             Text(
                 text = playList?.name ?: "Unknown",
                 style = MaterialTheme.typography.titleLarge,
@@ -197,7 +196,7 @@ fun PlayListDetail(
         }
 
         Button(
-            onClick = { /* Shuffle action */ },
+            onClick = { TODO("Shuffle all songs") },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .padding(horizontal = 30.dp)
@@ -215,13 +214,13 @@ fun PlayListDetail(
                 tint = MaterialTheme.colorScheme.tertiary
             )
             Text(
-                text = "Shuffle", color = MaterialTheme.colorScheme.tertiary,
+                text = "Shuffle",
+                color = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
 
-        Button(
-            onClick = { TODO("Play list") },
+        Button(onClick = { TODO("Play list") },
             modifier = Modifier
                 .padding(horizontal = 30.dp)
                 .constrainAs(button2) {
@@ -236,7 +235,8 @@ fun PlayListDetail(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.PlayArrow, contentDescription = null,
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.background
             )
             Text(text = "Play", modifier = Modifier.padding(start = 8.dp))
@@ -249,61 +249,59 @@ fun PlayListDetail(
             width = Dimension.fillToConstraints
         }, color = MaterialTheme.colorScheme.primary)
 
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .constrainAs(lazyRow) {
-                top.linkTo(horizontalDivider.bottom, margin = 12.dp)
-                bottom.linkTo(parent.bottom)
-                height = Dimension.fillToConstraints
-            }) {
-            itemsIndexed(
-                items = playList?.songs ?: emptyList(),
-                key = { _, item -> item.id }) { index, song ->
-                val isSelected = selectedItems[song.id] ?: false
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(vertical = 8.dp, horizontal = 4.dp)
-                        .clip(commonShape)
-                        .background(if (isSelected) Color(0xFF48576e) else Color.Transparent)
-                        .pointerInput(Unit) {
-                            detectTapGestures(onLongPress = {
-                                viewModel.startSelectionMode()
+        LazyColumnWithAnimation(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(lazyRow) {
+                    top.linkTo(horizontalDivider.bottom, margin = 12.dp)
+                    bottom.linkTo(parent.bottom)
+                    height = Dimension.fillToConstraints
+                }, items = playList?.songs ?: emptyList()
+        ) { itemModifier, index, item ->
+            val song = item as Song
+            val isSelected = selectedItems[song.id] ?: false
+            Row(
+                modifier = itemModifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .padding(vertical = 8.dp, horizontal = 4.dp)
+                    .clip(commonShape)
+                    .background(if (isSelected) Color(0xFF48576e) else Color.Transparent)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onLongPress = {
+                            viewModel.startSelectionMode()
+                            viewModel.toggleSelection(song.id)
+                        }, onTap = {
+                            if (inSelectionMode) {
                                 viewModel.toggleSelection(song.id)
-                            }, onTap = {
-                                if (inSelectionMode) {
-                                    viewModel.toggleSelection(song.id)
-                                } else viewModel.playTrack(index)
-                            })
-                        }, verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CommonImage(
-                        bitmap = song.smallBitmap,
-                        painter = thumbnail,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(1f)
+                            } else viewModel.playTrack(index)
+                        })
+                    }, verticalAlignment = Alignment.CenterVertically
+            ) {
+                CommonImage(
+                    bitmap = song.smallBitmap,
+                    painter = thumbnail,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                )
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                )
+                if (inSelectionMode) {
+                    Icon(
+                        imageVector = if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = null,
+                        modifier = Modifier.padding(6.dp)
                     )
-                    Text(
-                        text = song.title,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    )
-                    if (inSelectionMode) {
-                        Icon(
-                            imageVector = if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = null,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
                 }
             }
         }
     }
 }
-

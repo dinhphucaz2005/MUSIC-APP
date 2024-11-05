@@ -20,4 +20,6 @@ interface PlayListRepository {
     suspend fun deletePlayList(id: Long)
 
     suspend fun addSongs(playListId: Long, selectedSongIds: List<Long>)
+
+    suspend fun deleteSongs(playListId: Long, selectedSongIds: List<Long>)
 }

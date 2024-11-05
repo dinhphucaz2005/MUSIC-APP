@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.ui.components.CommonImage
@@ -35,7 +34,7 @@ import com.example.musicapp.ui.theme.commonShape
 @Composable
 fun PlayListItem(
     modifier: Modifier,
-    playList: PlayList = PlayList(),
+    playlist: PlayList = PlayList(),
     thumbnail: Painter,
     showDeleteButton: Boolean,
     viewModel: PlayListViewModel
@@ -47,7 +46,7 @@ fun PlayListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CommonImage(
-            bitmap = playList.getSong().firstOrNull()?.smallBitmap,
+            bitmap = playlist.getSong().firstOrNull()?.smallBitmap,
             painter = thumbnail,
             modifier = Modifier
                 .clip(commonShape)
@@ -63,7 +62,7 @@ fun PlayListItem(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = playList.name, color = MaterialTheme.colorScheme.primary,
+                text = playlist.name, color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
             )
@@ -79,7 +78,7 @@ fun PlayListItem(
             tint = MaterialTheme.colorScheme.primary
         )
         if (showDeleteButton) {
-            IconButton(onClick = { viewModel.deletePlayList(id = playList.id) }) {
+            IconButton(onClick = { viewModel.deletePlayList(id = playlist.id) }) {
                 Icon(
                     imageVector = Icons.Default.Delete, contentDescription = null,
                     modifier = Modifier
