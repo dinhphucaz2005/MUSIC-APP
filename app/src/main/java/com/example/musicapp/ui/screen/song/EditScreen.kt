@@ -43,7 +43,6 @@ import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.extension.getFileNameWithoutExtension
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
 import com.example.musicapp.viewmodels.EditViewModel
@@ -52,7 +51,11 @@ import com.example.musicapp.viewmodels.EditViewModel
 @Composable
 fun EditScreenPreview() {
     MusicTheme {
-        EditScreen(song = Song(), onDismiss = {}, viewModel = FakeModule.provideEditViewModel())
+        EditScreen(
+            song = Song.unidentifiedSong(),
+            onDismiss = {},
+            viewModel = FakeModule.provideEditViewModel()
+        )
     }
 }
 
@@ -83,12 +86,10 @@ fun EditScreen(
             )
         }
         item {
-            fileName?.let {
-                MyTextField(
-                    label = "File Name",
-                    value = it,
-                    onValueChange = { fileName = it })
-            }
+            MyTextField(
+                label = "File Name",
+                value = fileName ?: "Invalid",
+                onValueChange = { fileName = it })
         }
         item {
             MyTextField(label = "Title", value = title, onValueChange = {

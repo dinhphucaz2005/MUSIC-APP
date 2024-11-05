@@ -1,24 +1,23 @@
 package com.example.musicapp.domain.repository
 
 import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.domain.model.Song
 import kotlinx.coroutines.flow.StateFlow
 
 interface PlayListRepository {
 
     suspend fun reload()
 
-    suspend fun addPlaylist(name: String)
+    fun getLocalPlayList(): StateFlow<PlayList>
 
-    suspend fun deletePlaylist(id: Long)
+    fun getSavedPlayLists(): StateFlow<List<PlayList>>
 
-    suspend fun updatePlayList(id: Long, name: String?, songs: List<Song>?)
+    fun getPlayList(playListId: Long): PlayList?
 
-    suspend fun deleteSongsFromPlayList(songsId: List<Long>, playlistId: Long)
+    suspend fun createPlayList(name: String)
 
-    fun localFiles(): StateFlow<List<Song>>
+    suspend fun savePlayList(id: Long, name: String)
 
-    fun savedPlayList(): StateFlow<List<PlayList>>
+    suspend fun deletePlayList(id: Long)
 
-    fun getAllSongsByPlayListId(id: Long): List<Song>
+    suspend fun addSongs(playListId: Long, selectedSongIds: List<Long>)
 }

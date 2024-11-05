@@ -1,114 +1,85 @@
 package com.example.musicapp.data.repository
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.musicapp.data.LocalDataSource
-import com.example.musicapp.data.database.AppDAO
-import com.example.musicapp.data.database.entity.PlayListEntity
-import com.example.musicapp.data.database.entity.SongEntity
+import com.example.musicapp.data.RoomDataSource
 import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.model.SongInfo
 import com.example.musicapp.domain.repository.PlayListRepository
-import com.example.musicapp.extension.getId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.io.File
+import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 class PlayListRepositoryImpl @Inject constructor(
-    private val dao: AppDAO, private val context: Context, private val dataSource: LocalDataSource
+    private val context: Context,
+    private val roomDataSource: RoomDataSource,
+    private val localDataSource: LocalDataSource
 ) : PlayListRepository {
 
-    companion object {
-        private const val TAG = "PlaylistRepositoryImpl"
-    }
-
-    private val _savedPlayList = MutableStateFlow(listOf<PlayList>())
-    private val _localSongFiles = MutableStateFlow(listOf<Song>())
+    private val _localPlayList = MutableStateFlow(PlayList.getLocalPlayList(emptyList()))
+    private val _savedPlayLists = MutableStateFlow(listOf<PlayList>())
 
     override suspend fun reload() {
-        Log.d(TAG, "reload: ")
         try {
-            getLocalFiles()
-            fetchSavedPlayLists()
+            val currentSongs = _localPlayList.value.songs
+            val newSongs = localDataSource.fetch(context)
+
+            val updateLocalPlayList = {
+                _localPlayList.value = _localPlayList.value.copy(songs = newSongs)
+            }
+
+            if (currentSongs.size != newSongs.size) updateLocalPlayList()
+            else {
+                for (index in currentSongs.indices) {
+                    if (currentSongs[index] != newSongs[index]) {
+                        updateLocalPlayList()
+                        break
+                    }
+                }
+            }
+
+            _savedPlayLists.value = roomDataSource.getSavedPlayLists(newSongs)
         } catch (e: Exception) {
-            Log.d(TAG, "Error in reload: ${e.message}")
+            EventBus.getDefault().postSticky("Error in reload: ${e.message}")
         }
     }
 
+    override fun getLocalPlayList(): StateFlow<PlayList> = _localPlayList.asStateFlow()
 
-    override fun localFiles(): StateFlow<List<Song>> = _localSongFiles.asStateFlow()
+    override fun getSavedPlayLists(): StateFlow<List<PlayList>> = _savedPlayLists.asStateFlow()
 
-    override fun savedPlayList(): StateFlow<List<PlayList>> = _savedPlayList.asStateFlow()
+    override fun getPlayList(playListId: Long): PlayList? {
+        return _savedPlayLists.value.find { it.id == playListId }
+    }
 
-    override suspend fun deleteSongsFromPlayList(songsId: List<Long>, playlistId: Long) {
-        songsId.forEach { dao.deleteSong(it) }
-        val songInfos = dao.getSongsByPlayListId(playlistId).mapNotNull {
-            val file = File(it.path)
-            if (file.exists()) SongInfo(it.id, file.getId())
-            else null
-        }
-        _savedPlayList.value = _savedPlayList.value.map {
-            if (it.id == playlistId) it.copy(songInfos = songInfos)
-            else it
+    override suspend fun createPlayList(name: String) {
+        roomDataSource.createNewPlayList(name).let {
+            _savedPlayLists.value = _savedPlayLists.value.toMutableList().apply { add(it) }
         }
     }
 
-
-    override suspend fun addPlaylist(name: String) {
-        val id = dao.addPlayList(PlayListEntity(name = name))
-        _savedPlayList.value =
-            _savedPlayList.value.toMutableList().apply { add(PlayList(id, name)) }
-        _savedPlayList.value.toMutableList().apply { add(PlayList(id, name)) }
+    override suspend fun savePlayList(id: Long, name: String) {
+        _savedPlayLists.value = _savedPlayLists.value.toMutableList()
+            .map { if (it.id == id) it.copy(name = name) else it }
+        roomDataSource.savePlayList(id, name)
     }
 
-    override suspend fun updatePlayList(id: Long, name: String?, songs: List<Song>?) {
-        name?.let { dao.updatePlayList(PlayListEntity(id, name)) }
-        songs?.forEach { song ->
-            song.getPath()?.let {
-                dao.addSong(
-                    SongEntity(
-                        title = song.title, path = it, playlistId = id
-                    )
-                )
-            }
-        }
-        fetchSavedPlayLists()
+    override suspend fun deletePlayList(id: Long) {
+        _savedPlayLists.value = _savedPlayLists.value.toMutableList().filter { it.id != id }
+        roomDataSource.deletePlayList(id)
     }
 
-    override suspend fun deletePlaylist(id: Long) = dao.deletePlayList(id)
-
-    private suspend fun getLocalFiles() {
-        _localSongFiles.value = dataSource.fetch(context, _localSongFiles.value)
+    override suspend fun addSongs(
+        playListId: Long, selectedSongIds: List<Long>
+    ) {
+        val localSongs = _localPlayList.value.songs
+        roomDataSource.addSongs(selectedSongIds.mapNotNull { id ->
+            localSongs.find { it.id == id }
+        }, playListId)
+        val newPlayList = roomDataSource
+            .getPlayList(playListId, localSongs) ?: return
+        _savedPlayLists.value = _savedPlayLists.value.toMutableList()
+            .map { if (it.id == playListId) newPlayList else it }
     }
-
-    private suspend fun fetchSavedPlayLists() {
-        val songEntities = dao.getSongs()
-        val playListEntities = dao.getPlayLists()
-        println(songEntities)
-        println(playListEntities)
-        val playLists = playListEntities.map { playListEntity ->
-            val songInfos = songEntities.filter { it.playlistId == playListEntity.id }.mapNotNull {
-                val file = File(it.path)
-                if (file.exists()) SongInfo(it.id, file.getId())
-                else null
-            }
-            PlayList(playListEntity.id, playListEntity.name, songInfos)
-        }
-        _savedPlayList.value = playLists
-    }
-
-    override fun getAllSongsByPlayListId(id: Long): List<Song> {
-        val localSongs = _localSongFiles.value
-        val playList = _savedPlayList.value.find { it.id == id } ?: return emptyList()
-        return playList.songInfos.mapNotNull { songInfo ->
-            val index = dataSource.getSongInfo(songInfo.localSongId)
-            if (index == null) null
-            else localSongs[index].copy(id = songInfo.songId)
-        }
-    }
-
 }

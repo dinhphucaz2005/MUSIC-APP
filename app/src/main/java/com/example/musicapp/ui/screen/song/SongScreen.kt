@@ -71,7 +71,7 @@ fun SongScreenPreview() {
     MusicTheme {
         SongScreen(
             navHostController = NavHostController(LocalContext.current),
-            viewModel = FakeModule.provideViewModel(),
+            viewModel = FakeModule.provideMainViewModel(),
         )
     }
 }
@@ -84,10 +84,9 @@ fun SongScreen(
     navHostController: NavHostController,
     viewModel: MainViewModel,
 ) {
-    val activeSong by viewModel.activeSong.collectAsState()
+    val currentSong by viewModel.currentSong.collectAsState()
+    val playBackState by viewModel.playBackState.collectAsState()
     var sliderPosition by remember { mutableFloatStateOf(0f) }
-    val isCurrentlyPlaying by viewModel.isCurrentlyPlaying.collectAsState()
-    val currentPlaylistState by viewModel.currentPlaylistState.collectAsState()
 
     var pause by remember { mutableStateOf(false) }
     var current by remember { mutableStateOf("00:00") }
@@ -129,7 +128,7 @@ fun SongScreen(
                 start.linkTo(parent.start)
             }
 
-        activeSong.smallBitmap?.let {
+        currentSong?.smallBitmap?.let {
             Image(
                 bitmap = it,
                 contentScale = ContentScale.Crop,
@@ -199,7 +198,7 @@ fun SongScreen(
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_rewind)) }
                 IconButton(
                     onClick = { viewModel.togglePlayback() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = isCurrentlyPlaying.resource)) }
+                ) { CommonIcon(painter = painterResource(id = playBackState.playerState.resource)) }
                 IconButton(
                     onClick = { viewModel.fastForwardTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_fast_forward)) }
@@ -213,7 +212,7 @@ fun SongScreen(
             ) {
                 IconButton(
                     onClick = { viewModel.updatePlaylistState() }, modifier = iconModifier
-                ) { CommonIcon(painterResource(id = currentPlaylistState.resource)) }
+                ) { CommonIcon(painterResource(id = playBackState.loopMode.resource)) }
                 IconButton(
                     onClick = { viewModel.playPreviousTrack() }, modifier = iconModifier
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_back)) }
@@ -228,7 +227,7 @@ fun SongScreen(
                 ) { CommonIcon(painter = painterResource(id = R.drawable.ic_share)) }
             }
         }
-        Text(text = activeSong.title,
+        Text(text = currentSong?.title ?: "No song is playing",
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             style = MaterialTheme.typography.titleLarge,
@@ -243,7 +242,7 @@ fun SongScreen(
                     spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
                 ))
 
-        Text(text = activeSong.author,
+        Text(text = currentSong?.author ?: "No author",
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.constrainAs(artistRef) {
@@ -271,7 +270,7 @@ fun SongScreen(
 
         Box(modifier = boxModifier) {
             val imageModifier = Modifier.fillMaxSize()
-            activeSong.smallBitmap?.let {
+            currentSong?.smallBitmap?.let {
                 Image(
                     bitmap = it,
                     contentDescription = null,
@@ -316,7 +315,7 @@ fun SongScreen(
             style = MaterialTheme.typography.labelSmall
         )
         Text(
-            text = activeSong.duration.toDuration(),
+            text = currentSong?.duration.toDuration(),
             modifier = Modifier.constrainAs(endTime) {
                 top.linkTo(sliderRef.bottom)
                 bottom.linkTo(sliderRef.bottom)
@@ -328,7 +327,7 @@ fun SongScreen(
         AnimatedVisibility(
             visible = showEditScreen, enter = Animator.enterAnimation, exit = Animator.exitAnimation
         ) {
-            EditScreen(song = activeSong, onDismiss = { showEditScreen = false })
+            EditScreen(song = currentSong, onDismiss = { showEditScreen = false })
         }
     }
 }

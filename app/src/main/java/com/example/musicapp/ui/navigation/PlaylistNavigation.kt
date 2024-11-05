@@ -10,14 +10,13 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.musicapp.ui.screen.playlist.PlayListDetail
 import com.example.musicapp.ui.screen.playlist.PlaylistEdit
-import com.example.musicapp.ui.screen.playlist.PlaylistHome
-import com.example.musicapp.viewmodels.SelectSongViewModel
+import com.example.musicapp.ui.screen.playlist.PlayListHome
 
 @UnstableApi
 fun NavGraphBuilder.playlistNavigation(navController: NavHostController) {
     navigation(startDestination = Routes.PLAYLIST_HOME.name, route = Routes.PLAYLIST.name) {
         composable(route = Routes.PLAYLIST_HOME.name) {
-            PlaylistHome(navController = navController, hiltViewModel())
+            PlayListHome(navController = navController, hiltViewModel())
         }
         composable(
             route = Routes.PLAYLIST_DETAIL.name + "/{playlistId}",
@@ -36,9 +35,7 @@ fun NavGraphBuilder.playlistNavigation(navController: NavHostController) {
         ) { backStackEntry ->
             val playlistId = backStackEntry.arguments?.getLong("playlistId")
             if (playlistId != null) {
-                val selectSongViewModel: SelectSongViewModel = hiltViewModel()
-                val name = selectSongViewModel.getPlaylistName(playlistId)
-                PlaylistEdit(id = playlistId, name, navController = navController)
+                PlaylistEdit(id = playlistId, navController = navController)
             } else
                 navController.popBackStack()
         }

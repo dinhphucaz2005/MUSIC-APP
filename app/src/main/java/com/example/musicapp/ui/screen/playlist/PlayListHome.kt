@@ -1,5 +1,7 @@
 package com.example.musicapp.ui.screen.playlist
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,9 +37,10 @@ import com.example.musicapp.ui.screen.playlist.components.EmptyPlaylistScreen
 import com.example.musicapp.ui.screen.playlist.components.PlayListItem
 import com.example.musicapp.viewmodels.PlayListViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
-fun PlaylistHome(navController: NavHostController, viewModel: PlayListViewModel) {
+fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel) {
 
     val playlists by viewModel.playlists.collectAsState()
 
@@ -93,16 +96,18 @@ fun PlaylistHome(navController: NavHostController, viewModel: PlayListViewModel)
                 itemsIndexed(items = playlists, key = { _, item -> item.id }) { _, item ->
                     var showDeleteButton by remember { mutableStateOf(false) }
                     PlayListItem(
-                        Modifier.pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.id)
-                                },
-                                onLongPress = {
-                                    showDeleteButton = true
-                                }
-                            )
-                        },
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.id)
+                                    },
+                                    onLongPress = {
+                                        showDeleteButton = true
+                                    }
+                                )
+                            }
+                            .animateItemPlacement(tween(250)),
                         item,
                         thumbnail,
                         showDeleteButton,
@@ -134,7 +139,7 @@ fun PlaylistHome(navController: NavHostController, viewModel: PlayListViewModel)
                 },
                 confirmButton = {
                     Button(onClick = {
-                        viewModel.savePlaylist(name)
+                        viewModel.createNewPlayList(name)
                         dismissCreatePlaylist()
                     }) {
                         Text(text = "Save", color = MaterialTheme.colorScheme.background)

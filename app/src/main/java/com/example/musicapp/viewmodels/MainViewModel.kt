@@ -1,68 +1,29 @@
 package com.example.musicapp.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.repository.PlayListRepository
-import com.example.musicapp.domain.repository.UploadRepository
-import com.example.musicapp.enums.PlayingState
-import com.example.musicapp.enums.PlaylistState
 import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @UnstableApi
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val playlistRepository: PlayListRepository,
     private val mediaController: MediaControllerManager,
-    private val uploadRepository: UploadRepository
+    private val repository: PlayListRepository
 ) : ViewModel() {
 
     companion object {
         private const val DEFAULT_SKIP_OFFSET_MILLIS = 5000L
     }
 
-    private val _currentPlaylistSongs = MutableStateFlow<List<Song>>(emptyList())
-    val currentPlaylistSongs: StateFlow<List<Song>> = _currentPlaylistSongs.asStateFlow()
 
-    private val _isCurrentlyPlaying = MutableStateFlow(PlayingState.FALSE)
-    private val _currentPlaylistState = MutableStateFlow(PlaylistState.REPEAT_ALL)
-    private val _activeSong = MutableStateFlow(Song())
+    val playList = repository.getLocalPlayList()
+    val currentSong = mediaController.currentSong
+    val playBackState = mediaController.playBackState
 
-    val activeSong: StateFlow<Song> = _activeSong.asStateFlow()
-    val isCurrentlyPlaying: StateFlow<PlayingState> = _isCurrentlyPlaying.asStateFlow()
-    val currentPlaylistState: StateFlow<PlaylistState> = _currentPlaylistState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            launch {
-                playlistRepository.localFiles().collect { playlist ->
-                    _currentPlaylistSongs.value = playlist
-                }
-            }
-            launch {
-                mediaController.currentSong.collect { song ->
-                    _activeSong.value = song ?: Song()
-                }
-            }
-            launch {
-                mediaController.isPlaying.collect {
-                    _isCurrentlyPlaying.value = PlayingState.fromBoolean(it)
-                }
-            }
-            launch {
-                mediaController.playListState.collect {
-                    _currentPlaylistState.value = it
-                }
-            }
-        }
-    }
 
     fun playNextTrack() = mediaController.playNextSong()
 
@@ -75,7 +36,7 @@ class MainViewModel @Inject constructor(
     fun fastForwardTrack() = mediaController.adjustPlaybackByOffset(DEFAULT_SKIP_OFFSET_MILLIS)
 
     fun playSongAtIndex(index: Int) {
-        mediaController.playSongAtIndex(index)
+        mediaController.playSongAtIndex(index, PlayList.LOCAL_ID)
     }
 
     fun togglePlayback() = mediaController.togglePlayPause()
@@ -87,12 +48,7 @@ class MainViewModel @Inject constructor(
 
     fun getCurrentTrackPosition() = mediaController.getCurrentTrackPosition() ?: 0L
 
-    @Deprecated("Test function")
     fun uploadSongs() {
-        viewModelScope.launch {
-            _currentPlaylistSongs.value.forEach { song ->
-                uploadRepository.upload(song)
-            }
-        }
+        TODO("Not yet implemented")
     }
 }

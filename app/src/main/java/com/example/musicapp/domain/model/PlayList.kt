@@ -9,7 +9,7 @@ package com.example.musicapp.domain.model
 data class PlayList(
     val id: Long,
     val name: String,
-    val songInfos: List<SongInfo> = emptyList(),
+    val songs: List<Song> = emptyList(),
     var index: Int? = null
 ) {
 
@@ -21,16 +21,14 @@ data class PlayList(
         return emptyList()
     }
 
-    fun updateSongs(newSongInfos: List<SongInfo>): PlayList {
-        return copy(songInfos = newSongInfos)
-    }
-
     companion object {
+        fun getLocalPlayList(songs: List<Song> = emptyList()) =
+            PlayList(LOCAL_ID, LOCAL_NAME, songs)
+
         const val LOCAL_ID = -1L
         private const val INVALID_ID = -2L
-        private const val INVALID_NAME = "Local Music"
-        private const val LOCAL_NAME = "Local Music"
-        val LOCAL_PLAYLIST = PlayList(LOCAL_ID, LOCAL_NAME)
+        private const val LOCAL_NAME = "Local PlayList"
+        private const val INVALID_NAME = "Invalid PlayList"
         val INVALID_PLAYLIST = PlayList(INVALID_ID, INVALID_NAME)
     }
 }

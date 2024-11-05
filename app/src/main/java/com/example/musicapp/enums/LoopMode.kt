@@ -3,7 +3,7 @@ package com.example.musicapp.enums
 import androidx.annotation.DrawableRes
 import com.example.musicapp.R
 
-enum class PlaylistState(
+enum class LoopMode(
     @DrawableRes val resource: Int
 ) {
     SHUFFLE(R.drawable.shuffle),

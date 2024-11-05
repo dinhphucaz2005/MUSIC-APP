@@ -4,15 +4,12 @@ import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +22,6 @@ import com.example.musicapp.common.AppResource
 import com.example.musicapp.domain.model.ServerSong
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.CloudRepository
-import com.example.musicapp.ui.components.SongItem
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.viewmodels.CloudViewModel
 

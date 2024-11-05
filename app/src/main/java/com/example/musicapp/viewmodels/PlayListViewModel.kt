@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlayListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @UnstableApi
 @HiltViewModel
@@ -18,32 +18,15 @@ class PlayListViewModel @Inject constructor(
     private val repository: PlayListRepository,
 ) : ViewModel() {
 
-    private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    private val _playlists = MutableStateFlow<List<PlayList>>(emptyList())
+    private val databaseScope = CoroutineScope(Dispatchers.IO)
 
-    val songs = _songs.asStateFlow()
-    val playlists = _playlists.asStateFlow()
+    val playlists = repository.getSavedPlayLists()
 
-    init {
-        viewModelScope.launch {
-            repository.savedPlayList().collect { playlists ->
-                _playlists.value = playlists
-            }
-        }
+    fun createNewPlayList(name: String) = databaseScope.launch {
+        repository.createPlayList(name)
     }
 
-    fun savePlaylist(name: String) {
-        viewModelScope.launch {
-            repository.addPlaylist(name)
-        }
+    fun deletePlayList(id: Long) = databaseScope.launch {
+        repository.deletePlayList(id)
     }
-
-
-    fun deletePlaylist(id: Long) {
-        viewModelScope.launch {
-            repository.deletePlaylist(id)
-        }
-    }
-
-
 }

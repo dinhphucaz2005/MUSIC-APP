@@ -21,18 +21,18 @@ class PlayListDetailViewModel @Inject constructor(
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     private val _selectedItems = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
 
-    private val _currentPlayList = MutableStateFlow<PlayList?>(null)
+    private val _playList = MutableStateFlow<PlayList?>(null)
     private val _inSelectionMode = MutableStateFlow(false)
 
     val songs = _songs.asStateFlow()
     val selectedItems = _selectedItems.asStateFlow()
-    val currentPlayList = _currentPlayList.asStateFlow()
+    val playList = _playList.asStateFlow()
     val inSelectionMode = _inSelectionMode.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repository.savedPlayList().collect {
-                loadPlayList(currentPlayList.value?.id)
+            repository.getSavedPlayLists().collect {
+                loadPlayList(playList.value?.id)
             }
         }
     }
@@ -40,11 +40,7 @@ class PlayListDetailViewModel @Inject constructor(
 
     fun loadPlayList(playlistId: Long?) {
         playlistId ?: return
-        val songs = repository.getAllSongsByPlayListId(playlistId)
-        _songs.value = songs
-        println(songs)
-        _currentPlayList.value = repository.savedPlayList().value.find { it.id == playlistId }
-        _selectedItems.value = songs.associateBy({ it.id }, { false })
+        _playList.value = repository.getPlayList(playlistId)
     }
 
 
@@ -55,19 +51,19 @@ class PlayListDetailViewModel @Inject constructor(
     }
 
 
-    fun playTrack(songId: Long) {
-        currentPlayList.value?.let {
-            mediaControllerManager.loadSongs(it.copy(index = _songs.value.indexOfFirst { song -> song.id == songId }))
+    fun playTrack(index: Int) {
+        playList.value?.let {
+            mediaControllerManager.playSongAtIndex(index, it.id)
         }
     }
 
     fun deleteSelectedSongs() {
         val selectedIds = _selectedItems.value.filter { it.value }.keys.toList()
         viewModelScope.launch {
-            repository.deleteSongsFromPlayList(
-                selectedIds,
-                currentPlayList.value?.id ?: return@launch
-            )
+//            repository.deleteSongsFromPlayList(
+//                selectedIds,
+//                currentPlayList.value?.id ?: return@launch
+//            )
         }
         exitSelectionMode()
     }

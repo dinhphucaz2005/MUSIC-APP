@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.example.musicapp.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -30,43 +33,48 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
+import com.example.musicapp.di.FakeModule
 import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.ui.theme.commonShape
 
+@UnstableApi
+@Preview
+@Composable
+private fun TestPreview() {
+    SongPreview(viewModel = FakeModule.provideMainViewModel()) { }
+}
 
 @ExperimentalFoundationApi
-@androidx.annotation.OptIn(UnstableApi::class)
+@UnstableApi
 @Composable
 fun SongPreview(
-    modifier: Modifier = Modifier,
-    viewModel: MainViewModel,
-    showSongScreen: () -> Unit
+    modifier: Modifier = Modifier, viewModel: MainViewModel, showSongScreen: () -> Unit
 ) {
-    val activeSong by viewModel.activeSong.collectAsState()
-    val isCurrentlyPlaying by viewModel.isCurrentlyPlaying.collectAsState()
+    val currentSong by viewModel.currentSong.collectAsState()
+    val playBackState by viewModel.playBackState.collectAsState()
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.secondary)
-            .height(72.dp)
-            .clickable {
-                showSongScreen()
-            }
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = modifier
+        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.secondary)
+        .height(72.dp)
+        .clickable {
+            showSongScreen()
+        }
+        .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
 
         val imageModifier = Modifier
             .clip(commonShape)
             .fillMaxHeight()
             .aspectRatio(1f)
 
-        activeSong.smallBitmap?.let {
+        currentSong.smallBitmap?.let {
             Image(
                 bitmap = it,
                 modifier = imageModifier,
@@ -74,7 +82,8 @@ fun SongPreview(
                 contentScale = ContentScale.Crop
             )
         } ?: Image(
-            painter = painterResource(id = R.drawable.image), contentDescription = null,
+            painter = painterResource(id = R.drawable.image),
+            contentDescription = null,
             modifier = imageModifier
         )
 
@@ -85,7 +94,7 @@ fun SongPreview(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = activeSong.title,
+                text = currentSong.title,
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .basicMarquee(
@@ -97,15 +106,16 @@ fun SongPreview(
                 color = MaterialTheme.colorScheme.onSecondary
             )
             Text(
-                text = activeSong.author,
-                modifier = Modifier
-                    .padding(start = 8.dp),
+                text = currentSong.author,
+                modifier = Modifier.padding(start = 8.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSecondary
+                color = MaterialTheme.colorScheme.onSecondary,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
         }
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = { TODO("Add song to favourite") }) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder,
                 contentDescription = null,
@@ -113,9 +123,7 @@ fun SongPreview(
             )
         }
         Icon(
-            painter = painterResource(
-                isCurrentlyPlaying.resource
-            ),
+            painter = painterResource(playBackState.playerState.resource),
             contentDescription = null,
             modifier = Modifier
                 .padding(8.dp)
@@ -126,9 +134,9 @@ fun SongPreview(
                 },
             tint = MaterialTheme.colorScheme.onSecondary
         )
-        IconButton(onClick = {
-            viewModel.playNextTrack()
-        }) {
+        IconButton(
+            onClick = { viewModel.playNextTrack() }
+        ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,

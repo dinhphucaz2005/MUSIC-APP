@@ -43,4 +43,7 @@ interface AppDAO {
 
     @Query("SELECT * FROM song WHERE playlist_id = :playlistId")
     suspend fun getSongsByPlayListId(playlistId: Long): List<SongEntity>
+
+    @Query("SELECT * FROM playlist WHERE id = :id")
+    fun getPlayList(id: Long): PlayListEntity?
 }

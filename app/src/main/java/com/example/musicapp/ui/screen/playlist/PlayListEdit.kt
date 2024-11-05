@@ -22,11 +22,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,13 +45,12 @@ import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.extension.getFileNameWithoutExtension
 import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.components.CommonImage
 import com.example.musicapp.ui.screen.song.MyTextField
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
-import com.example.musicapp.viewmodels.SelectSongViewModel
+import com.example.musicapp.viewmodels.EditPlayListViewModel
 
 @UnstableApi
 @Preview
@@ -59,8 +58,7 @@ import com.example.musicapp.viewmodels.SelectSongViewModel
 fun PreviewScreen() {
     MusicTheme {
         PlaylistEdit(
-            0, "Test", NavHostController(LocalContext.current),
-            FakeModule.provideSelectSongViewModel()
+            0, NavHostController(LocalContext.current), FakeModule.provideSelectSongViewModel()
         )
     }
 }
@@ -69,17 +67,21 @@ fun PreviewScreen() {
 @Composable
 fun PlaylistEdit(
     id: Long,
-    name: String,
     navController: NavController,
-    viewModel: SelectSongViewModel = hiltViewModel()
+    viewModel: EditPlayListViewModel = hiltViewModel()
 ) {
 
-    val selectableSongItemModifier = Modifier
+    LaunchedEffect(id) {
+        viewModel.loadPlaylist(id)
+    }
+
+    val itemModifier = Modifier
         .fillMaxWidth()
         .height(80.dp)
 
-    val songs by viewModel.localSongs.collectAsState()
-    var playlistName by remember { mutableStateOf(name) }
+    val name by viewModel.name.collectAsState()
+    val localSongs by viewModel.localSongs.collectAsState()
+    val selectedSongs = remember { mutableStateListOf<Long>() }
 
     ConstraintLayout(
         modifier = Modifier
@@ -89,7 +91,6 @@ fun PlaylistEdit(
     ) {
 
         val (editTextRef, songListRef) = createRefs()
-
 
         Row(
             modifier = Modifier
@@ -109,18 +110,19 @@ fun PlaylistEdit(
                 )
             }
             MyTextField(
-                value = playlistName,
+                value = name,
                 label = "Playlist Name",
-                onValueChange = { playlistName = it },
+                onValueChange = { viewModel.updatePlayListName(it) },
                 modifier = Modifier.weight(1f)
             )
 
             IconButton(onClick = {
-                viewModel.savePlaylist(id, playlistName)
+                viewModel.savePlaylist(name, selectedSongs)
                 navController.popBackStack()
             }) { CommonIcon(painter = painterResource(id = R.drawable.ic_save)) }
         }
 
+        val painter = painterResource(R.drawable.image)
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -132,16 +134,15 @@ fun PlaylistEdit(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp)
         ) {
-            itemsIndexed(songs, key = { _, item ->
-                item.first.id
-            }) { index, item ->
+            itemsIndexed(localSongs.songs, key = { _, item -> item.id }) { _, item ->
+                val isSelected = selectedSongs.contains(item.id)
                 SelectableSongItem(
-                    modifier = selectableSongItemModifier.clickable {
-                        viewModel.togglePlaylist(index)
-                    },
-                    song = item.first,
-                    thumbnail = painterResource(id = R.drawable.image),
-                    isSelected = item.second
+                    itemModifier.clickable {
+                        if (isSelected)
+                            selectedSongs.remove(item.id)
+                        else
+                            selectedSongs.add(item.id)
+                    }, item, painter, isSelected
                 )
             }
         }

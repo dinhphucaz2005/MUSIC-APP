@@ -10,10 +10,11 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.musicapp.domain.model.PlayBackState
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.PlayListRepository
-import com.example.musicapp.enums.PlaylistState
+import com.example.musicapp.enums.LoopMode
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,49 +39,47 @@ class MediaControllerManager @Inject constructor(
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private var controller: MediaController? = null
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val mainScope = CoroutineScope(Dispatchers.Main)
+    private val backgroundScope = CoroutineScope(Dispatchers.IO)
+
+    private val _playBackState = MutableStateFlow(PlayBackState())
+    val playBackState = _playBackState.asStateFlow()
+
+    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
+    val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
 
     private var currentPlayList = PlayList.INVALID_PLAYLIST
 
-    private val _isPlaying = MutableStateFlow<Boolean?>(null)
-    private val _playListState = MutableStateFlow(PlaylistState.REPEAT_ALL)
-    private val _currentSong = MutableStateFlow<Song?>(null)
-
-    val isPlaying: StateFlow<Boolean?> = _isPlaying.asStateFlow()
-    val playListState: StateFlow<PlaylistState> = _playListState.asStateFlow()
-    val currentSong: StateFlow<Song?> = _currentSong.asStateFlow()
-
     init {
-        coroutineScope.launch {
+        backgroundScope.launch {
             observeLocalFiles()
-            observeSavedPlayLists()
+            observeSavedPlayList()
         }
     }
 
     private fun CoroutineScope.observeLocalFiles() = launch {
-        repository.localFiles().collect {
-            loadSongs(currentPlayList)
+        repository.getLocalPlayList().collect {
+            loadSongs(it)
         }
     }
 
-    private fun CoroutineScope.observeSavedPlayLists() = launch {
-        repository.savedPlayList().collect {
-            loadSongs(currentPlayList)
+    private fun CoroutineScope.observeSavedPlayList() = launch {
+        repository.getSavedPlayLists().collect {
+            if (currentPlayList.id != PlayList.LOCAL_ID)
+                loadSongs(currentPlayList)
         }
     }
+
 
     private val controllerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _isPlaying.value = isPlaying
+            _playBackState.update { it.updatePlayerState(isPlaying) }
         }
 
         override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            val index = controller?.currentMediaItemIndex ?: return
-            if (currentPlayList.id != PlayList.LOCAL_ID) {
-//                _currentSong.value = repository.getAllSongsByPlayListId(currentPlayList.id)[index]
-            } else {
-//                _currentSong.value = repository.localFiles().value[index]
+            withController {
+                val index = currentMediaItemIndex
+                _currentSong.update { currentPlayList.songs.getOrNull(index) ?: return }
             }
         }
     }
@@ -97,8 +98,8 @@ class MediaControllerManager @Inject constructor(
             }
         }, MoreExecutors.directExecutor())
 
-        // Load initial playlist if available
-        loadSongs(PlayList.LOCAL_PLAYLIST)
+        loadSongs(currentPlayList)
+        playSongAtIndex(0)
     }
 
     @MainThread
@@ -116,52 +117,41 @@ class MediaControllerManager @Inject constructor(
 
 
     fun updatePlayListState() = withController {
-        // Get current playlist state
-        val currentState = when {
-            shuffleModeEnabled -> PlaylistState.SHUFFLE
-            repeatMode == Player.REPEAT_MODE_ONE -> PlaylistState.REPEAT_ONE
-            else -> PlaylistState.REPEAT_ALL
-        }
-        // Cycle through the playlist state
-        val nextState = when (currentState) {
-            PlaylistState.SHUFFLE -> PlaylistState.REPEAT_ALL
-            PlaylistState.REPEAT_ALL -> PlaylistState.REPEAT_ONE
-            else -> PlaylistState.SHUFFLE
-        }
-        // Update controller with next state
-        when (nextState) {
-            PlaylistState.SHUFFLE -> {
+        _playBackState.update { it.updateLoopMode() }
+//         Update controller with new loop mode
+        when (_playBackState.value.loopMode) {
+            LoopMode.SHUFFLE -> {
                 shuffleModeEnabled = true
                 repeatMode = Player.REPEAT_MODE_ALL
             }
 
-            PlaylistState.REPEAT_ALL -> {
+            LoopMode.REPEAT_ALL -> {
                 shuffleModeEnabled = false
                 repeatMode = Player.REPEAT_MODE_ALL
             }
 
-            else -> {
+            LoopMode.REPEAT_ONE -> {
                 shuffleModeEnabled = false
                 repeatMode = Player.REPEAT_MODE_ONE
             }
         }
-        _playListState.value = nextState
     }
 
-    fun playSongAtIndex(index: Int, playlist: PlayList = currentPlayList) = withControllerPlay {
-        if (playlist.id == currentPlayList.id) {
+    fun playSongAtIndex(index: Int, playListId: Long = currentPlayList.id) = withControllerPlay {
+        if (playListId == currentPlayList.id) {
             seekTo(index, 0)
             play()
         } else {
-            loadSongs(playlist)
-            playlist.index?.let {
-                seekTo(it, 0)
-                play()
-            }
+            val newPlayList = repository.getPlayList(playListId) ?: return@withControllerPlay
+            loadSongs(newPlayList)
+            seekTo(index, 0)
+            play()
         }
     }
 
-    fun playNextSong() = withControllerPlay { seekToNext() }
+    fun playNextSong() = withControllerPlay {
+        if (hasNextMediaItem()) seekToNext() else seekTo(0, 0)
+    }
 
     fun playPreviousSong() = withControllerPlay { seekToPrevious() }
 
@@ -182,19 +172,14 @@ class MediaControllerManager @Inject constructor(
 
     fun getCurrentTrackPosition(): Long? = withController { currentPosition }
 
-    fun loadSongs(playlist: PlayList) = withController {
-        mainScope.launch {
-            clearMediaItems()
-            if (playlist.id == PlayList.LOCAL_ID) {
-                repository.localFiles().value.forEach { song ->
-                    addMediaItem(song)
-                }
-            } else {
-                repository.getAllSongsByPlayListId(playlist.id).forEach { song ->
-                    addMediaItem(song)
-                }
+    private fun loadSongs(playlist: PlayList) {
+        currentPlayList = playlist
+        withController {
+            mainScope.launch {
+                clearMediaItems()
+                for (song in playlist.songs) addMediaItem(song)
+                prepare()
             }
-            prepare()
         }
     }
 

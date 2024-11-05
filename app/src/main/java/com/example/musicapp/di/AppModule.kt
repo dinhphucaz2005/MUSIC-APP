@@ -7,6 +7,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.room.Room
 import com.example.musicapp.common.AppCommon
 import com.example.musicapp.data.LocalDataSource
+import com.example.musicapp.data.RoomDataSource
 import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.AppDatabase
 import com.example.musicapp.data.repository.CloudRepositoryImpl
@@ -36,22 +37,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRoomDatabase(
-        context: Context
-    ): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            AppCommon.DATABASE_NAME
-        ).build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideDao(database: AppDatabase): AppDAO = database.appDAO()
-
-    @Provides
-    @Singleton
     fun provideApplicationContext(app: Application): Context {
         return app.applicationContext
     }
@@ -65,8 +50,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMediaControllerManager(
-        context: Context,
-        playlistRepository: PlayListRepository
+        context: Context, playlistRepository: PlayListRepository
     ): MediaControllerManager {
         return MediaControllerManager(context, playlistRepository)
     }
@@ -86,11 +70,9 @@ object AppModule {
     @Provides
     @Singleton
     fun providePlaylistRepository(
-        dao: AppDAO,
-        context: Context,
-        dataSource: LocalDataSource
+        context: Context, roomDataSource: RoomDataSource, localDataSource: LocalDataSource
     ): PlayListRepository {
-        return PlayListRepositoryImpl(dao, context, dataSource)
+        return PlayListRepositoryImpl(context, roomDataSource, localDataSource)
     }
 
     @Provides
@@ -102,8 +84,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUploadRepository(
-        storage: StorageReference,
-        database: DatabaseReference
+        storage: StorageReference, database: DatabaseReference
     ): UploadRepository {
         return UploadRepositoryImpl(storage, database)
     }
@@ -111,8 +92,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideCloudRepository(
-        storage: StorageReference,
-        database: DatabaseReference
+        storage: StorageReference, database: DatabaseReference
     ): CloudRepository {
         return CloudRepositoryImpl(storage, database)
     }

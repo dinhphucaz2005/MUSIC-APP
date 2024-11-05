@@ -3,6 +3,7 @@ package com.example.musicapp.ui.screen.playlist
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,8 +21,11 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.media3.common.util.UnstableApi
@@ -77,9 +82,8 @@ fun PlayListDetail(
         viewModel.loadPlayList(playlistId)
     }
 
-    val songs by viewModel.songs.collectAsState()
+    val playList by viewModel.playList.collectAsState()
     val selectedItems by viewModel.selectedItems.collectAsState()
-    val currentPlayList by viewModel.currentPlayList.collectAsState()
     val inSelectionMode by viewModel.inSelectionMode.collectAsState()
 
     val thumbnail = painterResource(id = R.drawable.image)
@@ -90,23 +94,53 @@ fun PlayListDetail(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val (thumbnailRef, titleRef, button1, button2, horizontalDivider, lazyRow) = createRefs()
+        val (topBar, thumbnailRef, titleRef, button1, button2, horizontalDivider, lazyRow) = createRefs()
 
         val guideLine = createGuidelineFromStart(0.5f)
 
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .height(40.dp)
+                .constrainAs(topBar) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }, verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_back),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(
+                "${selectedItems.size} selected",
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
+            )
+            Checkbox(true, onCheckedChange = {})
+            Icon(
+                imageVector = Icons.Default.MoreVert, modifier = Modifier.clickable {
+                    TODO("Show more options")
+                }, tint = MaterialTheme.colorScheme.primary, contentDescription = null
+            )
+        }
+
         CommonImage(
-            bitmap = currentPlayList?.getSong()?.firstOrNull()?.smallBitmap,
+            bitmap = playList?.songs?.firstOrNull()?.smallBitmap,
             painter = thumbnail,
             modifier = Modifier
                 .padding(8.dp)
                 .clip(commonShape)
                 .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = commonShape
+                    width = 1.dp, color = MaterialTheme.colorScheme.primary, shape = commonShape
                 )
                 .constrainAs(thumbnailRef) {
-                    top.linkTo(parent.top)
+                    top.linkTo(topBar.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(guideLine)
                     width = Dimension.fillToConstraints
@@ -114,24 +148,22 @@ fun PlayListDetail(
                 .aspectRatio(1f),
         )
 
-        Column(
-            modifier = Modifier
-                .constrainAs(titleRef) {
-                    top.linkTo(thumbnailRef.top)
-                    start.linkTo(guideLine)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                }
-                .aspectRatio(1f),
-            verticalArrangement = Arrangement.Center
-        ) {
+        Column(modifier = Modifier
+            .constrainAs(titleRef) {
+                top.linkTo(thumbnailRef.top)
+                start.linkTo(guideLine)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+            .aspectRatio(1f), verticalArrangement = Arrangement.SpaceEvenly)
+        {
             Text(
-                text = currentPlayList?.name ?: "Unknown",
+                text = playList?.name ?: "Unknown",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Playlist - ${currentPlayList?.getSong()?.size ?: 0} songs",
+                text = "Playlist - ${playList?.getSong()?.size ?: 0} songs",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -177,11 +209,19 @@ fun PlayListDetail(
                 },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
         ) {
-            Text(text = "Shuffle")
+            Icon(
+                painter = painterResource(R.drawable.shuffle),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.tertiary
+            )
+            Text(
+                text = "Shuffle", color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
 
         Button(
-            onClick = { /* Play action */ },
+            onClick = { TODO("Play list") },
             modifier = Modifier
                 .padding(horizontal = 30.dp)
                 .constrainAs(button2) {
@@ -195,7 +235,11 @@ fun PlayListDetail(
                 contentColor = MaterialTheme.colorScheme.onTertiary
             )
         ) {
-            Text(text = "Play")
+            Icon(
+                imageVector = Icons.Default.PlayArrow, contentDescription = null,
+                tint = MaterialTheme.colorScheme.background
+            )
+            Text(text = "Play", modifier = Modifier.padding(start = 8.dp))
         }
 
         HorizontalDivider(modifier = Modifier.constrainAs(horizontalDivider) {
@@ -205,18 +249,17 @@ fun PlayListDetail(
             width = Dimension.fillToConstraints
         }, color = MaterialTheme.colorScheme.primary)
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(lazyRow) {
-                    top.linkTo(horizontalDivider.bottom, margin = 12.dp)
-                    bottom.linkTo(parent.bottom)
-                    height = Dimension.fillToConstraints
-                }
-        ) {
-            itemsIndexed(items = songs, key = { _, item -> item.id }) { index, song ->
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .constrainAs(lazyRow) {
+                top.linkTo(horizontalDivider.bottom, margin = 12.dp)
+                bottom.linkTo(parent.bottom)
+                height = Dimension.fillToConstraints
+            }) {
+            itemsIndexed(
+                items = playList?.songs ?: emptyList(),
+                key = { _, item -> item.id }) { index, song ->
                 val isSelected = selectedItems[song.id] ?: false
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -225,20 +268,15 @@ fun PlayListDetail(
                         .clip(commonShape)
                         .background(if (isSelected) Color(0xFF48576e) else Color.Transparent)
                         .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    viewModel.startSelectionMode()
+                            detectTapGestures(onLongPress = {
+                                viewModel.startSelectionMode()
+                                viewModel.toggleSelection(song.id)
+                            }, onTap = {
+                                if (inSelectionMode) {
                                     viewModel.toggleSelection(song.id)
-                                },
-                                onTap = {
-                                    if (inSelectionMode) {
-                                        viewModel.toggleSelection(song.id)
-                                    } else
-                                        viewModel.playTrack(song.id)
-                                }
-                            )
-                        },
-                    verticalAlignment = Alignment.CenterVertically
+                                } else viewModel.playTrack(index)
+                            })
+                        }, verticalAlignment = Alignment.CenterVertically
                 ) {
                     CommonImage(
                         bitmap = song.smallBitmap,

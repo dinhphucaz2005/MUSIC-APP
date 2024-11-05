@@ -15,7 +15,7 @@ import com.example.musicapp.viewmodels.PlayListDetailViewModel
 import com.example.musicapp.viewmodels.MainViewModel
 import com.example.musicapp.viewmodels.EditViewModel
 import com.example.musicapp.viewmodels.PlayListViewModel
-import com.example.musicapp.viewmodels.SelectSongViewModel
+import com.example.musicapp.viewmodels.EditPlayListViewModel
 import com.example.musicapp.util.MediaControllerManager
 import kotlinx.coroutines.flow.StateFlow
 
@@ -47,34 +47,33 @@ object FakeModule {
             TODO("Not yet implemented")
         }
 
-        override suspend fun addPlaylist(name: String) {
+        override fun getLocalPlayList(): StateFlow<PlayList> {
             TODO("Not yet implemented")
         }
 
-        override fun localFiles(): StateFlow<List<Song>> {
+        override fun getSavedPlayLists(): StateFlow<List<PlayList>> {
             TODO("Not yet implemented")
         }
 
-        override fun savedPlayList(): StateFlow<List<PlayList>> {
+        override fun getPlayList(playListId: Long): PlayList? {
             TODO("Not yet implemented")
         }
 
-        override fun getAllSongsByPlayListId(id: Long): List<Song> {
+        override suspend fun createPlayList(name: String) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun deleteSongsFromPlayList(songsId: List<Long>, playlistId: Long) {
+        override suspend fun savePlayList(id: Long, name: String) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun deletePlaylist(id: Long) {
+        override suspend fun deletePlayList(id: Long) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun updatePlayList(id: Long, name: String?, songs: List<Song>?) {
+        override suspend fun addSongs(playListId: Long, selectedSongIds: List<Long>) {
             TODO("Not yet implemented")
         }
-
     }
 
     private val uploadRepository = object : UploadRepository {
@@ -86,8 +85,8 @@ object FakeModule {
 
     @Composable
     @UnstableApi
-    fun provideViewModel() =
-        MainViewModel(playListRepository, mediaControllerManager(), uploadRepository)
+    fun provideMainViewModel() =
+        MainViewModel(mediaControllerManager(), playListRepository)
 
     @Composable
     @OptIn(UnstableApi::class)
@@ -97,7 +96,7 @@ object FakeModule {
     @UnstableApi
     fun providePlaylistViewModel() = PlayListViewModel(playListRepository)
 
-    fun provideSelectSongViewModel() = SelectSongViewModel(playListRepository)
+    fun provideSelectSongViewModel() = EditPlayListViewModel(playListRepository)
 
     @Composable
     fun providePlaylistDetailViewModel(): PlayListDetailViewModel = PlayListDetailViewModel(

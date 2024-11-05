@@ -38,11 +38,6 @@ fun BottomBar(
             .wrapContentHeight()
     ) {
         Column {
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
             SongPreview(viewModel = mainViewModel) { showSongScreen() }
             Row(
                 modifier = Modifier

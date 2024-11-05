@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -26,6 +25,7 @@ import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.navigation.playlistNavigation
 import com.example.musicapp.ui.screen.cloud.CloudScreen
 import com.example.musicapp.ui.screen.home.HomeScreen
+import com.example.musicapp.ui.screen.setting.SettingScreen
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.viewmodels.MainViewModel
 
@@ -42,7 +42,7 @@ data class Item(
 @Composable
 fun Preview() {
     MusicTheme {
-        Main(FakeModule.provideViewModel()) {
+        Main(FakeModule.provideMainViewModel()) {
         }
     }
 }
@@ -81,7 +81,7 @@ fun Main(mainViewModel: MainViewModel, showSongScreen: () -> Unit) {
             composable(Routes.HOME.name) { HomeScreen(viewModel = mainViewModel) }
             playlistNavigation(navController)
             composable(Routes.CLOUD.name) { CloudScreen(viewModel = hiltViewModel()) }
-            composable(Routes.SETTING.name) { Text(text = "Setting") }
+            composable(Routes.SETTING.name) { SettingScreen() }
         }
     }
 }
