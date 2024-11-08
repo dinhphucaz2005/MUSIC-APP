@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,6 @@ import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.extension.getFileNameWithoutExtension
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
 import com.example.musicapp.viewmodels.EditViewModel
@@ -52,7 +52,11 @@ import com.example.musicapp.viewmodels.EditViewModel
 @Composable
 fun EditScreenPreview() {
     MusicTheme {
-        EditScreen(song = Song(), onDismiss = {}, viewModel = FakeModule.provideEditViewModel())
+        EditScreen(
+            song = Song.unidentifiedSong(),
+            onDismiss = {},
+            viewModel = FakeModule.provideEditViewModel()
+        )
     }
 }
 
@@ -65,10 +69,10 @@ fun EditScreen(
 ) {
 
     var imageUri: Uri? = null
-    var fileName by remember { mutableStateOf(song?.fileName?.getFileNameWithoutExtension() ?: "") }
+    var fileName by remember { mutableStateOf(song?.getFileName()) }
     var title by remember { mutableStateOf(song?.title ?: "") }
     var artist by remember { mutableStateOf(song?.author ?: "") }
-
+    val message by viewModel.message.collectAsState()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -77,13 +81,16 @@ fun EditScreen(
     ) {
         item {
             Text(
-                text = "Tag editor",
+                text = message,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
         }
         item {
-            MyTextField(label = "File Name", value = fileName, onValueChange = { fileName = it })
+            MyTextField(
+                label = "File Name",
+                value = fileName ?: "Invalid",
+                onValueChange = { fileName = it })
         }
         item {
             MyTextField(label = "Title", value = title, onValueChange = {
@@ -102,14 +109,16 @@ fun EditScreen(
             ActionButtons(
                 onSaveClick = {
                     song?.let {
-                        viewModel.saveSongFile(
-                            fileName = fileName,
-                            title = title,
-                            artist = artist,
-                            imageUri = imageUri,
-                            song = it
-                        ) {
-                            onDismiss()
+                        fileName?.let { it1 ->
+                            viewModel.saveSongFile(
+                                fileName = it1,
+                                title = title,
+                                artist = artist,
+                                imageUri = imageUri,
+                                song = it
+                            ) {
+                                onDismiss()
+                            }
                         }
                     }
                 }, onCancelClick = onDismiss
@@ -159,7 +168,7 @@ fun ImageSelector(
             photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
         .background(
-            color = if (song?.smallBitmap == null && imageUri == null) MaterialTheme.colorScheme.tertiary else Color.Transparent
+            color = if (song?.thumbnail == null && imageUri == null) MaterialTheme.colorScheme.tertiary else Color.Transparent
         )) {
         when {
             imageUri != null -> {
@@ -178,9 +187,9 @@ fun ImageSelector(
                 }
             }
 
-            song?.smallBitmap != null -> {
+            song?.thumbnail != null -> {
                 Image(
-                    bitmap = song.smallBitmap,
+                    bitmap = song.thumbnail,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )

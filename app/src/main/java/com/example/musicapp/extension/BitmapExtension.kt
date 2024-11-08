@@ -2,6 +2,8 @@ package com.example.musicapp.extension
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import java.io.ByteArrayOutputStream
 
 fun Bitmap.toScaledBitmap(scaleFactor: Float): Bitmap {
@@ -14,6 +16,25 @@ fun Bitmap.toScaledBitmap(scaleFactor: Float): Bitmap {
     return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
 }
 
-fun ByteArray.toBitmap(): Bitmap {
+fun ByteArray.toBitmap(): Bitmap? {
+    if (this.isEmpty()) return null
     return BitmapFactory.decodeByteArray(this, 0, this.size)
+}
+
+const val DEFAULT_COMPRESS_FORMAT = "webp"
+val defaultCompressFormat = Bitmap.CompressFormat.WEBP
+
+fun ImageBitmap?.toByteArray(): ByteArray? {
+    if (this == null) return null
+
+    return try {
+        val bitmap = this.asAndroidBitmap()
+        ByteArrayOutputStream().use { byteArrayOutputStream ->
+            bitmap.compress(defaultCompressFormat, 50, byteArrayOutputStream)
+            byteArrayOutputStream.toByteArray()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }

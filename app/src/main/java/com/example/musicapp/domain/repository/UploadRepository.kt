@@ -4,5 +4,5 @@ import com.example.musicapp.domain.model.Song
 
 interface UploadRepository {
 
-    suspend fun upload(song: Song, index: Int)
+    suspend fun upload(song: Song)
 }

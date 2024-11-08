@@ -1,6 +1,5 @@
 package com.example.musicapp.helper
 
-import com.example.musicapp.common.AppCommon
 import java.util.Locale
 
 object StringHelper {
@@ -12,17 +11,6 @@ object StringHelper {
             .replace(Regex("[ùúụủũưừứựửữ]"), "u")
             .replace(Regex("[ỳýỵỷỹ]"), "y")
             .replace(Regex("đ"), "d")
-    }
-
-    fun getHash(key: String): Long {
-        val newKey = convert(key)
-        var value: Long = 0
-        newKey.forEach {
-            val asciiCode = it.code
-            if (asciiCode <= 255)
-                value = (value * AppCommon.BASE + asciiCode) % AppCommon.MOD
-        }
-        return value
     }
 
     fun matching(fileName: String, searchQuery: String): Boolean {

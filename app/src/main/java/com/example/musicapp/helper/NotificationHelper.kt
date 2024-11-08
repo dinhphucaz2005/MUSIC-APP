@@ -1,5 +1,6 @@
 package com.example.musicapp.helper
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -13,7 +14,6 @@ import androidx.media3.session.MediaLibraryService
 import com.example.musicapp.MainActivity
 import com.example.musicapp.R
 
-@UnstableApi
 object NotificationHelper {
 
     private const val NAME = "Music"
@@ -28,7 +28,7 @@ object NotificationHelper {
     }
 
 
-    @ExperimentalFoundationApi
+    @SuppressLint("UnsafeOptInUsageError")
     fun createNotification(
         context: Context,
         mediaSession: MediaLibraryService.MediaLibrarySession,

@@ -5,26 +5,24 @@ import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.callback.AppResource
 import com.example.musicapp.callback.ResultCallback
-import com.example.musicapp.domain.model.Playlist
+import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.domain.repository.EditSongRepository
-import com.example.musicapp.domain.repository.PlaylistRepository
-import com.example.musicapp.domain.repository.UploadRepository
-import com.example.musicapp.viewmodels.MainViewModel
-import com.example.musicapp.viewmodels.EditViewModel
-import com.example.musicapp.viewmodels.PlaylistViewModel
-import com.example.musicapp.viewmodels.SelectSongViewModel
+import com.example.musicapp.domain.repository.PlayListRepository
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.viewmodels.EditPlayListViewModel
+import com.example.musicapp.viewmodels.EditViewModel
+import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.viewmodels.PlayListDetailViewModel
+import com.example.musicapp.viewmodels.PlayListViewModel
 import kotlinx.coroutines.flow.StateFlow
 
 object FakeModule {
 
-    val playlist = Playlist(
+    val playlist = PlayList(
         id = 0,
-        name = "UNNAMED",
-        songs = List(20) { Song() }.toMutableList()
+        name = "UNNAMED"
     )
 
     private val editSongRepository = object : EditSongRepository {
@@ -41,70 +39,65 @@ object FakeModule {
     }
 
     @Composable
-    fun mediaControllerManager() = MediaControllerManager(LocalContext.current, playlistRepository)
+    fun mediaControllerManager() = MediaControllerManager(LocalContext.current, playListRepository)
 
-    private val playlistRepository = object : PlaylistRepository {
-        override suspend fun reload(): AppResource<Nothing> {
+    private val playListRepository = object : PlayListRepository {
+        override suspend fun reload() {
             TODO("Not yet implemented")
         }
 
-        override suspend fun addPlaylist(name: String) {
+        override fun getLocalPlayList(): StateFlow<PlayList> {
             TODO("Not yet implemented")
         }
 
-        override suspend fun savePlaylist(id: Long, name: String, songs: List<Song>) {
+        override fun getSavedPlayLists(): StateFlow<List<PlayList>> {
             TODO("Not yet implemented")
         }
 
-
-        override fun observeCurrentPlaylist(): StateFlow<Playlist?> {
+        override fun getPlayList(playListId: Long): PlayList? {
             TODO("Not yet implemented")
         }
 
-        override fun observeLocalPlaylist(): StateFlow<Playlist?> {
+        override suspend fun createPlayList(name: String) {
             TODO("Not yet implemented")
         }
 
-        override fun observeAllPlaylistsFromDatabase(): StateFlow<List<Playlist>> {
+        override suspend fun savePlayList(id: Long, name: String) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun deleteSongs(deleteSongIndex: MutableList<Int>, id: Long) {
+        override suspend fun deletePlayList(id: Long) {
             TODO("Not yet implemented")
         }
 
-        override suspend fun deletePlaylist(id: Long) {
+        override suspend fun addSongs(playListId: Long, selectedSongIds: List<Long>) {
             TODO("Not yet implemented")
         }
 
-        override fun setLocal(index: Int) {
-            TODO("Not yet implemented")
-        }
-
-        override fun setPlaylist(playlistId: Long, index: Int) {
-            TODO("Not yet implemented")
-        }
-    }
-
-    private val uploadRepository = object : UploadRepository {
-        override suspend fun upload(song: Song, index: Int) {
+        override suspend fun deleteSongs(playListId: Long, selectedSongIds: List<Long>) {
             TODO("Not yet implemented")
         }
     }
 
     @Composable
-    @UnstableApi
-    fun provideViewModel() =
-        MainViewModel(playlistRepository, mediaControllerManager(), uploadRepository)
+    fun provideMainViewModel() =
+        MainViewModel(mediaControllerManager(), playListRepository)
 
     @Composable
     @OptIn(UnstableApi::class)
-    fun provideEditViewModel() = EditViewModel(editSongRepository, playlistRepository)
+    fun provideEditViewModel() =
+        EditViewModel(editSongRepository, playListRepository)
 
     @Composable
     @UnstableApi
-    fun providePlaylistViewModel() = PlaylistViewModel(playlistRepository, mediaControllerManager())
+    fun providePlaylistViewModel() = PlayListViewModel(playListRepository)
 
-    fun provideSelectSongViewModel() = SelectSongViewModel(playlistRepository)
+    fun provideSelectSongViewModel() = EditPlayListViewModel(playListRepository)
+
+    @Composable
+    fun providePlaylistDetailViewModel(): PlayListDetailViewModel = PlayListDetailViewModel(
+        playListRepository,
+        mediaControllerManager = mediaControllerManager()
+    )
 
 }

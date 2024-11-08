@@ -1,85 +1,64 @@
 package com.example.musicapp.helper
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.net.Uri
-import androidx.compose.ui.graphics.asImageBitmap
+import android.util.Log
+import androidx.core.net.toUri
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.extension.getFileNameExtension
-import com.example.musicapp.extension.getFileNameWithoutExtension
-import com.example.musicapp.extension.toScaledBitmap
+import com.example.musicapp.extension.getAuthor
+import com.example.musicapp.extension.getDuration
+import com.example.musicapp.extension.getId
+import com.example.musicapp.extension.getImageBitmap
+import com.example.musicapp.extension.getTitle
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.Collections
-import kotlin.system.measureTimeMillis
 
 object MediaRetrieverHelper {
 
     private const val TAG = "MediaRetrieverHelper"
     private const val NUMBER_OF_THREADS = 6
 
-    suspend fun getSongsInfo(
-        filePaths: List<String>
-    ): List<Song> {
+    suspend fun getSongsInfo(filePaths: List<String>): List<Song> {
         return withContext(Dispatchers.IO) {
-            val result = Collections.synchronizedList(mutableListOf<Song>())
+            val jobs = mutableListOf<Deferred<List<Song>>>()
 
             val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
 
-            val threads = mutableListOf<Thread>()
-
-
-            for (i in 0..<NUMBER_OF_THREADS)
-                threads.add(Thread {
+            for (i in 0 until NUMBER_OF_THREADS) {
+                jobs.add(async {
                     val retriever = MediaMetadataRetriever()
-                    for (j in i * chunkSize..<minOf((i + 1) * chunkSize, filePaths.size)) {
+                    val result = mutableListOf<Song>()
+                    for (j in i * chunkSize until minOf((i + 1) * chunkSize, filePaths.size)) {
                         getSongInfo(retriever, filePaths[j])?.let { result.add(it) }
                     }
                     retriever.release()
+                    result
                 })
+            }
 
-            for (i in 0..<NUMBER_OF_THREADS)
-                threads[i].start()
-            for (i in 0..<NUMBER_OF_THREADS)
-                threads[i].join()
-            result
+            jobs.flatMap { it.await() }
         }
     }
 
-    private fun getSongInfo(retriever: MediaMetadataRetriever, filePath: String): Song? {
+    private fun getSongInfo(retriever: MediaMetadataRetriever, path: String): Song? {
         return try {
-            retriever.setDataSource(filePath)
-
-            val fileName = File(filePath).name
-            val title =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                    ?: fileName.getFileNameWithoutExtension()
-            val author =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Unknown"
-            val durationStr =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val duration = durationStr?.toLongOrNull() ?: 0L
-
-            val embeddedPicture = retriever.embeddedPicture
-            val bitmap: Bitmap? = embeddedPicture?.let {
-                BitmapFactory.decodeByteArray(it, 0, it.size)
-            }
+            retriever.setDataSource(path)
+            val file = File(path)
 
             Song(
-                fileName = fileName,
-                uri = Uri.fromFile(File(filePath)),
-                path = filePath,
-                title = title,
-                author = author,
-                smallBitmap = bitmap?.toScaledBitmap(0.3f)?.asImageBitmap(),
-                duration = duration
+                id = file.getId(),
+                uri = file.toUri(),
+                title = retriever.getTitle() ?: file.nameWithoutExtension,
+                author = retriever.getAuthor(),
+                duration = retriever.getDuration(),
+                thumbnail = retriever.getImageBitmap()
             )
         } catch (e: Exception) {
+            Log.e(TAG, "Error retrieving song info for path: $path", e)
             null
         }
     }
 }
-
 

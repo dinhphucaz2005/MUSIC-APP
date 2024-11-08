@@ -1,0 +1,7 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:initialLayout="@layout/music_widget_default_layout"
+    android:minWidth="350dp"
+    android:minHeight="70dp"
+    android:updatePeriodMillis="60000"
+    tools:ignore="UnusedAttribute" />

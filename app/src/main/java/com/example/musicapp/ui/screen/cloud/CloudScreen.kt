@@ -1,84 +1,104 @@
 package com.example.musicapp.ui.screen.cloud
 
-import androidx.annotation.OptIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.common.AppResource
-import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.CloudRepository
-import com.example.musicapp.ui.components.SongItem
-import com.example.musicapp.ui.theme.MusicTheme
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.example.musicapp.domain.model.ServerSong
+import com.example.musicapp.ui.components.LazyColumnWithAnimation
+import com.example.musicapp.ui.theme.commonShape
 import com.example.musicapp.viewmodels.CloudViewModel
 
-@Preview
 @Composable
-private fun Preview() {
-    MusicTheme {
-        CloudScreen(viewModel = CloudViewModel(object : CloudRepository {
-            override suspend fun loadSongs(
-                title: String,
-                page: Int,
-                size: Int
-            ): AppResource<List<Song>> {
-                TODO("Not yet implemented")
-            }
-        }))
+fun CloudScreen(viewModel: CloudViewModel) {
+    val songs by viewModel.songs.collectAsState()
+    LazyColumnWithAnimation(
+        modifier = Modifier.fillMaxSize(),
+        items = songs,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) { itemModifier, _, item ->
+        ServerSongItem(itemModifier.clickable {
+            viewModel.playSongAtIndex(songs.indexOf(item))
+        }, item as ServerSong)
     }
 }
 
-@OptIn(UnstableApi::class)
 @Composable
-fun CloudScreen(modifier: Modifier = Modifier, viewModel: CloudViewModel) {
-
-    val songs = viewModel.songs
-    val colors = listOf(
-        listOf(Color(0xFF2b4ea2), Color(0xFF1ee3f0)),
-        listOf(Color(0xFFda2b56), Color(0xFFf69d3f)),
-        listOf(Color(0xFF2bb7b9), Color(0xFFe4f686)),
-        listOf(Color(0xFFa47bff), Color(0xFF6fcfff)),
-        listOf(Color(0xFF8e8e8e), Color(0xFFd1d1d1)),
-        listOf(Color(0xFFeabcf5), Color(0xFFb9fafe))
-    )
-
-
-    ConstraintLayout(
-        modifier = modifier.fillMaxSize()
+fun ServerSongItem(
+    modifier: Modifier = Modifier,
+    song: ServerSong
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        val (songList) = createRefs()
-        LazyColumn(
-            modifier = Modifier.constrainAs(songList) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-                height = Dimension.fillToConstraints
-            },
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        val imageModifier = Modifier
+            .clip(commonShape)
+            .background(MaterialTheme.colorScheme.secondary)
+            .fillMaxHeight()
+            .aspectRatio(1f)
+
+        AsyncImage(
+            model = song.thumbnailUri,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = imageModifier
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .padding(start = 8.dp),
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            itemsIndexed(items = songs) { index, song ->
-                SongItem(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(80.dp),
-                    song,
-                    colors[index % colors.size]
-                )
-            }
+            Text(
+                text = song.title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = song.artist,
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        IconButton(onClick = { /* Expand the song */ }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
     }
-
-
 }
+

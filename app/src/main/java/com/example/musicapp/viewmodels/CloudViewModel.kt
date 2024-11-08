@@ -1,42 +1,57 @@
 package com.example.musicapp.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicapp.common.AppResource
-import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.model.ServerSong
 import com.example.musicapp.domain.repository.CloudRepository
+import com.example.musicapp.domain.repository.PlayListRepository
+import com.example.musicapp.util.EventData
+import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import java.nio.charset.Charset
 import javax.inject.Inject
 
 @HiltViewModel
 class CloudViewModel @Inject constructor(
-    private val cloudRepository: CloudRepository
+    private val cloudRepository: CloudRepository,
+    private val playListRepository: PlayListRepository,
+    private val mediaControllerManager: MediaControllerManager
 ) : ViewModel() {
 
-    private var currentPage = 0
-    private val pageSize = 10
 
-    private val _songs = mutableStateListOf<Song>()
-    val songs: List<Song> = _songs
+    private val _songs = MutableStateFlow<List<ServerSong>>(emptyList())
+    val songs: StateFlow<List<ServerSong>> = _songs.asStateFlow()
 
     init {
         viewModelScope.launch {
-            cloudRepository.loadSongs("", currentPage++, pageSize).let { result ->
+            cloudRepository.loadMore().let { result ->
                 when (result) {
                     is AppResource.Success -> {
-                        result.data?.forEachIndexed { _, song ->
-                            _songs.add(song)
-                        }
+                        _songs.value = result.data ?: emptyList()
                     }
 
                     is AppResource.Error -> {
-                        println(result.error)
+                        EventBus.getDefault().postSticky(EventData(result.error))
                     }
                 }
             }
         }
+    }
+
+    fun upload() = viewModelScope.launch {
+        playListRepository.getLocalPlayList().value.songs.let {
+            cloudRepository.upload(it)
+        }
+    }
+
+    fun playSongAtIndex(index: Int) {
+        mediaControllerManager.playServerSongs(index, _songs.value)
     }
 
 }

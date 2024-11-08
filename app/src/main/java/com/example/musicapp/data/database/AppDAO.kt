@@ -5,55 +5,45 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.musicapp.data.database.entity.PlaylistEntity
-import com.example.musicapp.data.database.dto.PlaylistDTO
+import com.example.musicapp.data.database.entity.PlayListEntity
 import com.example.musicapp.data.database.entity.SongEntity
 
 @Dao
 interface AppDAO {
 
+    // Song
     @Query("SELECT * FROM song")
-    fun getSongs(): List<SongEntity>
-
-    @Query("SELECT * FROM playlist")
-    fun getAllPlayLists(): List<PlaylistEntity>
-
-    @Query("SELECT * FROM song WHERE playlist_id = :playlist_id")
-    fun getAllSongFromPlaylist(playlist_id: Int): SongEntity
+    suspend fun getSongs(): List<SongEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addSong(song: SongEntity): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addPlayList(playListEntity: PlaylistEntity): Long
-
-    @Query("DELETE FROM playlist WHERE id = :id")
-    fun deletePlayList(id: Long)
+    suspend fun addSong(songEntity: SongEntity): Long
 
     @Query("DELETE FROM song WHERE id = :id")
-    fun deleteSongById(id: Long)
+    suspend fun deleteSong(id: Long)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateSong(song: SongEntity)
+    suspend fun updateSong(songEntity: SongEntity)
+
+
+    // PlayList
+    @Query("SELECT * FROM playlist")
+    suspend fun getPlayLists(): List<PlayListEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addPlayList(playListEntity: PlayListEntity): Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updatePlayList(playListEntity: PlaylistEntity)
+    suspend fun updatePlayList(playListEntity: PlayListEntity)
 
-    @Query(
-        """
-            SELECT
-                playlist.id AS `id`,
-                playlist.name AS `name`,
-                song.id as songId,
-                song.title AS songTitle,
-                song.path AS songPath
-            FROM playlist
-                LEFT JOIN song ON playlist.id = song.playlist_id
-            ORDER BY playlist.id, song.id;
-        """
-    )
-    fun getPlaylist(): List<PlaylistDTO>
+    @Query("DELETE FROM playlist WHERE id = :id")
+    suspend fun deletePlayList(id: Long)
 
     @Query("DELETE FROM song WHERE playlist_id = :playlistId")
-    fun deleteSongByPlaylistId(playlistId: Long)
+    suspend fun deleteSongByPlaylistId(playlistId: Long)
+
+    @Query("SELECT * FROM song WHERE playlist_id = :playlistId")
+    suspend fun getSongsByPlayListId(playlistId: Long): List<SongEntity>
+
+    @Query("SELECT * FROM playlist WHERE id = :id")
+    fun getPlayList(id: Long): PlayListEntity?
 }

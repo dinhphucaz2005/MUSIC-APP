@@ -14,11 +14,11 @@ import com.mpatric.mp3agic.Mp3File
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import javax.inject.Inject
-import kotlin.math.min
 
 class EditSongRepositoryImpl @Inject constructor(
     private val context: Context
-) : EditSongRepository {
+) : EditSongRepository
+{
 
     companion object {
         const val TAG = "EditSongRepositoryImpl"
@@ -34,7 +34,7 @@ class EditSongRepositoryImpl @Inject constructor(
     ) {
         Log.d(TAG, "saveSongFile: $song")
         try {
-            val mp3File = Mp3File(song.path)
+            val mp3File = Mp3File(song.getPath())
             val id3v2Tag = mp3File.id3v2Tag
             title?.let { id3v2Tag.title = it }
             artist?.let { id3v2Tag.artist = it }
@@ -49,7 +49,7 @@ class EditSongRepositoryImpl @Inject constructor(
                     id3v2Tag.setAlbumImage(imageData, "image/jpeg")
                 }
             }
-            val fileExtension = song.path.getFileNameExtension()
+            val fileExtension = song.getFileName()?.getFileNameExtension()
             val path = "/storage/emulated/0/Music/$fileName.$fileExtension"
             mp3File.save(path)
             MediaStoreHelper.scanFile(

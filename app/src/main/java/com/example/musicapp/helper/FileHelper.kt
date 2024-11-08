@@ -1,36 +1,22 @@
 package com.example.musicapp.helper
 
-import android.content.Context
-import android.database.Cursor
-import android.net.Uri
-import android.provider.MediaStore
-import android.webkit.MimeTypeMap
+import java.io.File
+import java.io.FileInputStream
+import java.security.MessageDigest
 
 object FileHelper {
-     fun getExtension(context: Context, imageUri: Uri): String {
-        val contentResolver = context.contentResolver
-        val mimeType = MimeTypeMap.getSingleton()
-        return mimeType.getExtensionFromMimeType(contentResolver.getType(imageUri))!!
-    }
-     fun getName(context: Context, imageUri: Uri): String {
-        val projection = arrayOf(MediaStore.Images.Media.DISPLAY_NAME)
-        var displayName = "unnamed"
 
-        val cursor: Cursor? = context.contentResolver.query(
-            imageUri,
-            projection,
-            null,
-            null,
-            null
-        )
+    fun getFileHash(file: File): String {
+        val buffer = ByteArray(8192)
+        val digest = MessageDigest.getInstance("SHA-256")
 
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val displayNameIndex =
-                    it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-                displayName = it.getString(displayNameIndex)
+        FileInputStream(file).use { fis ->
+            var bytesRead = fis.read(buffer)
+            while (bytesRead != -1) {
+                digest.update(buffer, 0, bytesRead)
+                bytesRead = fis.read(buffer)
             }
         }
-        return displayName
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 }
