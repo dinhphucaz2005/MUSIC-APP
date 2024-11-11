@@ -18,4 +18,5 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.51.1" apply false
     id("com.android.library") version "8.6.0" apply false
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
+    id("org.jetbrains.kotlin.jvm") version kotlinVersion apply false
 }

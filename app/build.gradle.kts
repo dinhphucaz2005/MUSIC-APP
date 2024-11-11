@@ -39,11 +39,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
@@ -62,10 +62,14 @@ android {
     }
 }
 
+//noinspection GradleDependency
 dependencies {
+
+    // Inner Tube Module
+    implementation(project(":innertube"))
+
     // Media3
     implementation("androidx.media:media:1.7.0")
-
 
     val media3Version = "1.3.1"
 
@@ -167,5 +171,4 @@ dependencies {
     //Glance
     implementation("androidx.glance:glance-appwidget:1.1.1")
     implementation("androidx.glance:glance-material3:1.1.1")
-
 }
