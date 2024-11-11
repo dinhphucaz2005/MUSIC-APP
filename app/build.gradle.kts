@@ -63,10 +63,19 @@ android {
 }
 
 dependencies {
-    implementation(project(":shared"))
-
     // Media3
     implementation("androidx.media:media:1.7.0")
+
+
+    val media3Version = "1.3.1"
+
+    // Warning: Update version of Media3. This may affect background playback functionality
+    api("androidx.media:media:1.7.0")
+    api("androidx.media3:media3-session:$media3Version")
+    api("androidx.media3:media3-exoplayer:$media3Version")
+    api("androidx.media3:media3-exoplayer-dash:$media3Version")
+    api("androidx.media3:media3-ui:$media3Version")
+    api("androidx.media3:media3-common:$media3Version")
 
     // Jetpack Compose
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
