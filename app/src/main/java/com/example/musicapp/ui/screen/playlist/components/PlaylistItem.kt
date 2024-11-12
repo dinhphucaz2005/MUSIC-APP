@@ -20,12 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.ui.components.CommonImage
+import com.example.musicapp.ui.components.Thumbnail
 import com.example.musicapp.ui.theme.commonShape
 import com.example.musicapp.viewmodels.PlayListViewModel
 
@@ -33,7 +32,6 @@ import com.example.musicapp.viewmodels.PlayListViewModel
 fun PlayListItem(
     modifier: Modifier,
     playlist: PlayList = PlayList(),
-    thumbnail: Painter,
     showDeleteButton: Boolean,
     viewModel: PlayListViewModel
 ) {
@@ -43,9 +41,8 @@ fun PlayListItem(
             .size(80.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CommonImage(
-            bitmap = playlist.getSong().firstOrNull()?.thumbnail,
-            painter = thumbnail,
+        Thumbnail(
+            thumbnailSource = playlist.thumbnailSource,
             modifier = Modifier
                 .clip(commonShape)
                 .fillMaxHeight()

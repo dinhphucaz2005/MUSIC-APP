@@ -32,11 +32,6 @@ class DaoTest {
     @Before
     fun setUp(): Unit = runBlocking {
         hiltRule.inject()
-        val playLists = listOf(
-            PlayListEntity(1, "Test Playlist 1"),
-            PlayListEntity(2, "Test Playlist 2")
-        )
-        playLists.forEach { dao.addPlayList(it) }
     }
 
     @Test

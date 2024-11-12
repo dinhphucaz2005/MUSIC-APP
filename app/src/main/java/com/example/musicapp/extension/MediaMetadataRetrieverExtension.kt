@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 fun MediaMetadataRetriever.getImageBitmap(): ImageBitmap? = embeddedPicture
     ?.toBitmap()?.asImageBitmap()
 
-fun MediaMetadataRetriever.getDuration(): Long? =
-    extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+fun MediaMetadataRetriever.getDuration(): Long =
+    extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
 
 fun MediaMetadataRetriever.getTitle(): String? =
     extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)

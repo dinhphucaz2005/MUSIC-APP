@@ -6,7 +6,8 @@ import java.security.MessageDigest
 
 object FileHelper {
 
-    fun getFileHash(file: File): String {
+    fun getFileHash(file: File?): String? {
+        file ?: return null
         val buffer = ByteArray(8192)
         val digest = MessageDigest.getInstance("SHA-256")
 

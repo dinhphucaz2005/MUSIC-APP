@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.musicapp.constants.NavigationBarHeight
+import com.example.musicapp.constants.BottomBarHeight
 import com.example.musicapp.ui.Item
 import com.example.musicapp.ui.navigation.Routes
 
@@ -31,18 +31,21 @@ fun NavigationBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(NavigationBarHeight)
+            .height(BottomBarHeight)
     ) {
         list.forEachIndexed { _, item ->
             RegularNavigationBarItem(item = item) {
                 if (!navController.currentDestination?.route.toString()
                         .startsWith(item.route)
                 ) {
-                    navController.navigate(item.route) {
-                        popUpTo(Routes.HOME.name) {
-                            inclusive = (item.route == Routes.HOME.name)
+                    if (item.route == Routes.HOME.name)
+                        navController.popBackStack()
+                    else
+                        navController.navigate(item.route) {
+                            popUpTo(Routes.HOME.name) {
+                                inclusive = (item.route == Routes.HOME.name)
+                            }
                         }
-                    }
                 }
             }
         }

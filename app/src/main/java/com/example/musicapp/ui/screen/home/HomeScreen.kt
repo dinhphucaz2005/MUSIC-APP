@@ -1,7 +1,5 @@
 package com.example.musicapp.ui.screen.home
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,10 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,15 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.R
+import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.ui.components.LazyColumnWithAnimation
 import com.example.musicapp.ui.components.Thumbnail
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
-import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.viewmodels.HomeViewModel
+import com.example.musicapp.viewmodels.SongViewModel
 
 @ExperimentalMaterial3Api
 @UnstableApi
@@ -63,10 +63,13 @@ fun Preview() {
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier, viewModel: MainViewModel
+    modifier: Modifier = Modifier,
+    viewModel: SongViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val currentSong by viewModel.currentSong.collectAsState()
-    val playList by viewModel.playList.collectAsState()
+    val isLoading by homeViewModel.isLoading.collectAsStateWithLifecycle()
+    val songs by homeViewModel.songs.collectAsState()
+    val currentSong by viewModel.activeSong.collectAsState()
     val playBackState by viewModel.playBackState.collectAsState()
 
     ConstraintLayout(
@@ -83,7 +86,7 @@ fun HomeScreen(
                 .constrainAs(image) {
                     top.linkTo(parent.top, margin = 16.dp)
                     start.linkTo(parent.start, margin = 12.dp)
-                }, currentSong.thumbnail
+                }, currentSong.thumbnailSource
         )
 
         Column(modifier = Modifier
@@ -105,7 +108,7 @@ fun HomeScreen(
                 maxLines = 2,
             )
             Text(
-                text = currentSong.author,
+                text = currentSong.artist,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -116,7 +119,8 @@ fun HomeScreen(
             .constrainAs(row) {
                 top.linkTo(image.bottom)
             }
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
+        {
             val iconModifier = Modifier
                 .size(40.dp)
                 .padding(8.dp)
@@ -160,60 +164,51 @@ fun HomeScreen(
                 top.linkTo(row.bottom)
             }, color = MaterialTheme.colorScheme.onSecondary
         )
-        LazyColumnWithAnimation(
-            modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(lazyColumn) {
-                    top.linkTo(divider.bottom)
-                    bottom.linkTo(parent.bottom)
-                    height = Dimension.fillToConstraints
-                }, playList.songs,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) { modifier, index, item ->
-            SongItem(
-                modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = { viewModel.playSongAtIndex(index) })
-                    },
-                item as Song,
-            )
+
+        val lazyColumnModifier = Modifier
+            .fillMaxWidth()
+            .constrainAs(lazyColumn) {
+                top.linkTo(divider.bottom)
+                bottom.linkTo(parent.bottom)
+                height = Dimension.fillToConstraints
+            }
+
+        if (isLoading) {
+            Box(modifier = lazyColumnModifier, contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumnWithAnimation(
+                modifier = lazyColumnModifier, songs,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) { modifier, index, item ->
+                SongItem(
+                    modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = { homeViewModel.play(index) })
+                        },
+                    item as Song,
+                )
+            }
         }
+
     }
 }
 
 @Composable
 fun SongItem(
-    modifier: Modifier = Modifier, song: Song, colors: List<Color> = listOf()
+    modifier: Modifier = Modifier, song: Song
 ) {
     Row(
-        modifier = modifier, verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.height(SongItemHeight), verticalAlignment = Alignment.CenterVertically
     ) {
         val imageModifier = Modifier
             .clip(commonShape)
-            .background(MaterialTheme.colorScheme.secondary)
             .fillMaxHeight()
             .aspectRatio(1f)
 
-        if (song.thumbnail != null) {
-            Image(
-                bitmap = song.thumbnail,
-                contentDescription = null,
-                modifier = imageModifier,
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = imageModifier.background(
-                    brush = Brush.linearGradient(
-                        if (colors.size >= 2) colors else listOf(
-                            MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary
-                        )
-                    )
-                )
-            )
-        }
+        Thumbnail(modifier = imageModifier, thumbnailSource = song.thumbnailSource)
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -229,7 +224,7 @@ fun SongItem(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = song.author,
+                text = song.artist,
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -244,3 +239,4 @@ fun SongItem(
         }
     }
 }
+

@@ -3,15 +3,18 @@ package com.example.musicapp.helper
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.core.net.toUri
+import com.example.musicapp.domain.model.AudioSource
 import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.model.ThumbnailSource
 import com.example.musicapp.extension.getAuthor
 import com.example.musicapp.extension.getDuration
-import com.example.musicapp.extension.getId
+import com.example.musicapp.extension.getFileId
 import com.example.musicapp.extension.getImageBitmap
 import com.example.musicapp.extension.getTitle
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -20,45 +23,68 @@ object MediaRetrieverHelper {
     private const val TAG = "MediaRetrieverHelper"
     private const val NUMBER_OF_THREADS = 6
 
-    suspend fun getSongsInfo(filePaths: List<String>): List<Song> {
-        return withContext(Dispatchers.IO) {
-            val jobs = mutableListOf<Deferred<List<Song>>>()
+    private val hashMap = hashMapOf<String, Song>() // <Path, Song>
+    private var lastExtract = System.currentTimeMillis()
 
+    suspend fun extracts(filePaths: List<String>): List<Song> {
+        return withContext(Dispatchers.IO) {
             val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
 
-            for (i in 0 until NUMBER_OF_THREADS) {
-                jobs.add(async {
+            // Dividing filePaths into smaller chunks
+            val chunks = filePaths.chunked(chunkSize)
+
+            // Create a list of jobs to process songs in parallel
+            val jobs = chunks.map { chunk ->
+                async {
                     val retriever = MediaMetadataRetriever()
                     val result = mutableListOf<Song>()
-                    for (j in i * chunkSize until minOf((i + 1) * chunkSize, filePaths.size)) {
-                        getSongInfo(retriever, filePaths[j])?.let { result.add(it) }
+
+                    // Process each file in the chunk
+                    chunk.forEach { path ->
+                        extract(retriever, path)?.let { result.add(it) }
                     }
-                    retriever.release()
+
+                    retriever.release() // Release the MediaMetadataRetriever instance in each chunk
                     result
-                })
+                }
             }
 
-            jobs.flatMap { it.await() }
+            val songs = jobs.awaitAll().flatten()
+
+            lastExtract = System.currentTimeMillis() // Update lastExtract time
+
+            songs
         }
     }
 
-    private fun getSongInfo(retriever: MediaMetadataRetriever, path: String): Song? {
+    private fun extract(retriever: MediaMetadataRetriever, path: String): Song? {
         return try {
             retriever.setDataSource(path)
             val file = File(path)
+            if (!file.exists()) { // File not found
+                hashMap.remove(path)
+                return null
+            }
+            if (file.lastModified() < lastExtract && hashMap.containsKey(path)) { // File not modified
+                return hashMap[path]
+            }
 
-            Song(
-                id = file.getId(),
-                uri = file.toUri(),
+            val song = Song(
+                id = file.getFileId(),
                 title = retriever.getTitle() ?: file.nameWithoutExtension,
-                author = retriever.getAuthor(),
-                duration = retriever.getDuration(),
-                thumbnail = retriever.getImageBitmap()
+                artist = retriever.getAuthor(),
+                audioSource = AudioSource.FromLocalFile(file.toUri()),
+                thumbnailSource = ThumbnailSource.FromBitmap(retriever.getImageBitmap()),
+                durationMillis = retriever.getDuration(),
             )
+
+            hashMap[path] = song // Save song to hashmap to avoid extract again
+            song
         } catch (e: Exception) {
             Log.e(TAG, "Error retrieving song info for path: $path", e)
             null
         }
     }
 }
+
 

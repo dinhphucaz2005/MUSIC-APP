@@ -3,16 +3,13 @@ package com.example.musicapp.util
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.musicapp.domain.model.PlayBackState
-import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.domain.model.ServerSong
+import com.example.musicapp.domain.model.Queue
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.PlayListRepository
+import com.example.musicapp.domain.model.toMediaItem
 import com.example.musicapp.enums.LoopMode
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -22,84 +19,50 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MediaControllerManager @Inject constructor(
-    private val context: Context, private val repository: PlayListRepository
-) {
+    private val context: Context
+) : Player.Listener
+{
 
     companion object {
         const val TAG = "MediaControllerManager"
     }
 
-    private lateinit var controllerFuture: ListenableFuture<MediaController>
+    private var controllerFuture: ListenableFuture<MediaController>? = null
     private var controller: MediaController? = null
 
-    private val backgroundScope = CoroutineScope(Dispatchers.IO)
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
 
-    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
-    val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
+    private val _activeSong = MutableStateFlow(Song.unidentifiedSong())
+    val activeSong: StateFlow<Song> = _activeSong.asStateFlow()
 
-    private var currentPlayList = PlayList.getInvalidPlayList()
-
-    init {
-        backgroundScope.launch {
-            observeLocalFiles()
-            observeSavedPlayList()
-        }
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
+        _playBackState.update { it.updatePlayerState(isPlaying) }
     }
 
-    private fun CoroutineScope.observeLocalFiles() = launch {
-        repository.getLocalPlayList().collect {
-            if (it != currentPlayList) loadPlayList(it)
-        }
-    }
-
-    private fun CoroutineScope.observeSavedPlayList() = launch {
-        repository.getSavedPlayLists().collect { playLists ->
-            for (playList in playLists) {
-                if (playList.id == currentPlayList.id) {
-                    if (playList != currentPlayList) loadPlayList(playList)
-                }
-            }
-        }
-    }
-
-
-    private val controllerListener = object : Player.Listener {
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _playBackState.update { it.updatePlayerState(isPlaying) }
-        }
-
-        override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            if (currentPlayList.id == PlayList.SERVER_ID) {
-                _currentSong.update { it.update(mediaMetadata) }
-            } else withController {
-                val index = currentMediaItemIndex
-                _currentSong.update { currentPlayList.songs.getOrNull(index) ?: return }
-            }
-        }
+    override fun onIsLoadingChanged(isLoading: Boolean) {
+        super.onIsLoadingChanged(isLoading)
+        if (!isLoading) controller?.mediaMetadata?.let { _activeSong.value = Song(it) }
     }
 
     fun initializeMediaController(sessionToken: SessionToken) {
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture.addListener({
+        controllerFuture?.addListener({
             try {
-                controller = controllerFuture.get().apply {
+                controller = controllerFuture?.get()?.apply {
                     playWhenReady = true
-                    addListener(controllerListener)
+                    addListener(this@MediaControllerManager)
                 }
                 updatePlayListState()
             } catch (e: Exception) {
                 Log.d(TAG, "initializeMediaController: ${e.message}")
             }
         }, MoreExecutors.directExecutor())
-        if (controller?.isPlaying == false) loadPlayList(currentPlayList)
     }
 
     @MainThread
@@ -164,75 +127,16 @@ class MediaControllerManager @Inject constructor(
         play()
     }
 
+    private var currentQueue = Queue.UNIDENTIFIED_ID
 
-    private fun createMediaItem(song: Song): MediaItem {
-        return MediaItem.Builder().apply {
-            setUri(song.uri)
-            setMediaMetadata(
-                MediaMetadata.Builder().apply {
-                    setTitle(song.title)
-                    setArtist(song.author)
-                }.build()
-            )
-        }.build()
-    }
-
-    private fun createMediaItem(song: ServerSong): MediaItem {
-        return MediaItem.Builder().apply {
-            setUri(song.songUri)
-            setMediaMetadata(
-                MediaMetadata.Builder().apply {
-                    setTitle(song.title)
-                    setArtist(song.artist)
-                }.build()
-            )
-        }.build()
-    }
-
-    private fun loadPlayList(playList: PlayList) {
-        currentPlayList = playList
-        mainScope.launch {
-            withController {
-                clearMediaItems()
-                for (song in playList.songs) addMediaItem(createMediaItem(song))
-                prepare()
-            }
-        }
-    }
-
-    fun playSongLocal(index: Int) = withController {
-        if (currentPlayList.id == PlayList.LOCAL_ID) playAtIndex(index)
+    fun playQueue(queue: Queue, index: Int = 0) = withController {
+        if (currentQueue == queue.id) playAtIndex(index)
         else {
-            loadPlayList(repository.getLocalPlayList().value)
-            playAtIndex(index)
-        }
-    }
-
-    fun playSavedPlayList(index: Int, playList: PlayList) = withController {
-        if (currentPlayList.id == playList.id) playAtIndex(index)
-        else {
-            loadPlayList(playList)
-            playAtIndex(index)
-        }
-    }
-
-    fun playServerSongs(index: Int, serverSongs: List<ServerSong>) = withController {
-        if (currentPlayList.id == PlayList.SERVER_ID) playAtIndex(index)
-        else {
-            currentPlayList = PlayList.getServerPlayList()
             clearMediaItems()
-            for (song in serverSongs) addMediaItem(createMediaItem(song))
+            for (song in queue.songs) addMediaItem(song.toMediaItem())
             prepare()
             playAtIndex(index)
+            currentQueue = queue.id
         }
-    }
-
-    fun release() = withController {
-        stop()
-        clearMediaItems()
-    }
-
-    fun isEmpty(): Boolean {
-        return controller?.mediaItemCount == 0
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,32 +42,46 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.R
 import com.example.musicapp.constants.IconSize
+import com.example.musicapp.constants.TopBarHeight
+import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.extension.toDuration
 import com.example.musicapp.ui.animation.Animator
 import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.components.CustomSlider
 import com.example.musicapp.ui.components.Thumbnail
+import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
-import com.example.musicapp.viewmodels.MainViewModel
+import com.example.musicapp.viewmodels.SongViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Preview
+@Composable
+fun SongScreenPreview(modifier: Modifier = Modifier) {
+    MusicTheme {
+        SongScreen(
+            navController = rememberNavController(), viewModel = FakeModule.provideSongViewModel()
+        )
+    }
+}
+
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: MainViewModel,
-    popSongScreen: () -> Unit
+    viewModel: SongViewModel
 ) {
-    val currentSong by viewModel.currentSong.collectAsState()
+    val activeSong by viewModel.activeSong.collectAsState()
     val playBackState by viewModel.playBackState.collectAsState()
 
     var pause by remember { mutableStateOf(false) }
@@ -82,7 +94,7 @@ fun SongScreen(
                 sliderPosition = viewModel.getCurrentSliderPosition()
                 current = viewModel.getCurrentTrackPosition().toDuration()
             }
-            delay(1000)
+            delay(100)
         }
     }
 
@@ -96,7 +108,9 @@ fun SongScreen(
         Thumbnail(
             Modifier
                 .fillMaxSize()
-                .blur(50.dp), currentSong.thumbnail
+                .blur(50.dp),
+            activeSong.thumbnailSource,
+            contentScale = ContentScale.FillHeight
         )
         Box(
             Modifier
@@ -115,19 +129,17 @@ fun SongScreen(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .height(TopBarHeight)
             ) {
-                IconButton(
-                    onClick = { navController.popBackStack() }, modifier = Modifier.size(IconSize)
-                ) { CommonIcon(painter = painterResource(R.drawable.ic_back)) }
+                CommonIcon(icon = R.drawable.ic_back) { navController.popBackStack() }
+
                 Spacer(Modifier.weight(1f))
-                IconButton(
-                    onClick = { showEditScreen = true }, modifier = Modifier.size(IconSize)
-                ) { CommonIcon(painter = painterResource(R.drawable.ic_edit)) }
+
+                CommonIcon(icon = R.drawable.ic_edit) { showEditScreen = true }
             }
 
             Text(
-                text = currentSong.title,
+                text = activeSong.title,
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
@@ -139,11 +151,13 @@ fun SongScreen(
             )
 
             Text(
-                text = currentSong.author,
+                text = activeSong.artist,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
             )
+
+            var isPopBackStack = false
 
             FlippingBox(
                 Modifier
@@ -152,11 +166,12 @@ fun SongScreen(
                     .aspectRatio(1f)
                     .pointerInput(Unit) {
                         detectDragGestures { _, dragAmount ->
-                            if (dragAmount.y >= 25) {
-                                popSongScreen()
+                            if (dragAmount.y >= 25 && !isPopBackStack) {
+                                isPopBackStack = true
+                                navController.popBackStack()
                             }
                         }
-                    }, currentSong
+                    }, activeSong
             )
 
             CustomSlider(modifier = modifier.fillMaxWidth(),
@@ -182,7 +197,7 @@ fun SongScreen(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = currentSong.duration.toDuration(),
+                    text = activeSong.durationMillis.toDuration(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -198,15 +213,18 @@ fun SongScreen(
                     .fillMaxWidth()
                     .height(60.dp)
             ) {
-                IconButton(
-                    onClick = { viewModel.rewindTrack() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_rewind)) }
-                IconButton(
-                    onClick = { viewModel.togglePlayback() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = playBackState.playerState.resource)) }
-                IconButton(
-                    onClick = { viewModel.fastForwardTrack() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_fast_forward)) }
+                CommonIcon(
+                    iconModifier,
+                    R.drawable.ic_rewind,
+                ) { viewModel.rewindTrack() }
+                CommonIcon(
+                    modifier = iconModifier,
+                    playBackState.playerState.resource,
+                ) { viewModel.togglePlayback() }
+                CommonIcon(
+                    iconModifier,
+                    R.drawable.ic_fast_forward,
+                ) { viewModel.fastForwardTrack() }
             }
 
             Row(
@@ -215,37 +233,38 @@ fun SongScreen(
                     .height(40.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                IconButton(
-                    onClick = { viewModel.updatePlaylistState() }, modifier = iconModifier
-                ) { CommonIcon(painterResource(id = playBackState.loopMode.resource)) }
-                IconButton(
-                    onClick = { viewModel.playPreviousTrack() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_back)) }
-                IconButton(
-                    onClick = { viewModel.playNextTrack() }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_skip_forward)) }
-                IconButton(
-                    onClick = { TODO("Not yet implemented") }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_setting)) }
-                IconButton(
-                    onClick = { TODO("Not yet implemented") }, modifier = iconModifier
-                ) { CommonIcon(painter = painterResource(id = R.drawable.ic_upload)) }
+                CommonIcon(
+                    iconModifier,
+                    playBackState.loopMode.resource
+                ) { viewModel.updatePlaylistState() }
+                CommonIcon(
+                    iconModifier,
+                    R.drawable.ic_skip_back,
+                ) { viewModel.playPreviousTrack() }
+                CommonIcon(
+                    iconModifier,
+                    R.drawable.ic_skip_forward,
+                ) { viewModel.playNextTrack() }
+                CommonIcon(iconModifier, R.drawable.ic_setting) { TODO() }
+                CommonIcon(iconModifier, R.drawable.ic_upload) { TODO() }
             }
         }
-        AnimatedVisibility(
-            visible = showEditScreen,
-            modifier = Modifier.fillMaxSize(),
-            enter = Animator.enterAnimation,
-            exit = Animator.exitAnimation
-        ) {
-            EditScreen(song = currentSong, onDismiss = { showEditScreen = false })
-        }
+    }
+    AnimatedVisibility(
+        visible = showEditScreen,
+        modifier = Modifier.fillMaxSize(),
+        enter = Animator.enterAnimation,
+        exit = Animator.exitAnimation
+    ) {
+        TODO("Implement edit screen")
+//            EditScreen(oldSong = activeSong, onDismiss = { showEditScreen = false })
     }
 }
 
+
 @Composable
 fun FlippingBox(
-    modifier: Modifier = Modifier, currentSong: Song
+    modifier: Modifier = Modifier, song: Song
 ) {
     var isActiveThumbnail by remember { mutableStateOf(true) }
     AnimatedContent(isActiveThumbnail, label = "", modifier = modifier.pointerInput(Unit) {
@@ -263,15 +282,12 @@ fun FlippingBox(
 
         (fadeInSpec + scaleInSpec).togetherWith(fadeOutSpec)
     }) { targetState ->
-        val boxBorderWidth = 10.dp
         val boxModifier = Modifier
             .clip(commonShape)
             .fillMaxSize()
-            .border(boxBorderWidth, MaterialTheme.colorScheme.primary)
-            .padding(boxBorderWidth)
         if (targetState) {
             Box(boxModifier) {
-                Thumbnail(Modifier.fillMaxSize(), currentSong.thumbnail)
+                Thumbnail(Modifier.fillMaxSize(), song.thumbnailSource)
             }
         } else {
             Box(boxModifier) {

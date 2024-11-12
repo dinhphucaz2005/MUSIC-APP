@@ -9,13 +9,11 @@ import com.example.musicapp.data.FirebaseDataSource
 import com.example.musicapp.data.LocalDataSource
 import com.example.musicapp.data.RoomDataSource
 import com.example.musicapp.data.repository.CloudRepositoryImpl
-import com.example.musicapp.data.repository.EditSongRepositoryImpl
-import com.example.musicapp.data.repository.PlayListRepositoryImpl
+import com.example.musicapp.data.repository.SongRepositoryImpl
 import com.example.musicapp.data.repository.UserRepositoryImpl
 import com.example.musicapp.data.service.MusicService
 import com.example.musicapp.domain.repository.CloudRepository
-import com.example.musicapp.domain.repository.EditSongRepository
-import com.example.musicapp.domain.repository.PlayListRepository
+import com.example.musicapp.domain.repository.SongRepository
 import com.example.musicapp.domain.repository.UserRepository
 import com.example.musicapp.util.MediaControllerManager
 import dagger.Module
@@ -44,9 +42,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMediaControllerManager(
-        context: Context, playlistRepository: PlayListRepository
+        context: Context, playlistRepository: SongRepository
     ): MediaControllerManager {
-        return MediaControllerManager(context, playlistRepository)
+        return MediaControllerManager(context)
     }
 
     @Provides
@@ -55,18 +53,13 @@ object AppModule {
         return context.getSharedPreferences(AppCommon.PREF_NAME, Context.MODE_PRIVATE)
     }
 
-    @Provides
-    @Singleton
-    fun provideEditSongRepository(context: Context): EditSongRepository {
-        return EditSongRepositoryImpl(context)
-    }
 
     @Provides
     @Singleton
     fun providePlaylistRepository(
         context: Context, roomDataSource: RoomDataSource, localDataSource: LocalDataSource
-    ): PlayListRepository {
-        return PlayListRepositoryImpl(context, roomDataSource, localDataSource)
+    ): SongRepository {
+        return SongRepositoryImpl(context, roomDataSource, localDataSource)
     }
 
     @Provides

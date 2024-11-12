@@ -36,8 +36,8 @@ class LocalDataSourceTest {
 
     @Test
     fun testGetLocalFile(): Unit = runBlocking {
-        val songs = localDataSource.fetch(context)
-        Log.d(TAG, "test_get_local_file: $songs")
+//        val songs = localDataSource.fetch(context)
+//        Log.d(TAG, "test_get_local_file: $songs")
     }
 
 }

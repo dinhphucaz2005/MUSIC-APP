@@ -13,19 +13,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.data.service.MusicService
-import com.example.musicapp.domain.repository.PlayListRepository
-import com.example.musicapp.ui.MainScreen
+import com.example.musicapp.domain.repository.SongRepository
+import com.example.musicapp.ui.App
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.util.EventData
 import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
@@ -38,7 +32,7 @@ class MainActivity : ComponentActivity() {
     lateinit var mediaControllerManager: MediaControllerManager
 
     @Inject
-    lateinit var repository: PlayListRepository
+    lateinit var repository: SongRepository
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
 
@@ -62,26 +56,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MusicTheme { MainScreen() } }
         startMusicService()
         handlePermissions()
+        setContent { MusicTheme { App() } }
     }
 
     private fun handlePermissions() {
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (permissions[Manifest.permission.READ_MEDIA_AUDIO] == true) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        repository.reload()
-                    }
+                    // TODO: load song from local storage
                 } else {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
         if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            CoroutineScope(Dispatchers.IO).launch {
-                repository.reload()
-            }
+            // TODO: load song from local storage
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 requestPermissionLauncher.launch(
@@ -98,13 +88,6 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this)
-        }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        CoroutineScope(Dispatchers.IO).launch {
-            repository.reload()
         }
     }
 

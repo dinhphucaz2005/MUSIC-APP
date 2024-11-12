@@ -19,7 +19,7 @@ interface AppDAO {
     suspend fun addSong(songEntity: SongEntity): Long
 
     @Query("DELETE FROM song WHERE id = :id")
-    suspend fun deleteSong(id: Long)
+    suspend fun deleteSong(id: String)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateSong(songEntity: SongEntity)
@@ -36,14 +36,14 @@ interface AppDAO {
     suspend fun updatePlayList(playListEntity: PlayListEntity)
 
     @Query("DELETE FROM playlist WHERE id = :id")
-    suspend fun deletePlayList(id: Long)
+    suspend fun deletePlayList(id: String)
 
     @Query("DELETE FROM song WHERE playlist_id = :playlistId")
     suspend fun deleteSongByPlaylistId(playlistId: Long)
 
     @Query("SELECT * FROM song WHERE playlist_id = :playlistId")
-    suspend fun getSongsByPlayListId(playlistId: Long): List<SongEntity>
+    suspend fun getSongsByPlayListId(playlistId: String): List<SongEntity>
 
     @Query("SELECT * FROM playlist WHERE id = :id")
-    fun getPlayList(id: Long): PlayListEntity?
+    fun getPlayList(id: String): PlayListEntity?
 }

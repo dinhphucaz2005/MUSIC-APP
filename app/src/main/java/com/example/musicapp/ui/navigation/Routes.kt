@@ -6,8 +6,10 @@ enum class Routes {
         PLAYLIST_HOME,
         PLAYLIST_DETAIL,
         PLAYLIST_EDIT,
-    SETTING,
     CLOUD,
+    YOUTUBE,
+    SETTING,
+    SONG
 }
 
 /*
@@ -16,6 +18,8 @@ enum class Routes {
         PLAYLIST_HOME,
         PLAYLIST_DETAIL,
         PLAYLIST_EDIT,
+    CLOUD,
+    YOUTUBE,
     SETTING,
-    ABOUT,
+    SONG
 */

@@ -1,14 +1,17 @@
 package com.example.musicapp.ui.screen.playlist
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,57 +22,50 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.musicapp.R
+import androidx.navigation.compose.rememberNavController
+import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.ui.components.LazyColumnWithAnimation
 import com.example.musicapp.ui.navigation.Routes
-import com.example.musicapp.ui.screen.playlist.components.EmptyPlaylistScreen
 import com.example.musicapp.ui.screen.playlist.components.PlayListItem
-import com.example.musicapp.ui.screen.song.MyTextField
+import com.example.musicapp.ui.components.MyTextField
+import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.viewmodels.PlayListViewModel
+
+@SuppressLint("UnsafeOptInUsageError")
+@Preview
+@Composable
+private fun PlayListHomePreview() {
+    MusicTheme {
+        PlayListHome(rememberNavController(), FakeModule.providePlaylistViewModel())
+    }
+}
 
 @Composable
 fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel) {
 
     val playlists by viewModel.playlists.collectAsState()
-
     var showDialog by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf("") }
-    val thumbnail = painterResource(id = R.drawable.image)
 
     val dismissCreatePlaylist = {
         showDialog = false
-        name = ""
     }
 
     Scaffold(modifier = Modifier
         .fillMaxSize()
         .padding(12.dp), floatingActionButton = {
-        if (playlists.isNotEmpty()) {
-            Button(
-                onClick = { showDialog = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                ),
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.AddCircle,
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onTertiary
-                )
-                Text(
-                    text = "New playlist",
-                    modifier = Modifier.padding(start = 8.dp),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onTertiary
-                )
-            }
+        FloatingActionButton(onClick = {
+            showDialog = true
+        }, containerColor = MaterialTheme.colorScheme.tertiary) {
+            Icon(
+                imageVector = Icons.Outlined.AddCircle, contentDescription = null
+            )
         }
     }) { contentPadding ->
 
@@ -77,36 +73,32 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
             .fillMaxSize()
             .padding(contentPadding)
 
-        if (playlists.isEmpty()) {
-            EmptyPlaylistScreen(contentModifier) { showDialog = true }
-        } else {
-            LazyColumnWithAnimation(
-                modifier = contentModifier,
-                items = playlists,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) { itemModifier, _, item ->
-                var showDeleteButton by remember { mutableStateOf(false) }
+        LazyColumnWithAnimation(
+            modifier = contentModifier,
+            items = playlists,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) { itemModifier, _, item ->
+            var showDeleteButton by remember { mutableStateOf(false) }
 
-                PlayListItem(
-                    modifier = itemModifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.id)
-                                },
-                                onLongPress = {
-                                    showDeleteButton = true
-                                }
-                            )
-                        },
-                    playlist = item as PlayList,
-                    thumbnail = thumbnail,
-                    showDeleteButton = showDeleteButton,
-                    viewModel = viewModel
-                )
-            }
+            PlayListItem(
+                modifier = itemModifier
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + (item as PlayList).id)
+                            },
+                            onLongPress = {
+                                showDeleteButton = true
+                            }
+                        )
+                    },
+                playlist = item as PlayList,
+                showDeleteButton = showDeleteButton,
+                viewModel = viewModel
+            )
         }
         if (showDialog) {
+            var name by remember { mutableStateOf("") }
             AlertDialog(modifier = Modifier,
                 containerColor = MaterialTheme.colorScheme.background,
                 onDismissRequest = {
@@ -133,6 +125,15 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
                     }
                 })
         }
+    }
+}
+
+@Composable
+fun LoadingScreen(contentModifier: Modifier) {
+    Box(
+        modifier = contentModifier, contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }
 
