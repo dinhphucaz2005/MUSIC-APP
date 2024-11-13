@@ -1,17 +1,11 @@
 package com.example.musicapp.ui.animation
 
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.ui.Alignment
-import androidx.core.graphics.scaleMatrix
 
 class Animator {
     companion object {
@@ -25,16 +19,6 @@ class Animator {
             animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = ANIMATION_EASING),
             expandFrom = Alignment.CenterVertically,
             initialHeight = { it }
-        )
-
-        val temp = slideInVertically(
-            initialOffsetY = { it / 2 }, animationSpec = tween(
-                durationMillis = ANIMATION_DURATION, easing = ANIMATION_EASING
-            )
-        ) + scaleIn(
-            initialScale = 0f, animationSpec = tween(
-                durationMillis = ANIMATION_DURATION, easing = ANIMATION_EASING
-            )
         )
 
         val exitAnimation = slideOutVertically(

@@ -1,8 +1,10 @@
 package com.example.musicapp.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.example.musicapp.common.AppCommon
+import com.example.musicapp.constants.SHARED_PREFERENCES_NAME
 import com.example.musicapp.data.database.AppDAO
 import com.example.musicapp.data.database.AppDatabase
 import dagger.Module

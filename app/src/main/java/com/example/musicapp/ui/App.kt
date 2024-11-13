@@ -1,12 +1,15 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package com.example.musicapp.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,17 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.R
 import com.example.musicapp.ui.components.MiniPlayer
@@ -37,12 +36,13 @@ import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.navigation.playlistNavigation
 import com.example.musicapp.ui.screen.cloud.CloudScreen
 import com.example.musicapp.ui.screen.home.HomeScreen
-import com.example.musicapp.ui.screen.setting.SettingScreen
+import com.example.musicapp.ui.screen.setting.LoginScreen
 import com.example.musicapp.ui.screen.song.SongScreen
 import com.example.musicapp.ui.screen.youtube.YoutubeScreen
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.viewmodels.PlayListViewModel
 import com.example.musicapp.viewmodels.SongViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 data class Item(
     val painter: Painter, val route: String
@@ -61,7 +61,12 @@ fun Preview() {
 fun CustomBottomBar(isVisible: Boolean, navController: NavHostController) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn() + expandVertically(),
+        enter = fadeIn() + expandVertically(
+            animationSpec = tween(
+                durationMillis = 100,
+                easing = LinearEasing
+            )
+        ),
         exit = fadeOut() + shrinkVertically()
     ) {
         Column {
@@ -119,7 +124,7 @@ fun App(modifier: Modifier = Modifier) {
 
             composable(Routes.SETTING.name) {
                 isNavigationBarVisible = true
-                SettingScreen()
+                LoginScreen(navController)
             }
 
             composable(Routes.SONG.name) {

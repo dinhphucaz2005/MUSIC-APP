@@ -36,7 +36,7 @@ data class Song(
         }
     }
 
-    constructor(mediaMetadata: MediaMetadata) : this(
+    constructor(mediaMetadata: MediaMetadata, durationMillis: Long? = null) : this(
         id = UUID.randomUUID().toString(),
         title = mediaMetadata.title.toString(),
         artist = mediaMetadata.artist.toString(),
@@ -47,7 +47,7 @@ data class Song(
         } else {
             ThumbnailSource.FromBitmap(mediaMetadata.artworkData?.toBitmap()?.asImageBitmap())
         },
-        durationMillis = mediaMetadata.extras?.getLong("duration") ?: 0L
+        durationMillis = durationMillis ?: 0L
     )
 
 }
@@ -55,13 +55,12 @@ data class Song(
 
 @SuppressLint("UnsafeOptInUsageError")
 fun Song.toMediaItem(): MediaItem {
-    val audioUri: Uri = when (audioSource) {
-        is AudioSource.FromLocalFile -> audioSource.uri
-        is AudioSource.FromUrl -> audioSource.url.toUri()
-    }
 
     return MediaItem.Builder().apply {
-        setUri(audioUri)
+        when (audioSource) {
+            is AudioSource.FromLocalFile -> setUri(audioSource.uri)
+            is AudioSource.FromUrl -> setUri(audioSource.url)
+        }
         setMediaMetadata(
             MediaMetadata.Builder().apply {
                 setTitle(title)

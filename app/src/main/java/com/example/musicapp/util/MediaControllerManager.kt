@@ -3,9 +3,11 @@ package com.example.musicapp.util
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.musicapp.domain.model.AudioSource
 import com.example.musicapp.domain.model.PlayBackState
 import com.example.musicapp.domain.model.Queue
 import com.example.musicapp.domain.model.Song
@@ -13,8 +15,6 @@ import com.example.musicapp.domain.model.toMediaItem
 import com.example.musicapp.enums.LoopMode
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +23,7 @@ import javax.inject.Inject
 
 class MediaControllerManager @Inject constructor(
     private val context: Context
-) : Player.Listener
-{
+) : Player.Listener {
 
     companion object {
         const val TAG = "MediaControllerManager"
@@ -32,8 +31,6 @@ class MediaControllerManager @Inject constructor(
 
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private var controller: MediaController? = null
-
-    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
@@ -45,9 +42,13 @@ class MediaControllerManager @Inject constructor(
         _playBackState.update { it.updatePlayerState(isPlaying) }
     }
 
-    override fun onIsLoadingChanged(isLoading: Boolean) {
-        super.onIsLoadingChanged(isLoading)
-        if (!isLoading) controller?.mediaMetadata?.let { _activeSong.value = Song(it) }
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        super.onPlaybackStateChanged(playbackState)
+        if (playbackState == Player.STATE_READY) {
+            withController {
+                _activeSong.update { Song(mediaMetadata, duration) }
+            }
+        }
     }
 
     fun initializeMediaController(sessionToken: SessionToken) {
@@ -133,7 +134,10 @@ class MediaControllerManager @Inject constructor(
         if (currentQueue == queue.id) playAtIndex(index)
         else {
             clearMediaItems()
-            for (song in queue.songs) addMediaItem(song.toMediaItem())
+            setMediaItems(queue.songs.map {
+                Log.d(TAG, "playQueue: $it")
+                it.toMediaItem()
+            })
             prepare()
             playAtIndex(index)
             currentQueue = queue.id

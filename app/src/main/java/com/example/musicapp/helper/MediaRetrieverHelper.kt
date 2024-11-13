@@ -27,6 +27,7 @@ object MediaRetrieverHelper {
     private var lastExtract = System.currentTimeMillis()
 
     suspend fun extracts(filePaths: List<String>): List<Song> {
+        if (filePaths.isEmpty()) return emptyList()
         return withContext(Dispatchers.IO) {
             val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
 
