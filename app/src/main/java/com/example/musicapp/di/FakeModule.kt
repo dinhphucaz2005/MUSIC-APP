@@ -4,13 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.CloudRepository
 import com.example.musicapp.domain.repository.SongRepository
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.viewmodels.CloudViewModel
 import com.example.musicapp.viewmodels.HomeViewModel
 import com.example.musicapp.viewmodels.PlayListViewModel
 import com.example.musicapp.viewmodels.SongViewModel
+import com.example.musicapp.viewmodels.YoutubeViewModel
 import java.util.UUID
 
 object FakeModule {
@@ -59,16 +58,6 @@ object FakeModule {
         }
     }
 
-    private val cloudRepository = object : CloudRepository {
-        override suspend fun load(): List<Song> {
-            TODO("Not yet implemented")
-        }
-
-        override fun upload(songs: List<Song>) {
-            TODO("Not yet implemented")
-        }
-    }
-
     @Composable
     fun provideMainViewModel() =
         SongViewModel(mediaControllerManager())
@@ -84,6 +73,5 @@ object FakeModule {
         HomeViewModel(mediaControllerManager(), songRepository)
 
     @Composable
-    fun provideCloudViewModel(): CloudViewModel =
-        CloudViewModel(cloudRepository, songRepository, mediaControllerManager())
+    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel(mediaControllerManager())
 }

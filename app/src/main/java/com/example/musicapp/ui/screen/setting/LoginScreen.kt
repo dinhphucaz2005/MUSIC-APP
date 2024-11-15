@@ -53,6 +53,8 @@ fun LoginScreen(
                             if (url.startsWith("https://music.youtube.com")) {
                                 val innerTubeCookie = CookieManager.getInstance().getCookie(url)
                                 viewModel.saveCookie(innerTubeCookie)
+                                if (innerTubeCookie != null)
+                                    navController.popBackStack()
 //                                GlobalScope.launch {
 //                                    YouTube.accountInfo().onSuccess {
 //                                        accountName = it.name

@@ -68,21 +68,25 @@ object YouTube {
         set(value) {
             innerTube.locale = value
         }
+
     var visitorData: String
         get() = innerTube.visitorData
         set(value) {
             innerTube.visitorData = value
         }
+
     var cookie: String?
         get() = innerTube.cookie
         set(value) {
             innerTube.cookie = value
         }
+
     var proxy: Proxy?
         get() = innerTube.proxy
         set(value) {
             innerTube.proxy = value
         }
+
     var useLoginForBrowse: Boolean
         get() = innerTube.useLoginForBrowse
         set(value) {

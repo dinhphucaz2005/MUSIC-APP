@@ -18,7 +18,7 @@ fun CommonIcon(
     @DrawableRes icon: Int,
     size: Dp = IconSize,
     tint: Color = MaterialTheme.colorScheme.primary,
-    onClick: (() -> Unit)?
+    onClick: (() -> Unit)? = null
 ) {
     Icon(painter = painterResource(icon), modifier = modifier
         .clickable {

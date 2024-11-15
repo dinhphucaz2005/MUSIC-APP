@@ -1,11 +1,19 @@
 package com.example.musicapp.ui.screen.playlist
 
-import android.annotation.SuppressLint
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.AlertDialog
@@ -13,6 +21,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,21 +34,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.musicapp.R
+import com.example.musicapp.constants.DefaultShape
+import com.example.musicapp.constants.PlayListHeight
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.ui.components.LazyColumnWithAnimation
-import com.example.musicapp.ui.navigation.Routes
-import com.example.musicapp.ui.screen.playlist.components.PlayListItem
+import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.components.MyTextField
+import com.example.musicapp.ui.navigation.Routes
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.viewmodels.PlayListViewModel
 
-@SuppressLint("UnsafeOptInUsageError")
 @Preview
 @Composable
 private fun PlayListHomePreview() {
@@ -58,8 +73,7 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
     }
 
     Scaffold(modifier = Modifier
-        .fillMaxSize()
-        .padding(12.dp), floatingActionButton = {
+        .fillMaxSize(), floatingActionButton = {
         FloatingActionButton(onClick = {
             showDialog = true
         }, containerColor = MaterialTheme.colorScheme.tertiary) {
@@ -73,32 +87,69 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
             .fillMaxSize()
             .padding(contentPadding)
 
-        LazyColumnWithAnimation(
-            modifier = contentModifier,
-            items = playlists,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) { itemModifier, _, item ->
-            var showDeleteButton by remember { mutableStateOf(false) }
-
-            PlayListItem(
-                modifier = itemModifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + (item as PlayList).id)
-                            },
-                            onLongPress = {
-                                showDeleteButton = true
-                            }
+        LazyColumn(
+            modifier = contentModifier
+        ) {
+            itemsIndexed(items = playlists, key = { _, item ->
+                item.data.id
+            }) { _, item ->
+                ListItem(
+                    leadingContent = {
+                        Image(
+                            painter = painterResource(R.drawable.image), contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .clip(DefaultShape)
+                                .fillMaxHeight()
+                                .aspectRatio(1f)
                         )
                     },
-                playlist = item as PlayList,
-                showDeleteButton = showDeleteButton,
-                viewModel = viewModel
-            )
+                    headlineContent = {
+                        Text(
+                            text = item.data.name, color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(PlayListHeight)
+                        .animateItem(
+                            fadeInSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                            placementSpec = spring(
+                                stiffness = Spring.StiffnessMediumLow,
+                                visibilityThreshold = IntOffset.VisibilityThreshold
+                            ),
+                            fadeOutSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                        )
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = {
+                                navController.navigate(Routes.PLAYLIST_DETAIL.name + "/" + item.data.id)
+                            }, onLongPress = {
+                                viewModel.togglePlayList(item.data.id)
+                            })
+                        },
+                    trailingContent = {
+                        if (item.isSelected) {
+                            CommonIcon(
+                                icon = R.drawable.ic_delete, tint = MaterialTheme.colorScheme.error
+                            ) { viewModel.deletePlayList() }
+                        }
+                    },
+                    colors = ListItemDefaults.colors(
+                        headlineColor = MaterialTheme.colorScheme.primary,
+                        overlineColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        supportingColor = MaterialTheme.colorScheme.primary,
+                        leadingIconColor = MaterialTheme.colorScheme.primary,
+                        trailingIconColor = MaterialTheme.colorScheme.primary,
+                    )
+                )
+            }
         }
+
         if (showDialog) {
-            var name by remember { mutableStateOf("") }
+            var name by remember { mutableStateOf("Unnamed") }
             AlertDialog(modifier = Modifier,
                 containerColor = MaterialTheme.colorScheme.background,
                 onDismissRequest = {
@@ -106,7 +157,8 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
                 },
                 text = {
                     MyTextField(
-                        value = name, onValueChange = { name = it }, label = "Playlist name"
+                        value = name,
+                        onValueChange = { name = it },
                     )
                 },
                 dismissButton = {
@@ -123,7 +175,8 @@ fun PlayListHome(navController: NavHostController, viewModel: PlayListViewModel)
                     }) {
                         Text(text = "Save", color = MaterialTheme.colorScheme.background)
                     }
-                })
+                }
+            )
         }
     }
 }

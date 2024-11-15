@@ -1,15 +1,16 @@
 package com.example.innertube.utils
 
-import com.example.innertube.YouTube
+import com.example.innertube.CustomYoutube
 import com.example.innertube.pages.PlaylistPage
 import java.security.MessageDigest
+
 
 suspend fun Result<PlaylistPage>.completed() = runCatching {
     val page = getOrThrow()
     val songs = page.songs.toMutableList()
     var continuation = page.songsContinuation
     while (continuation != null) {
-        val continuationPage = YouTube.playlistContinuation(continuation).getOrNull() ?: break
+        val continuationPage = CustomYoutube.playlistContinuation(continuation).getOrNull() ?: break
         songs += continuationPage.songs
         continuation = continuationPage.continuation
     }

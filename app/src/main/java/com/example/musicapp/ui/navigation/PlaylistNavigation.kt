@@ -9,11 +9,13 @@ import androidx.navigation.navigation
 import com.example.musicapp.ui.screen.playlist.PlayListDetail
 import com.example.musicapp.ui.screen.playlist.PlayListEdit
 import com.example.musicapp.ui.screen.playlist.PlayListHome
+import com.example.musicapp.viewmodels.HomeViewModel
 import com.example.musicapp.viewmodels.PlayListViewModel
 
 fun NavGraphBuilder.playlistNavigation(
     navController: NavHostController,
     viewModel: PlayListViewModel,
+    homeViewModel: HomeViewModel,
     setNavigationBarVisible: (Boolean) -> Unit
 ) {
     navigation(startDestination = Routes.PLAYLIST_HOME.name, route = Routes.PLAYLIST.name) {
@@ -35,7 +37,7 @@ fun NavGraphBuilder.playlistNavigation(
             route = Routes.PLAYLIST_EDIT.name,
         ) {
             setNavigationBarVisible(true)
-            PlayListEdit(navController, viewModel)
+            PlayListEdit(navController, viewModel, homeViewModel)
         }
     }
 }

@@ -52,7 +52,7 @@ import com.example.musicapp.constants.IconSize
 import com.example.musicapp.constants.TopBarHeight
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.extension.toDuration
+import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.ui.animation.Animator
 import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.components.CustomSlider
@@ -92,7 +92,7 @@ fun SongScreen(
         if (!pause) while (true) {
             CoroutineScope(Dispatchers.Main).launch {
                 sliderPosition = viewModel.getCurrentSliderPosition()
-                current = viewModel.getCurrentTrackPosition().toDuration()
+                current = viewModel.getCurrentTrackPosition().toDurationString()
             }
             delay(100)
         }
@@ -197,7 +197,7 @@ fun SongScreen(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = activeSong.durationMillis.toDuration(),
+                    text = activeSong.durationMillis.toDurationString(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )

@@ -2,17 +2,16 @@ package com.example.musicapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.innertube.YouTube
+import com.example.innertube.CustomYoutube
 import com.example.innertube.models.Artist
+import com.example.innertube.models.SongItem
+import com.example.innertube.pages.HomePage
 import com.example.musicapp.domain.model.AudioSource
 import com.example.musicapp.domain.model.Queue
 import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.model.ThumbnailSource
-import com.example.musicapp.ui.components.list
+import com.example.musicapp.extension.load
 import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,11 +24,20 @@ import javax.inject.Inject
 class YoutubeViewModel @Inject constructor(
     private val mediaControllerManager: MediaControllerManager
 ) : ViewModel() {
+
+    private val _home = MutableStateFlow(HomePage(emptyList()))
+    val home: StateFlow<HomePage> = _home.asStateFlow()
+
+    private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    val songs: StateFlow<List<Song>> = _songs.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+
     fun play(index: Int) = viewModelScope.launch {
         try {
             val song = _songs.value[index]
 
-            val audioUrl = YouTube.player(song.id).getOrThrow().streamingData?.adaptiveFormats
+            val audioUrl = CustomYoutube.player(song.id).getOrThrow().streamingData?.adaptiveFormats
                 ?.firstOrNull { it.isAudio }?.url ?: return@launch
 
             val queue = Queue.Builder()
@@ -46,26 +54,40 @@ class YoutubeViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            var result = listOf<Song>()
-            YouTube.playlist("PLOzY78Q8ujCLCHBLLOPMx_OhhRi_FP_fs").onSuccess {
-                result = it.songs.map { song ->
-                    Song(
-                        id = song.id,
-                        title = song.title,
-                        artist = song.artists.joinToString(", ") { artist: Artist -> artist.name },
-                        audioSource = AudioSource.FromUrl("EMPTY_URL"),
-                        thumbnailSource = ThumbnailSource.FromUrl(song.thumbnail),
-                        durationMillis = (song.duration ?: 0) * 1000L,
+        val test = HomePage.Section(
+            title = "Section title",
+            label = "Section label",
+            thumbnail = "url",
+            endpoint = null,
+            items = listOf(
+                SongItem(
+                    id = "song id",
+                    title = "Song title",
+                    artists = listOf(
+                        Artist(
+                            name = "Song artist",
+                            id = "id_artist"
+                        )
+                    ),
+                    album = null,
+                    duration = null,
+                    thumbnail = "song thumbnail",
+                    explicit = false, endpoint = null
+                )
+            )
+        )
+
+        load(_isLoading) {
+            _home.update {
+                HomePage(
+                    listOf(
+                        test,
+                        test.copy(title = "Forgotten favorites", label = null),
+                        test.copy(title = "Mixed for you", label = null)
                     )
-                }
+                )
             }
-            _songs.update { result }
+            _home.update { CustomYoutube.loadHome() }
         }
     }
-
-    private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    val songs: StateFlow<List<Song>> = _songs.asStateFlow()
-
-
 }

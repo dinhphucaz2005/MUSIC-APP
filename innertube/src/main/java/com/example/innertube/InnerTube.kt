@@ -25,8 +25,9 @@ import java.util.*
  * Provide access to InnerTube endpoints.
  * For making HTTP requests, not parsing response.
  */
-class InnerTube {
-    private var httpClient = createClient()
+open class InnerTube {
+
+    open var httpClient: HttpClient = createClient()
 
     var locale = YouTubeLocale(
         gl = Locale.getDefault().country,
@@ -38,7 +39,7 @@ class InnerTube {
             field = value
             cookieMap = if (value == null) emptyMap() else parseCookieString(value)
         }
-    private var cookieMap = emptyMap<String, String>()
+    var cookieMap = emptyMap<String, String>()
 
     var proxy: Proxy? = null
         set(value) {
@@ -50,7 +51,7 @@ class InnerTube {
     var useLoginForBrowse: Boolean = false
 
     @OptIn(ExperimentalSerializationApi::class)
-    private fun createClient() = HttpClient(OkHttp) {
+    fun createClient() = HttpClient(OkHttp) {
         expectSuccess = true
 
         install(ContentNegotiation) {
@@ -78,7 +79,7 @@ class InnerTube {
         }
     }
 
-    private fun HttpRequestBuilder.ytClient(client: YouTubeClient, setLogin: Boolean = false) {
+    open fun HttpRequestBuilder.ytClient(client: YouTubeClient, setLogin: Boolean = false) {
         contentType(ContentType.Application.Json)
         headers {
             append("X-Goog-Api-Format-Version", "1")
@@ -93,7 +94,8 @@ class InnerTube {
                     append("cookie", cookie)
                     if ("SAPISID" !in cookieMap) return@let
                     val currentTime = System.currentTimeMillis() / 1000
-                    val sapisidHash = sha1("$currentTime ${cookieMap["SAPISID"]} https://music.youtube.com")
+                    val sapisidHash =
+                        sha1("$currentTime ${cookieMap["SAPISID"]} https://music.youtube.com")
                     append("Authorization", "SAPISIDHASH ${currentTime}_${sapisidHash}")
                 }
             }

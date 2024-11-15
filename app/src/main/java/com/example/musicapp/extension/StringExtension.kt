@@ -24,8 +24,8 @@ const val MILLIS_IN_MINUTE = 60 * MILLIS_IN_SECOND
 const val MILLIS_IN_HOUR = 60 * MILLIS_IN_MINUTE
 
 @SuppressLint("DefaultLocale")
-fun Long?.toDuration(): String {
-    if (this == null) return "00:00"
+fun Long?.toDurationString(): String {
+    if (this == null || this == 0L) return ""
     val hours = this / MILLIS_IN_HOUR
     val minutes = (this % MILLIS_IN_HOUR) / MILLIS_IN_MINUTE
     val seconds = (this % MILLIS_IN_MINUTE) / MILLIS_IN_SECOND

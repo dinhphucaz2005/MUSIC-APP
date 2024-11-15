@@ -1,5 +1,6 @@
 package com.example.musicapp.ui.screen.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +46,10 @@ import com.example.musicapp.R
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
+import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.ui.components.LazyColumnWithAnimation
+import com.example.musicapp.ui.components.LazyColumnWithAnimation2
+import com.example.musicapp.ui.components.MyListItem
 import com.example.musicapp.ui.components.Thumbnail
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
@@ -56,7 +62,10 @@ import com.example.musicapp.viewmodels.SongViewModel
 @Composable
 fun Preview() {
     MusicTheme {
-        HomeScreen(viewModel = FakeModule.provideMainViewModel())
+        HomeScreen(
+            viewModel = FakeModule.provideMainViewModel(),
+            homeViewModel = FakeModule.provideHomeViewModel()
+        )
     }
 }
 
@@ -73,8 +82,7 @@ fun HomeScreen(
     val playBackState by viewModel.playBackState.collectAsState()
 
     ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
 
         val (image, textRef, row, divider, lazyColumn) = createRefs()
@@ -119,8 +127,7 @@ fun HomeScreen(
             .constrainAs(row) {
                 top.linkTo(image.bottom)
             }
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
-        {
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             val iconModifier = Modifier
                 .size(40.dp)
                 .padding(8.dp)
@@ -178,18 +185,43 @@ fun HomeScreen(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumnWithAnimation(
-                modifier = lazyColumnModifier, songs,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) { modifier, index, item ->
-                SongItem(
-                    modifier
-                        .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            detectTapGestures(onTap = { homeViewModel.play(index) })
-                        },
-                    item as Song,
-                )
+            LazyColumnWithAnimation2(modifier = lazyColumnModifier,
+                items = songs,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                key = { _, item -> item.id }
+            ) { itemModifier, index, song ->
+                MyListItem(headlineContent = {
+                    Text(
+                        text = song.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp)
+                    )
+                }, leadingContent = {
+                    val imageModifier = Modifier
+                        .clip(commonShape)
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                    Thumbnail(modifier = imageModifier, thumbnailSource = song.thumbnailSource)
+                }, supportingContent = {
+                    Text(
+                        text = "${song.artist} \u00B7 ${song.durationMillis.toDurationString()}",
+                        Modifier.padding(top = 8.dp),
+                    )
+                }, trailingContent = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }, modifier = itemModifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { homeViewModel.play(index) })
+                    }
+                    .height(SongItemHeight)
+                    .background(MaterialTheme.colorScheme.background))
             }
         }
 
@@ -200,43 +232,46 @@ fun HomeScreen(
 fun SongItem(
     modifier: Modifier = Modifier, song: Song
 ) {
-    Row(
-        modifier = modifier.height(SongItemHeight), verticalAlignment = Alignment.CenterVertically
-    ) {
-        val imageModifier = Modifier
-            .clip(commonShape)
-            .fillMaxHeight()
-            .aspectRatio(1f)
-
-        Thumbnail(modifier = imageModifier, thumbnailSource = song.thumbnailSource)
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-                .padding(start = 8.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+    MyListItem(
+        headlineContent = {
             Text(
                 text = song.title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp)
             )
+        },
+        leadingContent = {
+            val imageModifier = Modifier
+                .clip(commonShape)
+                .fillMaxHeight()
+                .aspectRatio(1f)
+            Thumbnail(modifier = imageModifier, thumbnailSource = song.thumbnailSource)
+        },
+        supportingContent = {
             Text(
-                text = song.artist,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                color = MaterialTheme.colorScheme.primary,
+                text = "${song.artist} \u00B7 ${song.durationMillis.toDurationString()}",
+                modifier.padding(top = 8.dp),
             )
-        }
-
-
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert, contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-    }
+        },
+        trailingContent = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+        modifier = modifier
+            .height(SongItemHeight)
+            .background(MaterialTheme.colorScheme.background)
+    )
 }
 
+@Preview
+@Composable
+private fun SongItemPreview() {
+    MusicTheme {
+        SongItem(song = Song.unidentifiedSong())
+    }
+}

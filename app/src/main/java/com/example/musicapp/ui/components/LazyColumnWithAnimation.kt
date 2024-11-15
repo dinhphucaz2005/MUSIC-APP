@@ -93,3 +93,40 @@ private fun LazyColumnWithAnimationSample() {
         }
     }
 }
+
+
+
+@Composable
+inline fun <T> LazyColumnWithAnimation2(
+    modifier: Modifier = Modifier,
+    items: List<T>,
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical =
+        if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    animationDuration: Int = 200,
+    initialOffsetX: Float = 100f,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline content: @Composable LazyListScope.(itemModifier: Modifier, index: Int, item: T) -> Unit
+) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement
+    ) {
+        itemsIndexed(items = items, key = { index, item -> key?.invoke(index, item) ?: item.hashCode() }) { index, item ->
+            val offsetX = remember { Animatable(initialOffsetX) }
+
+            LaunchedEffect(item) {
+                if (offsetX.value != 0f) {
+                    offsetX.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = animationDuration)
+                    )
+                }
+            }
+
+            this@LazyColumn.content(
+                Modifier.offset { IntOffset(offsetX.value.toInt(), 0) }, index, item
+            )
+        }
+    }
+}

@@ -45,6 +45,7 @@ import com.example.musicapp.ui.components.Thumbnail
 import com.example.musicapp.ui.components.MyTextField
 import com.example.musicapp.ui.theme.MusicTheme
 import com.example.musicapp.ui.theme.commonShape
+import com.example.musicapp.viewmodels.HomeViewModel
 import com.example.musicapp.viewmodels.PlayListViewModel
 
 @UnstableApi
@@ -53,7 +54,9 @@ import com.example.musicapp.viewmodels.PlayListViewModel
 fun PreviewScreen() {
     MusicTheme {
         PlayListEdit(
-            rememberNavController(), FakeModule.providePlaylistViewModel()
+            rememberNavController(),
+            FakeModule.providePlaylistViewModel(),
+            FakeModule.provideHomeViewModel()
         )
     }
 }
@@ -61,20 +64,16 @@ fun PreviewScreen() {
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun PlayListEdit(
-    navController: NavController, viewModel: PlayListViewModel
+    navController: NavController, viewModel: PlayListViewModel, homeViewModel: HomeViewModel
 ) {
-
-    LaunchedEffect(Unit) {
-        viewModel.loadLocalSongs()
-    }
 
     val itemModifier = Modifier
         .fillMaxWidth()
         .height(80.dp)
 
     val isLoading by viewModel.isLoading.collectAsState()
+    val localSongs by homeViewModel.songs.collectAsState()
     val activePlayList by viewModel.activePlayList.collectAsState()
-    val localSongs by viewModel.localSongs.collectAsState()
     val selectedSongs = remember { mutableStateListOf<String>() }
 
     ConstraintLayout(

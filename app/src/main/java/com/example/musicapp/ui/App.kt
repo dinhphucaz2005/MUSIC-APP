@@ -40,8 +40,10 @@ import com.example.musicapp.ui.screen.setting.LoginScreen
 import com.example.musicapp.ui.screen.song.SongScreen
 import com.example.musicapp.ui.screen.youtube.YoutubeScreen
 import com.example.musicapp.ui.theme.MusicTheme
+import com.example.musicapp.viewmodels.HomeViewModel
 import com.example.musicapp.viewmodels.PlayListViewModel
 import com.example.musicapp.viewmodels.SongViewModel
+import com.example.musicapp.viewmodels.YoutubeViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 data class Item(
@@ -60,14 +62,11 @@ fun Preview() {
 @Composable
 fun CustomBottomBar(isVisible: Boolean, navController: NavHostController) {
     AnimatedVisibility(
-        visible = isVisible,
-        enter = fadeIn() + expandVertically(
+        visible = isVisible, enter = fadeIn() + expandVertically(
             animationSpec = tween(
-                durationMillis = 100,
-                easing = LinearEasing
+                durationMillis = 100, easing = LinearEasing
             )
-        ),
-        exit = fadeOut() + shrinkVertically()
+        ), exit = fadeOut() + shrinkVertically()
     ) {
         Column {
             MiniPlayer(viewModel = hiltViewModel<SongViewModel>(),
@@ -91,6 +90,9 @@ fun App(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     var isNavigationBarVisible by rememberSaveable { mutableStateOf(true) }
 
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val youtubeViewModel = hiltViewModel<YoutubeViewModel>()
+
     Scaffold(modifier = modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background),
@@ -105,10 +107,10 @@ fun App(modifier: Modifier = Modifier) {
 
             composable(Routes.HOME.name) {
                 isNavigationBarVisible = true
-                HomeScreen()
+                HomeScreen(homeViewModel = homeViewModel)
             }
 
-            playlistNavigation(navController, playListViewModel) {
+            playlistNavigation(navController, playListViewModel, homeViewModel) {
                 isNavigationBarVisible = it
             }
 
@@ -119,7 +121,7 @@ fun App(modifier: Modifier = Modifier) {
 
             composable(Routes.YOUTUBE.name) {
                 isNavigationBarVisible = true
-                YoutubeScreen()
+                YoutubeScreen(viewModel = youtubeViewModel)
             }
 
             composable(Routes.SETTING.name) {

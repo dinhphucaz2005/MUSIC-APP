@@ -86,10 +86,6 @@ fun PlayListDetail(
     viewModel: PlayListViewModel,
 ) {
 
-    LaunchedEffect(playlistId) {
-        viewModel.loadPlayList(playlistId)
-    }
-
     val songs by viewModel.songs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val activePlayList by viewModel.activePlayList.collectAsState()
