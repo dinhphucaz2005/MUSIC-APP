@@ -50,7 +50,6 @@ data class Item(
     val painter: Painter, val route: String
 )
 
-
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
@@ -121,7 +120,7 @@ fun App(modifier: Modifier = Modifier) {
 
             composable(Routes.YOUTUBE.name) {
                 isNavigationBarVisible = true
-                YoutubeScreen(viewModel = youtubeViewModel)
+                YoutubeScreen(viewModel = youtubeViewModel, navController = navController)
             }
 
             composable(Routes.SETTING.name) {

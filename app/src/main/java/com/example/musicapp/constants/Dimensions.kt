@@ -8,6 +8,7 @@ val BottomBarHeight = 60.dp
 val IconSize = 32.dp
 val TopBarHeight = 40.dp
 val PlayListHeight = 100.dp
+val SectionHeight = 200.dp
 
 // Dimension for Youtube item
 val AlbumItemHeight = 200.dp

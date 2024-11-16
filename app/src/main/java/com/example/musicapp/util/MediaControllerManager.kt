@@ -3,11 +3,13 @@ package com.example.musicapp.util
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import com.example.musicapp.domain.model.AudioSource
 import com.example.musicapp.domain.model.PlayBackState
 import com.example.musicapp.domain.model.Queue
 import com.example.musicapp.domain.model.Song
@@ -49,6 +51,12 @@ class MediaControllerManager @Inject constructor(
                 _activeSong.update { Song(mediaMetadata, duration) }
             }
         }
+    }
+
+    override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+        super.onMediaMetadataChanged(mediaMetadata)
+        if (controller?.playbackState == Player.STATE_READY)
+            _activeSong.update { Song(mediaMetadata, controller?.duration ?: 0L) }
     }
 
     fun initializeMediaController(sessionToken: SessionToken) {

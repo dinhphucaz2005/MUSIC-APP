@@ -70,6 +70,7 @@ dependencies {
 
     // Media3
     implementation("androidx.media:media:1.7.0")
+    implementation("androidx.media3:media3-datasource-okhttp:1.4.1")
 
     val media3Version = "1.3.1"
 
