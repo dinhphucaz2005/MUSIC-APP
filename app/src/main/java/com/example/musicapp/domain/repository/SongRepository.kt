@@ -5,7 +5,7 @@ import com.example.musicapp.domain.model.Song
 
 interface SongRepository {
 
-    suspend fun getPlayList(playListId: String): List<Song>
+    suspend fun getSongsFromPlaylist(playListId: String): List<Song>
 
     suspend fun createPlayList(name: String)
 
@@ -13,7 +13,7 @@ interface SongRepository {
 
     suspend fun deletePlayList(id: String)
 
-    suspend fun addSongs(playListId: String, songs: List<Song>)
+    suspend fun addSongsToPlaylist(playListId: String, songs: List<Song>)
 
     suspend fun deleteSongs(selectedSongIds: List<String>)
 

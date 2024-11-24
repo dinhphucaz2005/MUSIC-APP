@@ -12,8 +12,6 @@ import javax.inject.Singleton
 @Singleton
 class LocalDataSource @Inject constructor() {
 
-
-
     private fun getAllLocalFilePaths(context: Context): List<String> {
         val filePaths = mutableListOf<String>()
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI

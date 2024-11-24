@@ -21,11 +21,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.R
 import com.example.musicapp.di.FakeModule
+import com.example.musicapp.domain.model.AudioSource
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.ui.components.CommonIcon
 import com.example.musicapp.ui.components.Thumbnail
@@ -54,6 +56,7 @@ import com.example.musicapp.viewmodels.PlayListViewModel
 fun PreviewScreen() {
     MusicTheme {
         PlayListEdit(
+            "playlistId",
             rememberNavController(),
             FakeModule.providePlaylistViewModel(),
             FakeModule.provideHomeViewModel()
@@ -64,17 +67,21 @@ fun PreviewScreen() {
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun PlayListEdit(
-    navController: NavController, viewModel: PlayListViewModel, homeViewModel: HomeViewModel
+    playlistId: String,
+    navController: NavController,
+    viewModel: PlayListViewModel,
+    homeViewModel: HomeViewModel,
 ) {
 
     val itemModifier = Modifier
         .fillMaxWidth()
         .height(80.dp)
 
+    var playlistName by remember { mutableStateOf(viewModel.getPlaylistName(playlistId)) }
+
     val isLoading by viewModel.isLoading.collectAsState()
     val localSongs by homeViewModel.songs.collectAsState()
-    val activePlayList by viewModel.activePlayList.collectAsState()
-    val selectedSongs = remember { mutableStateListOf<String>() }
+    val selectedSongIds = remember { mutableStateListOf<String>() }
 
     ConstraintLayout(
         modifier = Modifier
@@ -101,16 +108,20 @@ fun PlayListEdit(
             ) { navController.popBackStack() }
 
             MyTextField(
-                value = activePlayList?.name ?: "",
+                value = playlistName,
                 label = "Playlist Name",
-                onValueChange = { viewModel.updatePlayListName(it) },
+                onValueChange = { playlistName = it },
                 modifier = Modifier.weight(1f)
             )
 
             CommonIcon(
                 icon = R.drawable.ic_save
             ) {
-                viewModel.savePlaylist(activePlayList, selectedSongs.toList())
+                viewModel.savePlaylist(
+                    playlistId,
+                    playlistName,
+                    localSongs.filter { selectedSongIds.contains(it.id) }
+                )
                 navController.popBackStack()
             }
         }
@@ -131,11 +142,11 @@ fun PlayListEdit(
                 contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp)
             ) {
                 itemsIndexed(localSongs, key = { _, item -> item.id }) { _, item ->
-                    val isSelected = selectedSongs.contains(item.id)
+                    val isSelected = selectedSongIds.contains(item.id)
                     SelectableSongItem(
                         itemModifier.clickable {
-                            if (isSelected) selectedSongs.remove(item.id)
-                            else selectedSongs.add(item.id)
+                            if (isSelected) selectedSongIds.remove(item.id)
+                            else selectedSongIds.add(item.id)
                         }, item, isSelected
                     )
                 }
@@ -148,7 +159,7 @@ fun PlayListEdit(
 @UnstableApi
 @Composable
 fun SelectableSongItem(
-    modifier: Modifier = Modifier, song: Song, isSelected: Boolean = false
+    modifier: Modifier = Modifier, song: Song, isSelected: Boolean = false,
 ) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically

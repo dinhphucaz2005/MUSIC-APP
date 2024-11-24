@@ -10,6 +10,7 @@ import com.example.musicapp.domain.model.ThumbnailSource
 import com.example.musicapp.extension.DEFAULT_COMPRESS_FORMAT
 import com.example.musicapp.extension.toByteArray
 import com.example.musicapp.helper.FileHelper
+import com.example.musicapp.util.FirebaseKey
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +28,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FirebaseDataSource @Inject constructor(
-    storage: StorageReference, database: DatabaseReference
+    storage: StorageReference, database: DatabaseReference,
 ) {
 
     companion object {
@@ -41,7 +42,7 @@ class FirebaseDataSource @Inject constructor(
         val artist: String,
         val songUri: String,
         val thumbnailUri: String?,
-        val durationMillis: Long
+        val durationMillis: Long,
     ) : Identifiable {
         constructor() : this(
             id = UUID.randomUUID().toString(),
@@ -63,8 +64,8 @@ class FirebaseDataSource @Inject constructor(
     }
 
 
-    private val songsRef = database.child("songs")
-    private val storageRef = storage.child("songs")
+    private val databaseChild = database.child(FirebaseKey.SONGS)
+    private val storageChild = storage.child(FirebaseKey.SONGS)
 
     fun uploadSongs(songs: List<Song>) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -81,7 +82,7 @@ class FirebaseDataSource @Inject constructor(
                     val id = FileHelper.getFileHash(file) ?: song.id
 
                     async {
-                        songsRef.child(id).get().await().let { snapshot ->
+                        databaseChild.child(id).get().await().let { snapshot ->
                             if (snapshot.exists()) {
                                 Log.d(TAG, "Song already exists: ${song.title}")
                                 return@async null
@@ -112,14 +113,14 @@ class FirebaseDataSource @Inject constructor(
             is ThumbnailSource.FromUrl ->
                 thumbnailSource.url
 
-            is ThumbnailSource.FromBitmap -> storageRef.child("song_thumbnails")
+            is ThumbnailSource.FromBitmap -> storageChild.child(FirebaseKey.SONG_THUMBNAILS)
                 .child("$id.$DEFAULT_COMPRESS_FORMAT")
                 .putStream(ByteArrayInputStream(thumbnailSource.imageBitmap.toByteArray()))
                 .await().storage.downloadUrl.await().toString()
         }
 
         val songUri = when (val audioSource = song.audioSource) {
-            is AudioSource.FromLocalFile -> storageRef.child("$id | ${file?.name}")
+            is AudioSource.FromLocalFile -> storageChild.child("$id | ${file?.name}")
                 .putFile(audioSource.uri)
                 .await().storage.downloadUrl.await().toString()
 
@@ -127,7 +128,7 @@ class FirebaseDataSource @Inject constructor(
         }
 
         val serverSong = ServerSong(id, song, songUri, thumbnailUri)
-        songsRef.child(id).setValue(serverSong)
+        databaseChild.child(id).setValue(serverSong)
     }
 
     suspend fun load(): List<ServerSong> {
@@ -135,7 +136,7 @@ class FirebaseDataSource @Inject constructor(
         val page = 0
         val size = 20
         val startAfter = page * size
-        val snapshot = songsRef
+        val snapshot = databaseChild
             .orderByKey().startAt(startAfter.toString())
             .limitToFirst(size).get().await()
 

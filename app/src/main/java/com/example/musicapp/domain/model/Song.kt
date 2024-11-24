@@ -7,10 +7,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.data.database.entity.SongEntity
 import com.example.musicapp.extension.toBitmap
-import com.example.musicapp.extension.toByteArray
 import java.util.UUID
 
 @Immutable

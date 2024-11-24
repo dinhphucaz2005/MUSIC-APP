@@ -60,7 +60,6 @@ object MediaRetrieverHelper {
 
     private fun extract(retriever: MediaMetadataRetriever, path: String): Song? {
         return try {
-            retriever.setDataSource(path)
             val file = File(path)
             if (!file.exists()) { // File not found
                 hashMap.remove(path)
@@ -69,6 +68,8 @@ object MediaRetrieverHelper {
             if (file.lastModified() < lastExtract && hashMap.containsKey(path)) { // File not modified
                 return hashMap[path]
             }
+
+            retriever.setDataSource(path)
 
             val song = Song(
                 id = file.getFileId(),

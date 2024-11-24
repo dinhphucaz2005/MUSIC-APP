@@ -21,8 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +45,6 @@ import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.domain.model.Song
 import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.ui.components.LazyColumnWithAnimation
 import com.example.musicapp.ui.components.LazyColumnWithAnimation2
 import com.example.musicapp.ui.components.MyListItem
 import com.example.musicapp.ui.components.Thumbnail
@@ -63,7 +60,7 @@ import com.example.musicapp.viewmodels.SongViewModel
 fun Preview() {
     MusicTheme {
         HomeScreen(
-            viewModel = FakeModule.provideMainViewModel(),
+            viewModel = FakeModule.provideSongViewModel(),
             homeViewModel = FakeModule.provideHomeViewModel()
         )
     }
@@ -74,7 +71,7 @@ fun Preview() {
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: SongViewModel = hiltViewModel(),
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val isLoading by homeViewModel.isLoading.collectAsStateWithLifecycle()
     val songs by homeViewModel.songs.collectAsState()
@@ -154,9 +151,9 @@ fun HomeScreen(
                     )
                 }
             }
-            val hidden = true
+            val hidden = false
             if (!hidden) {
-                IconButton(onClick = { viewModel.uploadSongs() }) {
+                IconButton(onClick = { viewModel.uploadSongs(songs) }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = null,
@@ -230,7 +227,7 @@ fun HomeScreen(
 
 @Composable
 fun SongItem(
-    modifier: Modifier = Modifier, song: Song
+    modifier: Modifier = Modifier, song: Song,
 ) {
     MyListItem(
         headlineContent = {

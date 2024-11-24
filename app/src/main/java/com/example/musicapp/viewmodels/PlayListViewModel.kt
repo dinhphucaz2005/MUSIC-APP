@@ -1,5 +1,6 @@
 package com.example.musicapp.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Queue
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.math.log
 
 
 @HiltViewModel
@@ -21,7 +23,8 @@ class PlayListViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class PlayListItem(
-        val data: PlayList, val isSelected: Boolean = false
+        val data: PlayList,
+        val isSelected: Boolean = false,
     )
 
     private val _isLoading = MutableStateFlow(false)
@@ -57,26 +60,22 @@ class PlayListViewModel @Inject constructor(
         _playlists.update { it.filter { playlist -> !playlist.isSelected } }
     }
 
-
-    fun updatePlayListName(value: String) = _activePlayList.update { it?.copy(name = value) }
-
-    fun savePlaylist(activePlayList: PlayList?, selectedSongs: List<String>) = load {
-//        if (activePlayList == null) return@load
-//        repository.savePlayList(activePlayList.id, activePlayList.name)
-//        repository.addSongs(
-//            activePlayList.id,
-//            _localSongs.value.filter { selectedSongs.contains(it.id) })
-//        loadPlayList(activePlayList.id, false)
-//        loadSavedPlayLists()
-    }
+    fun savePlaylist(playlistId: String, playlistName: String, selectedSongs: List<Song>) =
+        load {
+            repository.savePlayList(playlistId, playlistName)
+            repository.addSongsToPlaylist(
+                playlistId, selectedSongs
+            )
+            loadSavedPlayLists()
+        }
 
     fun play(index: Int) {
         val queue = Queue.Builder().setSavePlayListSong(_songs.value).build()
         mediaControllerManager.playQueue(queue, index)
     }
 
-    fun deleteSongs(toList: List<String>) {
-        TODO("Not yet implemented")
+    fun deleteSongs(selectedSongIds: List<String>) = load {
+        repository.deleteSongs(selectedSongIds)
     }
 
     fun togglePlayList(id: String) {
@@ -86,5 +85,14 @@ class PlayListViewModel @Inject constructor(
                 else playlist
             }
         }
+    }
+
+    fun loadPlaylist(playlistId: String) = load {
+        _activePlayList.update { _playlists.value.find { it.data.id == playlistId }?.data }
+        _songs.update { repository.getSongsFromPlaylist(playlistId) }
+    }
+
+    fun getPlaylistName(playlistId: String): String {
+        return _playlists.value.find { it.data.id == playlistId }?.data?.name ?: ""
     }
 }

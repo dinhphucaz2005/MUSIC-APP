@@ -85,6 +85,13 @@ fun PlayListDetail(
     navController: NavHostController,
     viewModel: PlayListViewModel,
 ) {
+    LaunchedEffect(playlistId) {
+        if (playlistId == null) {
+            navController.popBackStack()
+        } else {
+            viewModel.loadPlaylist(playlistId)
+        }
+    }
 
     val songs by viewModel.songs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -97,6 +104,7 @@ fun PlayListDetail(
         inSelectionMode = false
         selectedSongIds.clear()
     }
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLoading) LoadingScreen(Modifier.fillMaxSize())
         else {
@@ -177,7 +185,7 @@ fun PlayListDetail(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Row {
-                        IconButton(onClick = { navController.navigate(Routes.PLAYLIST_EDIT.name) }) {
+                        IconButton(onClick = { navController.navigate(Routes.PLAYLIST_EDIT.name + "/" + playlistId) }) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = null,
@@ -262,17 +270,16 @@ fun PlayListDetail(
                     width = Dimension.fillToConstraints
                 }, color = MaterialTheme.colorScheme.primary)
 
-                LazyColumnWithAnimation(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .constrainAs(lazyRow) {
-                            top.linkTo(horizontalDivider.bottom, margin = 12.dp)
-                            bottom.linkTo(parent.bottom)
-                            height = Dimension.fillToConstraints
-                        }
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp), items = songs
-                ) { itemModifier, index, item ->
+                LazyColumnWithAnimation(modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(lazyRow) {
+                        top.linkTo(horizontalDivider.bottom, margin = 12.dp)
+                        bottom.linkTo(parent.bottom)
+                        height = Dimension.fillToConstraints
+                    }
+                    .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    items = songs) { itemModifier, index, item ->
                     val song = item as Song
                     var isSelected = selectedSongIds.contains(song.id)
                     Row(

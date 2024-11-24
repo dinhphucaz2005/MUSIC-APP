@@ -171,4 +171,7 @@ dependencies {
     //Glance
     implementation("androidx.glance:glance-appwidget:1.1.1")
     implementation("androidx.glance:glance-material3:1.1.1")
+
+    //Squiggly Slider
+    implementation("me.saket.squigglyslider:squigglyslider:1.0.0")
 }

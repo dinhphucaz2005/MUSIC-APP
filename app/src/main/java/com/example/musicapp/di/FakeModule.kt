@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.example.musicapp.domain.model.PlayList
 import com.example.musicapp.domain.model.Song
+import com.example.musicapp.domain.repository.CloudRepository
 import com.example.musicapp.domain.repository.SongRepository
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.viewmodels.HomeViewModel
@@ -24,7 +25,7 @@ object FakeModule {
 
     private val songRepository = object : SongRepository {
 
-        override suspend fun getPlayList(playListId: String): List<Song> {
+        override suspend fun getSongsFromPlaylist(playListId: String): List<Song> {
             TODO("Not yet implemented")
         }
 
@@ -40,7 +41,7 @@ object FakeModule {
             TODO("Not yet implemented")
         }
 
-        override suspend fun addSongs(playListId: String, songs: List<Song>) {
+        override suspend fun addSongsToPlaylist(playListId: String, songs: List<Song>) {
             TODO("Not yet implemented")
         }
 
@@ -58,20 +59,30 @@ object FakeModule {
         }
     }
 
-    @Composable
-    fun provideMainViewModel() =
-        SongViewModel(mediaControllerManager())
+    private val cloudRepository = object : CloudRepository {
+        override suspend fun load(): List<Song> {
+            TODO("Not yet implemented")
+        }
+
+        override fun upload(songs: List<Song>) {
+            TODO("Not yet implemented")
+        }
+    }
+
 
     @Composable
-    fun providePlaylistViewModel() = PlayListViewModel(mediaControllerManager(), songRepository)
+    fun providePlaylistViewModel() =
+        PlayListViewModel(mediaControllerManager(), songRepository)
 
     @Composable
-    fun provideSongViewModel(): SongViewModel = SongViewModel(mediaControllerManager())
+    fun provideSongViewModel(): SongViewModel =
+        SongViewModel(mediaControllerManager(), cloudRepository)
 
     @Composable
     fun provideHomeViewModel(): HomeViewModel =
         HomeViewModel(mediaControllerManager(), songRepository)
 
     @Composable
-    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel(mediaControllerManager())
+    fun provideYoutubeViewModel(): YoutubeViewModel =
+        YoutubeViewModel(mediaControllerManager())
 }

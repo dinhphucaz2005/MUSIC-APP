@@ -16,7 +16,7 @@ class SongRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource
 ) : SongRepository {
 
-    override suspend fun getPlayList(playListId: String): List<Song> {
+    override suspend fun getSongsFromPlaylist(playListId: String): List<Song> {
         val localSong = localDataSource.get(context)
         return roomDataSource.getPlayList(playListId).mapNotNull {
             val file = File(it.path)
@@ -36,7 +36,7 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun deletePlayList(id: String) = roomDataSource.deletePlayList(id)
 
-    override suspend fun addSongs(playListId: String, songs: List<Song>) =
+    override suspend fun addSongsToPlaylist(playListId: String, songs: List<Song>) =
         roomDataSource.addSongs(songs, playListId)
 
     override suspend fun deleteSongs(selectedSongIds: List<String>) =
