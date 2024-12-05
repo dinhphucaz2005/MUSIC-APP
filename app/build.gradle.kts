@@ -1,10 +1,10 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 val apiKey: String = System.getenv("API_KEY") ?: "SDLF"
@@ -23,6 +23,7 @@ android {
         applicationId = "com.example.musicapp"
         minSdk = 26
         targetSdk = 34
+        maxSdk = 34
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "com.example.musicapp.HiltTestRunner"
@@ -60,118 +61,107 @@ android {
             useLegacyPackaging = true
         }
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
-//noinspection GradleDependency
 dependencies {
 
     // Inner Tube Module
     implementation(project(":innertube"))
 
     // Media3
-    implementation("androidx.media:media:1.7.0")
+    implementation(libs.androidx.media)
 
-    val media3Version = "1.3.1"
-
-    // Warning: Update version of Media3. This may affect background playback functionality
-    api("androidx.media:media:1.7.0")
-    api("androidx.media3:media3-session:$media3Version")
-    api("androidx.media3:media3-exoplayer:$media3Version")
-    api("androidx.media3:media3-exoplayer-dash:$media3Version")
-    api("androidx.media3:media3-ui:$media3Version")
-    api("androidx.media3:media3-common:$media3Version")
+    implementation(libs.androidx.media)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.datasource.okhttp)
 
     // Jetpack Compose
-    implementation(platform("androidx.compose:compose-bom:2024.10.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:1.3.1")
-    implementation("androidx.compose.animation:animation:1.7.5")
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.animation)
 
     // Core and Lifecycle
-    //noinspection GradleDependency
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Navigation for Compose
-    implementation("androidx.navigation:navigation-compose:2.8.3")
-    implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
+    implementation(libs.androidx.datastore.preferences.core.jvm)
 
     // Testing
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    testImplementation("com.google.dagger:hilt-android-testing:2.51.1")
-    kaptTest("com.google.dagger:hilt-compiler:2.51.1")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
-    androidTestImplementation("androidx.test:rules:1.6.1")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-
-    //Room Database
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.room:room-runtime:2.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.10.01"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-    //noinspection KaptUsageInsteadOfKsp
-    kapt("androidx.room:room-compiler:2.6.1")
+    // Compose Testing
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
     //Firebase
-    implementation("com.google.firebase:firebase-database:21.0.0")
-    implementation("com.google.firebase:firebase-storage:21.0.1")
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.storage)
 
     //Coil
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.bundles.coil)
 
     //ConstraintLayout
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation(libs.androidx.constraintlayout.compose)
 
     //ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-
-    //Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.3")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     //Edit tag audio
-    implementation("com.mpatric:mp3agic:0.9.1")
+    implementation(libs.mp3agic)
 
     //EventBus
-    implementation("org.greenrobot:eventbus:3.3.1")
+    implementation(libs.eventbus)
 
-    //Dagger-Hilt
+    //Color Picker
+    implementation(libs.compose.color.picker.android)
+
+    //Swipe Refresh
+    implementation(libs.accompanist.swiperefresh)
+
+    //Drag select
+    implementation(libs.dragselect)
+
+    //Nav animation
+    implementation(libs.accompanist.navigation.animation)
+
+    //Extended Icon
+    implementation(libs.fontawesomecompose)
+
+    //Glance
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
+    //Squiggly Slider
+    implementation(libs.squigglyslider)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    //Color Picker
-    implementation("com.godaddy.android.colorpicker:compose-color-picker-android:0.7.0")
-
-    //Swipe Refresh
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.30.1")
-
-    //Drag select
-    implementation("com.dragselectcompose:dragselect:2.3.0")
-
-    //Nav animation
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0")
-
-
-    //Serializable
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-
-    //Extended Icon
-    implementation("com.github.Gurupreet:FontAwesomeCompose:1.1.0")
-
-    //Glance
-    implementation("androidx.glance:glance-appwidget:1.1.1")
-    implementation("androidx.glance:glance-material3:1.1.1")
-
-    //Squiggly Slider
-    implementation("me.saket.squigglyslider:squigglyslider:1.0.0")
+    // Room
+    val roomVersion = "2.5.0"
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
 }

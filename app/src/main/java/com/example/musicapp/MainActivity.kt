@@ -2,6 +2,7 @@ package com.example.musicapp
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
@@ -13,23 +14,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.musicapp.data.service.MusicService
-import com.example.musicapp.domain.repository.SongRepository
-import com.example.musicapp.ui.App
-import com.example.musicapp.ui.theme.MusicTheme
-import com.example.musicapp.util.EventData
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.util.UnstableApi
+import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.other.viewmodels.HomeViewModel
+import com.example.musicapp.service.MusicService
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 import javax.inject.Inject
 
 
+@UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var mediaControllerManager: MediaControllerManager
 
     @Inject
     lateinit var repository: SongRepository
@@ -37,20 +43,18 @@ class MainActivity : ComponentActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
 
 
-    private var isBound = false
-    private var myMusicService: MusicService? = null
+    private var mediaControllerManager by mutableStateOf<MediaControllerManager?>(null)
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as MusicService.MyBinder
-            myMusicService = binder.getService()
-            isBound = true
-            val sessionToken = myMusicService!!.getSession().token
-            mediaControllerManager.initializeMediaController(sessionToken)
+            val binder = service as MusicService.MusicBinder
+            mediaControllerManager =
+                MediaControllerManager(this@MainActivity, binder, lifecycleScope)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            isBound = false
+            mediaControllerManager?.dispose()
+            mediaControllerManager = null
         }
     }
 
@@ -58,8 +62,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         startMusicService()
         handlePermissions()
-        setContent { MusicTheme { App() } }
+        setContent {
+            MusicTheme {
+                CompositionLocalProvider(
+                    LocalMediaControllerManager provides mediaControllerManager
+                ) {
+                    App(hiltViewModel<HomeViewModel>(), hiltViewModel<YoutubeViewModel>())
+                }
+            }
+        }
     }
+
 
     private fun handlePermissions() {
         requestPermissionLauncher =
@@ -86,24 +99,25 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this)
-        }
+        startService(Intent(this, MusicService::class.java))
+        bindService(
+            Intent(this, MusicService::class.java),
+            serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+    }
+
+    override fun onStop() {
+        unbindService(serviceConnection)
+        super.onStop()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isBound) {
-            unbindService(serviceConnection)
-        }
+        mediaControllerManager = null
         EventBus.getDefault().unregister(this)
     }
 
-    @Subscribe
-    fun onMessageEvent(event: EventData) {
-        Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_SHORT).show()
-        EventBus.getDefault().removeStickyEvent(event)
-    }
 
     private fun startMusicService() {
         val musicServiceIntent = Intent(this@MainActivity, MusicService::class.java)
@@ -111,3 +125,6 @@ class MainActivity : ComponentActivity() {
         startService(musicServiceIntent)
     }
 }
+
+val LocalMediaControllerManager =
+    staticCompositionLocalOf<MediaControllerManager?> { error("No PlayerConnection provided") }

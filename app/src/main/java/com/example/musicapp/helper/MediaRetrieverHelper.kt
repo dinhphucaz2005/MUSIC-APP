@@ -3,9 +3,9 @@ package com.example.musicapp.helper
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.core.net.toUri
-import com.example.musicapp.domain.model.AudioSource
-import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.model.ThumbnailSource
+import com.example.musicapp.other.domain.model.AudioSource
+import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.extension.getAuthor
 import com.example.musicapp.extension.getDuration
 import com.example.musicapp.extension.getFileId
