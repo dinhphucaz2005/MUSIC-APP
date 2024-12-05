@@ -12,3 +12,6 @@ val PlayListHeight = 100.dp
 // Dimension for Youtube item
 val AlbumItemHeight = 200.dp
 val AlbumItemWidth = 180.dp
+
+val QueuePeekHeight = 64.dp
+val PlayerHorizontalPadding = 32.dp

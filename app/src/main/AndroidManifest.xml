@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name="com.example.musicapp.data.service.MusicService"
+            android:name="com.example.musicapp.service.MusicService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback">
@@ -44,7 +44,7 @@
         </service>
 
         <receiver
-            android:name=".ui.widget.MusicWidgetReceiver"
+            android:name=".other.presentation.ui.widget.MusicWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
