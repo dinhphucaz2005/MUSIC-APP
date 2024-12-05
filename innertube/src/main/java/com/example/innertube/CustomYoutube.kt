@@ -2,6 +2,7 @@ package com.example.innertube
 
 import com.example.innertube.models.YouTubeClient
 import com.example.innertube.models.response.BrowseResponse
+import com.example.innertube.pages.BrowseResult
 import com.example.innertube.pages.HomePage
 import io.ktor.client.call.body
 
@@ -26,5 +27,7 @@ object CustomYoutube : YouTube() {
 
         return HomePage(result ?: emptyList())
     }
+
+
 
 }

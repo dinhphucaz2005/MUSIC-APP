@@ -1,7 +1,7 @@
 plugins {
     id("java-library")
     id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 java {
@@ -16,14 +16,12 @@ kotlin {
 }
 
 dependencies {
+    api(libs.bundles.ktor)
+    implementation(libs.dec)
 
-    val ktorVersion = "2.3.12"
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
 
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("org.brotli:dec:0.1.2")
+    implementation("io.github.microutils:kotlin-logging:3.0.5")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }

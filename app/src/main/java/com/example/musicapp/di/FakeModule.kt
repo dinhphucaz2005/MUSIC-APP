@@ -1,16 +1,17 @@
 package com.example.musicapp.di
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import com.example.musicapp.domain.model.PlayList
-import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.repository.CloudRepository
-import com.example.musicapp.domain.repository.SongRepository
+import com.example.musicapp.other.domain.model.PlayList
+import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.repository.CloudRepository
+import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.musicapp.other.viewmodels.HomeViewModel
+import com.example.musicapp.other.viewmodels.PlaylistViewModel
+import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.viewmodels.HomeViewModel
-import com.example.musicapp.viewmodels.PlayListViewModel
-import com.example.musicapp.viewmodels.SongViewModel
-import com.example.musicapp.viewmodels.YoutubeViewModel
+import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import java.util.UUID
 
 object FakeModule {
@@ -19,9 +20,6 @@ object FakeModule {
         id = UUID.randomUUID().toString(),
         name = "UNNAMED"
     )
-
-    @Composable
-    fun mediaControllerManager() = MediaControllerManager(LocalContext.current)
 
     private val songRepository = object : SongRepository {
 
@@ -72,17 +70,23 @@ object FakeModule {
 
     @Composable
     fun providePlaylistViewModel() =
-        PlayListViewModel(mediaControllerManager(), songRepository)
+        PlaylistViewModel(songRepository)
 
     @Composable
     fun provideSongViewModel(): SongViewModel =
-        SongViewModel(mediaControllerManager(), cloudRepository)
+        SongViewModel(cloudRepository)
 
     @Composable
     fun provideHomeViewModel(): HomeViewModel =
-        HomeViewModel(mediaControllerManager(), songRepository)
+        HomeViewModel(songRepository)
 
     @Composable
     fun provideYoutubeViewModel(): YoutubeViewModel =
-        YoutubeViewModel(mediaControllerManager())
+        YoutubeViewModel()
+
+    @Composable
+    fun provideMediaControllerManager(): MediaControllerManager {
+        val context = LocalContext.current
+        return MediaControllerManager(context, null, rememberCoroutineScope())
+    }
 }

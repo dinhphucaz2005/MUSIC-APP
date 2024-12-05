@@ -4,18 +4,17 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
-import com.example.musicapp.common.AppCommon
-import com.example.musicapp.data.FirebaseDataSource
-import com.example.musicapp.data.LocalDataSource
-import com.example.musicapp.data.RoomDataSource
-import com.example.musicapp.data.repository.CloudRepositoryImpl
-import com.example.musicapp.data.repository.SongRepositoryImpl
-import com.example.musicapp.data.repository.UserRepositoryImpl
-import com.example.musicapp.data.service.MusicService
-import com.example.musicapp.domain.repository.CloudRepository
-import com.example.musicapp.domain.repository.SongRepository
-import com.example.musicapp.domain.repository.UserRepository
-import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.constants.PREF_NAME
+import com.example.musicapp.other.data.FirebaseDataSource
+import com.example.musicapp.other.data.LocalDataSource
+import com.example.musicapp.other.data.RoomDataSource
+import com.example.musicapp.other.data.repository.CloudRepositoryImpl
+import com.example.musicapp.other.data.repository.SongRepositoryImpl
+import com.example.musicapp.other.data.repository.UserRepositoryImpl
+import com.example.musicapp.other.domain.repository.CloudRepository
+import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.musicapp.other.domain.repository.UserRepository
+import com.example.musicapp.service.MusicService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,16 +40,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMediaControllerManager(
-        context: Context, playlistRepository: SongRepository
-    ): MediaControllerManager {
-        return MediaControllerManager(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideSharedPreferences(context: Context): SharedPreferences {
-        return context.getSharedPreferences(AppCommon.PREF_NAME, Context.MODE_PRIVATE)
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
     @Provides

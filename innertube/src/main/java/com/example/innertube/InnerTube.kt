@@ -1,25 +1,38 @@
 package com.example.innertube
 
-import com.example.innertube.encoder.brotli
 import com.example.innertube.models.Context
 import com.example.innertube.models.YouTubeClient
 import com.example.innertube.models.YouTubeLocale
-import com.example.innertube.models.body.*
+import com.example.innertube.models.body.AccountMenuBody
+import com.example.innertube.models.body.BrowseBody
+import com.example.innertube.models.body.GetQueueBody
+import com.example.innertube.models.body.GetSearchSuggestionsBody
+import com.example.innertube.models.body.GetTranscriptBody
+import com.example.innertube.models.body.NextBody
+import com.example.innertube.models.body.PlayerBody
+import com.example.innertube.models.body.SearchBody
 import com.example.innertube.utils.parseCookieString
 import com.example.innertube.utils.sha1
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.compression.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.compression.ContentEncoding
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.http.userAgent
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.encodeBase64
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.net.Proxy
-import java.util.*
+import java.util.Locale
 
 /**
  * Provide access to InnerTube endpoints.
@@ -63,7 +76,6 @@ open class InnerTube {
         }
 
         install(ContentEncoding) {
-            brotli(1.0F)
             gzip(0.9F)
             deflate(0.8F)
         }
@@ -128,7 +140,7 @@ open class InnerTube {
         videoId: String,
         playlistId: String?,
     ) = httpClient.post("player") {
-        ytClient(client, setLogin = true)
+        ytClient(client)
         setBody(
             PlayerBody(
                 context = client.toContext(locale, visitorData).let {
