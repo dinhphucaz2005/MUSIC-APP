@@ -2,7 +2,7 @@ package com.example.musicapp
 
 import android.content.Context
 import android.util.Log
-import com.example.musicapp.data.LocalDataSource
+import com.example.musicapp.other.data.LocalDataSource
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking

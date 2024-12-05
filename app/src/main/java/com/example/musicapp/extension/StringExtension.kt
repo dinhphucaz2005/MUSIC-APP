@@ -35,3 +35,12 @@ fun Long?.toDurationString(): String {
         else -> String.format("%02d:%02d", minutes, seconds)
     }
 }
+
+@SuppressLint("DefaultLocale")
+fun Int?.toDurationString(): String {
+    if (this == null || this == 0) return ""
+    val minutes = this / 60
+    val seconds = this % 60
+
+    return String.format("%02d:%02d", minutes, seconds)
+}

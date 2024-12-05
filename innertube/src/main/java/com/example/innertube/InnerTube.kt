@@ -1,6 +1,5 @@
 package com.example.innertube
 
-import com.example.innertube.encoder.brotli
 import com.example.innertube.models.Context
 import com.example.innertube.models.YouTubeClient
 import com.example.innertube.models.YouTubeLocale
@@ -63,7 +62,6 @@ open class InnerTube {
         }
 
         install(ContentEncoding) {
-            brotli(1.0F)
             gzip(0.9F)
             deflate(0.8F)
         }

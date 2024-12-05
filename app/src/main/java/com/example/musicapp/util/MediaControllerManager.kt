@@ -1,36 +1,67 @@
 package com.example.musicapp.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.example.musicapp.domain.model.AudioSource
-import com.example.musicapp.domain.model.PlayBackState
-import com.example.musicapp.domain.model.Queue
-import com.example.musicapp.domain.model.Song
-import com.example.musicapp.domain.model.toMediaItem
-import com.example.musicapp.enums.LoopMode
-import com.google.common.util.concurrent.ListenableFuture
+import com.example.innertube.CustomYoutube
+import com.example.innertube.models.SongItem
+import com.example.innertube.models.WatchEndpoint
+import com.example.musicapp.constants.LoopMode
+import com.example.musicapp.extension.toMediaItem
+import com.example.musicapp.extension.toMediaItemFromYT
+import com.example.musicapp.extension.toSong
+import com.example.musicapp.other.domain.model.PlayBackState
+import com.example.musicapp.other.domain.model.Queue
+import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class MediaControllerManager @Inject constructor(
-    private val context: Context
+@SuppressLint("UnsafeOptInUsageError")
+class MediaControllerManager(
+    context: Context,
+    binder: MusicService.MusicBinder,
+    scope: CoroutineScope
 ) : Player.Listener {
+
+    private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    val songs: StateFlow<List<Song>> = _songs.asStateFlow()
+
+    private val controllerFuture = MediaController
+        .Builder(context, binder.service.getSession().token)
+        .buildAsync()
+
+    private var controller: MediaController? = null
+
+    init {
+        controllerFuture.addListener({
+            try {
+                controller = controllerFuture.get().apply {
+                    playWhenReady = true
+                    addListener(this@MediaControllerManager)
+                }
+                updatePlayListState()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating MediaController", e)
+            }
+        }, MoreExecutors.directExecutor())
+    }
 
     companion object {
         const val TAG = "MediaControllerManager"
     }
 
-    private var controllerFuture: ListenableFuture<MediaController>? = null
-    private var controller: MediaController? = null
 
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
@@ -49,21 +80,6 @@ class MediaControllerManager @Inject constructor(
                 _activeSong.update { Song(mediaMetadata, duration) }
             }
         }
-    }
-
-    fun initializeMediaController(sessionToken: SessionToken) {
-        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture?.addListener({
-            try {
-                controller = controllerFuture?.get()?.apply {
-                    playWhenReady = true
-                    addListener(this@MediaControllerManager)
-                }
-                updatePlayListState()
-            } catch (e: Exception) {
-                Log.d(TAG, "initializeMediaController: ${e.message}")
-            }
-        }, MoreExecutors.directExecutor())
     }
 
     @MainThread
@@ -116,7 +132,7 @@ class MediaControllerManager @Inject constructor(
         seekTo((duration * position).toLong())
     }
 
-    fun adjustPlaybackByOffset(offsetMillis: Long) = withController {
+    private fun adjustPlaybackByOffset(offsetMillis: Long) = withController {
         val newPosition = (currentPosition + offsetMillis).coerceIn(0L, duration)
         seekTo(newPosition)
     }
@@ -130,17 +146,56 @@ class MediaControllerManager @Inject constructor(
 
     private var currentQueue = Queue.UNIDENTIFIED_ID
 
-    fun playQueue(queue: Queue, index: Int = 0) = withController {
-        if (currentQueue == queue.id) playAtIndex(index)
-        else {
-            clearMediaItems()
-            setMediaItems(queue.songs.map {
-                Log.d(TAG, "playQueue: $it")
-                it.toMediaItem()
-            })
-            prepare()
-            playAtIndex(index)
-            currentQueue = queue.id
+    private fun playQueue(queue: List<MediaItem>, index: Int = 0) = withController {
+        clearMediaItems()
+        addMediaItems(queue)
+        seekTo(index, 0)
+        play()
+    }
+
+    fun dispose() {
+        controller?.removeListener(this)
+    }
+
+    fun seekToSliderPosition(sliderPosition: Float) {
+        withController {
+            seekTo((duration * sliderPosition).toLong())
         }
+    }
+
+    fun fastForwardTrack() {
+        adjustPlaybackByOffset(5000L)
+    }
+
+    fun rewindTrack() {
+        adjustPlaybackByOffset(-5000L)
+    }
+
+    fun playLocalSong(songs: List<Song>, index: Int) {
+        _songs.update { songs }
+        playQueue(songs.map { it.toMediaItem() }, index)
+    }
+
+    fun playYoutubeSong(song: SongItem) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = runBlocking(Dispatchers.IO) {
+                CustomYoutube.next(WatchEndpoint(song.id))
+            }
+
+            val newSongs = response
+                .getOrNull()
+                ?.items
+                ?.toMutableList() ?: mutableListOf()
+
+            _songs.update { newSongs.map { it.toSong() } }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                playQueue(newSongs.map { it.toMediaItemFromYT() }, 0)
+            }
+        }
+    }
+
+    fun seekToIndex(index: Int)= withController {
+        seekTo(index, 0)
     }
 }

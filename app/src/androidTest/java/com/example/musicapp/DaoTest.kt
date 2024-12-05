@@ -2,9 +2,9 @@ package com.example.musicapp
 
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.musicapp.data.database.AppDAO
-import com.example.musicapp.data.database.entity.PlayListEntity
-import com.example.musicapp.data.database.entity.SongEntity
+import com.example.musicapp.other.data.database.AppDAO
+import com.example.musicapp.other.data.database.entity.PlayListEntity
+import com.example.musicapp.other.data.database.entity.SongEntity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking

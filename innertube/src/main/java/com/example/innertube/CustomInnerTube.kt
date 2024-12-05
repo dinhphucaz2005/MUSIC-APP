@@ -2,7 +2,6 @@
 
 package com.example.innertube
 
-import com.example.innertube.encoder.brotli
 import com.example.innertube.models.YouTubeClient
 import com.example.innertube.utils.sha1
 import io.ktor.client.HttpClient
@@ -56,7 +55,6 @@ class CustomInnerTube : InnerTube() {
         }
 
         install(ContentEncoding) {
-            brotli(1.0F)
             gzip(0.9F)
             deflate(0.8F)
         }

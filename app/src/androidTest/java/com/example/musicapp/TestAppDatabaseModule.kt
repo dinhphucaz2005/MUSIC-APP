@@ -3,8 +3,8 @@ package com.example.musicapp
 import android.app.Application
 import android.content.Context
 import androidx.room.Room.inMemoryDatabaseBuilder
-import com.example.musicapp.data.database.AppDAO
-import com.example.musicapp.data.database.AppDatabase
+import com.example.musicapp.other.data.database.AppDAO
+import com.example.musicapp.other.data.database.AppDatabase
 import com.example.musicapp.di.DatabaseModule
 import dagger.Module
 import dagger.Provides

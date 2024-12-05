@@ -1,9 +1,9 @@
 package com.example.musicapp
 
 import android.content.Context
-import com.example.musicapp.data.LocalDataSource
-import com.example.musicapp.data.RoomDataSource
-import com.example.musicapp.data.database.AppDAO
+import com.example.musicapp.other.data.LocalDataSource
+import com.example.musicapp.other.data.RoomDataSource
+import com.example.musicapp.other.data.database.AppDAO
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
