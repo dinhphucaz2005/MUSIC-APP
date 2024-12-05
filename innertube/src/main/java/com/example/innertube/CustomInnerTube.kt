@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package com.example.innertube
 
-import com.example.innertube.encoder.brotli
 import com.example.innertube.models.YouTubeClient
 import com.example.innertube.utils.sha1
 import io.ktor.client.HttpClient
@@ -22,7 +19,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
 /**
@@ -56,7 +52,6 @@ class CustomInnerTube : InnerTube() {
         }
 
         install(ContentEncoding) {
-            brotli(1.0F)
             gzip(0.9F)
             deflate(0.8F)
         }

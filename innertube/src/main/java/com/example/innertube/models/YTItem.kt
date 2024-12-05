@@ -30,6 +30,17 @@ data class SongItem(
 ) : YTItem() {
     override val shareLink: String
         get() = "https://music.youtube.com/watch?v=$id"
+
+    companion object {
+        fun unidentifiedSong(): SongItem {
+            return SongItem(
+                id = "",
+                title = "Unknown",
+                artists = emptyList(),
+                thumbnail = "",
+            )
+        }
+    }
 }
 
 data class AlbumItem(
