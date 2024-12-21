@@ -9,8 +9,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.musicapp.other.presentation.ui.navigation.RouteConstants.PLAYLIST_ID
 import com.example.musicapp.song.presetation.components.Screens
+import com.example.musicapp.youtube.presentation.YoutubeRoute.PLAYLIST_ID
 import com.example.musicapp.youtube.presentation.home.YoutubeScreen
 import com.example.musicapp.youtube.presentation.playlist.PlaylistDetail
 import com.example.musicapp.youtube.presentation.search.YoutubeSearchScreen

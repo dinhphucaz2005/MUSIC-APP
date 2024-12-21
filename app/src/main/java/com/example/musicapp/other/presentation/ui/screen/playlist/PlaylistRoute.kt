@@ -1,7 +1,8 @@
 package com.example.musicapp.other.presentation.ui.screen.playlist
 
 object PlaylistRoute {
-    const val HOME = "home"
-    const val DETAIL = "detail"
-    const val EDIT = "edit"
+    const val HOME = "playlist_home"
+    const val DETAIL = "playlist_detail"
+    const val EDIT = "playlist_edit"
+    const val PLAYLIST_ID = "playlistId"
 }

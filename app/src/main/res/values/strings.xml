@@ -41,4 +41,11 @@
     <string name="playlist_edit">Playlist Edit</string>
     <string name="playlist_home">Playlist Home</string>
     <string name="youtube_playlist_detail">Youtube Playlist Detail</string>
+    <string name="play_next">Play next</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="share">Share</string>
+    <string name="dismiss_queue">Dismiss Queue</string>
+    <string name="report">Report</string>
+    <string name="sleep_timer">Sleep timer</string>
 </resources>

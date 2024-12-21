@@ -1,4 +1,4 @@
-package com.example.musicapp.other.presentation.ui.navigation
+package com.example.musicapp.other.presentation.ui.screen.playlist
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -6,11 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.musicapp.other.presentation.ui.navigation.RouteConstants.PLAYLIST_ID
-import com.example.musicapp.other.presentation.ui.screen.playlist.PlayListDetail
-import com.example.musicapp.other.presentation.ui.screen.playlist.PlayListEdit
-import com.example.musicapp.other.presentation.ui.screen.playlist.PlayListHome
-import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistRoute
+import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistRoute.PLAYLIST_ID
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.song.presetation.components.Screens

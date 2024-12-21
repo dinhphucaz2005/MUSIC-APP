@@ -1,10 +1,12 @@
 package com.example.musicapp.di
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.example.musicapp.other.domain.model.AudioSource
+import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.PlayList
 import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.viewmodels.HomeViewModel
@@ -87,6 +89,18 @@ object FakeModule {
     @Composable
     fun provideMediaControllerManager(): MediaControllerManager {
         val context = LocalContext.current
-        return MediaControllerManager(context, null, rememberCoroutineScope())
+        return MediaControllerManager(context, null)
     }
+
+    fun providePlayBackState(): PlayBackState = PlayBackState()
+
+    @Composable
+    fun provideSong(): Song = Song(
+        id = "1",
+        title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
+        artist = "Music Time",
+        audioSource = AudioSource.FromUrl("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
+        thumbnailSource = ThumbnailSource.FromBitmap(null),
+        durationMillis = (4 * 60 + 38) * 1000
+    )
 }

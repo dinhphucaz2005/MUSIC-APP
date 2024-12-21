@@ -1,8 +1,8 @@
 package com.example.musicapp.song.presetation.song
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -15,6 +15,7 @@ import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +34,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,14 +51,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.R
+import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.IconSize
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
@@ -70,12 +72,16 @@ import com.example.musicapp.core.presentation.components.BottomSheetState
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.CustomSlider
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
+import com.example.musicapp.core.presentation.components.LocalMenuState
 import com.example.musicapp.core.presentation.components.MiniPlayer
+import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
+import com.example.musicapp.core.presentation.theme.LightGray
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.Primary
-import com.example.musicapp.core.presentation.theme.commonShape
+import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
@@ -109,9 +115,7 @@ fun BottomSheetPlayer(
 @Composable
 private fun SongScreenContentPreview() {
 
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val mediaControllerManager = MediaControllerManager(context, null, coroutineScope)
+    val mediaControllerManager = FakeModule.provideMediaControllerManager()
     val shouldShowNavigationBar = false
 
     val density = LocalDensity.current
@@ -146,10 +150,10 @@ fun SongScreenContent(
     popBackStack: () -> Unit
 ) {
 
+    val menuState = LocalMenuState.current
+
     val queue by mediaControllerManager.queue.collectAsState()
-
-    val activeSong = queue?.getCurrentSong() ?: Song.unidentifiedSong()
-
+    val currentSong by mediaControllerManager.currentSong.collectAsState()
     val playBackState by mediaControllerManager.playBackState.collectAsState()
 
     var pause by remember { mutableStateOf(false) }
@@ -189,7 +193,7 @@ fun SongScreenContent(
             Modifier
                 .fillMaxSize()
                 .blur(50.dp),
-            activeSong.thumbnailSource,
+            currentSong.thumbnailSource,
             contentScale = ContentScale.FillHeight
         )
         Box(
@@ -218,7 +222,7 @@ fun SongScreenContent(
             }
 
             Text(
-                text = activeSong.title,
+                text = currentSong.title,
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
@@ -230,7 +234,7 @@ fun SongScreenContent(
             )
 
             Text(
-                text = activeSong.artist,
+                text = currentSong.artist,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
@@ -238,10 +242,12 @@ fun SongScreenContent(
 
             FlippingBox(
                 Modifier
-                    .clip(commonShape)
+                    .clip(RoundedCornerShape(DefaultCornerSize))
                     .fillMaxWidth()
                     .aspectRatio(1f),
-                activeSong
+                currentSong,
+                previousSong = mediaControllerManager::playPreviousSong,
+                nextSong = mediaControllerManager::playNextSong
             )
 
             CustomSlider(
@@ -268,7 +274,7 @@ fun SongScreenContent(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = activeSong.durationMillis.toDurationString(),
+                    text = currentSong.durationMillis.toDurationString(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -339,81 +345,115 @@ fun SongScreenContent(
                     icon = R.drawable.ic_skip_forward,
                     onClick = mediaControllerManager::playNextSong
                 )
-                CommonIcon(iconModifier, R.drawable.ic_setting)
-                CommonIcon(iconModifier, R.drawable.ic_upload)
-            }
-        }
-        AnimatedVisibility(
-            visible = isQueueVisible,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-                .background(MaterialTheme.colorScheme.background)
-                .align(Alignment.BottomCenter)
-        ) {
-            Column {
-                HorizontalDivider(thickness = 5.dp, color = MaterialTheme.colorScheme.onSecondary)
-                QueueView(queue, mediaControllerManager = mediaControllerManager)
-            }
-        }
-    }
-}
 
-@Composable
-fun QueueView(queue: Queue?, mediaControllerManager: MediaControllerManager) {
-    when (queue) {
-        is Queue.Youtube -> {
-            LazyColumnWithAnimation2(
-                items = queue.songs,
-                modifier = Modifier.fillMaxSize(),
-            ) { itemModifier, index, item ->
-                SongItemFromYoutube(
-                    modifier = itemModifier.background(Color.Transparent), song = item, onClick = {
-                        mediaControllerManager.playAtIndex(index)
+                CommonIcon(iconModifier, R.drawable.ic_setting, onClick = {
+                    menuState.show {
+                        QueueView(
+                            queue = queue,
+                            mediaControllerManager = mediaControllerManager,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.6f)
+                        )
                     }
-                )
-            }
-        }
+                })
 
-        is Queue.Other -> {
-            LazyColumnWithAnimation2(
-                items = queue.songs,
-                modifier = Modifier.fillMaxSize(),
-            ) { itemModifier, index, item ->
-                SongItem(song = item, modifier = itemModifier.clickable {
-                    mediaControllerManager.playAtIndex(index)
+                CommonIcon(iconModifier, R.drawable.ic_upload, onClick = {
+                    menuState.show {
+                        Menu(song = currentSong)
+                    }
                 })
             }
         }
 
-        null -> return
+    }
+}
+
+@Composable
+fun QueueView(
+    queue: Queue?,
+    mediaControllerManager: MediaControllerManager,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "Queue",
+            style = MaterialTheme.typography.titleMedium,
+            color = White,
+        )
+        when (queue) {
+            is Queue.Youtube -> {
+                LazyColumnWithAnimation2(
+                    items = queue.songs,
+                    modifier = Modifier.fillMaxSize(),
+                ) { itemModifier, index, item ->
+                    SongItemFromYoutube(
+                        modifier = itemModifier.background(Color.Transparent),
+                        song = item,
+                        onClick = {
+                            mediaControllerManager.playAtIndex(index)
+                        }
+                    )
+                }
+            }
+
+            is Queue.Other -> {
+                LazyColumnWithAnimation2(
+                    items = queue.songs,
+                    modifier = Modifier.fillMaxSize(),
+                ) { itemModifier, index, item ->
+                    SongItem(song = item, modifier = itemModifier.clickable {
+                        mediaControllerManager.playAtIndex(index)
+                    })
+                }
+            }
+
+            null -> return
+        }
     }
 }
 
 
 @Composable
 fun FlippingBox(
-    modifier: Modifier = Modifier, song: Song
+    modifier: Modifier = Modifier, song: Song,
+    previousSong: () -> Unit = {},
+    nextSong: () -> Unit = {}
 ) {
     var isActiveThumbnail by remember { mutableStateOf(true) }
-    AnimatedContent(isActiveThumbnail, label = "", modifier = modifier.pointerInput(Unit) {
-        detectTapGestures(onTap = {
-            isActiveThumbnail = !isActiveThumbnail
-        })
-    }, transitionSpec = {
-        val fadeInSpec = fadeIn(animationSpec = tween(durationMillis = 400))
-        val scaleInSpec = scaleIn(
-            initialScale = 0.85f, animationSpec = tween(
-                durationMillis = 400, easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1.0f)
+    AnimatedContent(
+        isActiveThumbnail,
+        label = "",
+        modifier = modifier,
+        transitionSpec = {
+            val fadeInSpec = fadeIn(animationSpec = tween(durationMillis = 400))
+            val scaleInSpec = scaleIn(
+                initialScale = 0.85f, animationSpec = tween(
+                    durationMillis = 400, easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1.0f)
+                )
             )
-        )
-        val fadeOutSpec = fadeOut(animationSpec = tween(durationMillis = 400))
+            val fadeOutSpec = fadeOut(animationSpec = tween(durationMillis = 400))
 
-        (fadeInSpec + scaleInSpec).togetherWith(fadeOutSpec)
-    }) { targetState ->
+            (fadeInSpec + scaleInSpec).togetherWith(fadeOutSpec)
+        }
+    ) { targetState ->
         val boxModifier = Modifier
-            .clip(commonShape)
+            .clip(RoundedCornerShape(DefaultCornerSize))
             .fillMaxSize()
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { change, dragAmount ->
+                    println("dragAmount: $dragAmount")
+                    if (dragAmount > 0) {
+                        previousSong()
+                    } else {
+                        nextSong()
+                    }
+                }
+            }
         if (targetState) {
             Box(boxModifier) {
                 Thumbnail(Modifier.fillMaxSize(), song.thumbnailSource)
@@ -424,9 +464,95 @@ fun FlippingBox(
                     "Tap to change",
                     modifier = Modifier.align(Alignment.Center),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    color = White
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+private fun MenuPreview() {
+    MusicTheme {
+        Menu(
+            song = FakeModule.provideSong()
+        )
+    }
+}
+
+@Composable
+fun Menu(modifier: Modifier = Modifier, song: Song) {
+
+    Column(
+        modifier = modifier
+            .padding(12.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clip(RoundedCornerShape(topStart = DefaultCornerSize, topEnd = DefaultCornerSize)),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+
+        MyListItem(
+            headlineContent = {
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = White
+                )
+            },
+            leadingContent = {
+                Thumbnail(
+                    thumbnailSource = song.thumbnailSource,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(DefaultCornerSize))
+                )
+            },
+            supportingContent = {
+                Text(
+                    text = song.artist + " \u2022 " + song.durationMillis.toDurationString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = LightGray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            },
+            modifier = Modifier
+                .height(80.dp)
+                .background(Color.Transparent)
+        )
+
+        val pairs = listOf(
+            Pair(R.drawable.playlist, R.string.play_next),
+            Pair(R.drawable.playlist, R.string.add_to_queue),
+            Pair(R.drawable.playlist, R.string.add_to_playlist),
+            Pair(R.drawable.playlist, R.string.share),
+            Pair(R.drawable.playlist, R.string.dismiss_queue),
+            Pair(R.drawable.playlist, R.string.report),
+            Pair(R.drawable.playlist, R.string.sleep_timer),
+        )
+
+        pairs.forEach {
+            MyListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(it.second),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = White
+                    )
+                },
+                leadingContent = {
+                    CommonIcon(icon = it.first)
+                },
+                modifier = Modifier
+                    .height(40.dp)
+                    .background(Color.Transparent)
+            )
+        }
+
     }
 }

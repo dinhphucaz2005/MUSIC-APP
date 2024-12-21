@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.core.presentation.theme.commonShape
+import com.example.musicapp.constants.DefaultCornerSize
 
 
 @Composable
@@ -50,7 +51,7 @@ fun MyTextField(
             unfocusedTextColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.primary
         ),
-        shape = commonShape,
+        shape = RoundedCornerShape(DefaultCornerSize),
         modifier = modifier.fillMaxWidth()
     )
 }
@@ -64,7 +65,7 @@ fun ImageSelector(
             onResult = { if (it != null) imageUri = it })
     Box(
         modifier = Modifier
-            .clip(commonShape)
+            .clip(RoundedCornerShape(DefaultCornerSize))
             .aspectRatio(1f)
             .clickable {
                 photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -91,7 +92,7 @@ fun ActionButtons(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.background
             ),
-            shape = commonShape,
+            shape = RoundedCornerShape(DefaultCornerSize),
             modifier = Modifier.weight(1f)
         ) {
             Text(text = "Save", fontWeight = FontWeight.Bold)
@@ -102,7 +103,7 @@ fun ActionButtons(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError
             ),
-            shape = commonShape,
+            shape = RoundedCornerShape(DefaultCornerSize),
             modifier = Modifier.weight(1f)
         ) {
             Text(

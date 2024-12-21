@@ -19,8 +19,10 @@ sealed class Queue(
         }
     }
 
-    fun getCurrentSong(): Song {
-        return when (this) {
+
+    fun getSong(index: Int?): Song {
+        if (index == null) return Song.unidentifiedSong()
+        return when(this) {
             is Other -> songs.getOrNull(index) ?: Song.unidentifiedSong()
             is Youtube -> songs.getOrNull(index)?.toSong() ?: Song.unidentifiedSong()
         }

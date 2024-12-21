@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -65,6 +64,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
+import com.example.musicapp.core.presentation.components.BottomSheetMenu
+import com.example.musicapp.core.presentation.components.LocalMenuState
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.core.presentation.theme.Black
@@ -73,9 +74,9 @@ import com.example.musicapp.core.presentation.theme.LightGray
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.other.domain.repository.SongRepository
-import com.example.musicapp.other.presentation.ui.navigation.playlistNavigation
 import com.example.musicapp.other.presentation.ui.screen.cloud.CloudScreen
 import com.example.musicapp.other.presentation.ui.screen.home.HomeScreen
+import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNavigation
 import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
             mediaControllerManager =
-                MediaControllerManager(this@MainActivity, binder, lifecycleScope)
+                MediaControllerManager(this@MainActivity, binder)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -122,7 +123,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MusicTheme {
                 CompositionLocalProvider(
-                    LocalMediaControllerManager provides mediaControllerManager
+                    LocalMediaControllerManager provides mediaControllerManager,
                 ) {
                     App(hiltViewModel<HomeViewModel>(), hiltViewModel<YoutubeViewModel>())
                 }
@@ -193,6 +194,10 @@ private fun App(
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    LaunchedEffect(navBackStackEntry) {
+        println(navBackStackEntry?.destination?.route)
+    }
 
     val density = LocalDensity.current
 
@@ -294,6 +299,15 @@ private fun App(
             navBackStackEntry = navBackStackEntry,
             navController = navController
         )
+
+
+        val menuState = LocalMenuState.current
+        BottomSheetMenu(
+            modifier = Modifier
+                .align(Alignment.BottomCenter),
+            state = menuState,
+            background = DarkGray,
+        )
     }
 }
 
@@ -347,7 +361,7 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
                 )
                 Text(
                     text = stringResource(screen.titleId), color = color,
-                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp)
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp)
                 )
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
@@ -39,13 +40,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.R
+import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.MyTextField
 import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.commonShape
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 
@@ -164,7 +165,7 @@ fun SelectableSongItem(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         val imageModifier = Modifier
-            .clip(commonShape)
+            .clip(RoundedCornerShape(DefaultCornerSize))
             .fillMaxHeight()
             .aspectRatio(1f)
 

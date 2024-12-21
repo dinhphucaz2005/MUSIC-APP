@@ -17,6 +17,7 @@ import com.example.musicapp.extension.toMediaItem
 import com.example.musicapp.extension.toMediaItemFromYT
 import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
+import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +32,7 @@ import kotlinx.coroutines.runBlocking
 @SuppressLint("UnsafeOptInUsageError")
 class MediaControllerManager(
     context: Context,
-    private val binder: MusicService.MusicBinder?,
-    scope: CoroutineScope
+    private val binder: MusicService.MusicBinder?
 ) : Player.Listener {
 
     private val controllerFuture = binder?.service?.getSession()?.token?.let {
@@ -48,6 +48,9 @@ class MediaControllerManager(
 
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
+
+    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
+    val currentSong = _currentSong.asStateFlow()
 
     init {
         controllerFuture?.addListener({
@@ -80,6 +83,8 @@ class MediaControllerManager(
     override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
         super.onMediaMetadataChanged(mediaMetadata)
         binder?.service?.updateIndex(controller?.currentMediaItemIndex ?: 0)
+        _currentSong.value =
+            queue.value?.getSong(controller?.currentMediaItemIndex) ?: Song.unidentifiedSong()
     }
 
     @MainThread

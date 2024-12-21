@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -57,6 +58,7 @@ import androidx.navigation.NavHostController
 import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.R
+import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation
 import com.example.musicapp.core.presentation.components.Thumbnail
@@ -64,9 +66,7 @@ import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.commonShape
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import com.example.musicapp.song.presetation.components.Screens
 
 @SuppressLint("UnsafeOptInUsageError")
 @Preview
@@ -154,11 +154,11 @@ fun PlayListDetail(
                     thumbnailSource = songs.firstOrNull()?.thumbnailSource,
                     modifier = Modifier
                         .padding(8.dp)
-                        .clip(commonShape)
+                        .clip(RoundedCornerShape(DefaultCornerSize))
                         .border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.primary,
-                            shape = commonShape
+                            shape = RoundedCornerShape(DefaultCornerSize)
                         )
                         .constrainAs(thumbnailRef) {
                             top.linkTo(topBar.bottom)
@@ -296,7 +296,7 @@ fun PlayListDetail(
                         modifier = itemModifier
                             .fillMaxWidth()
                             .height(80.dp)
-                            .clip(commonShape)
+                            .clip(RoundedCornerShape(DefaultCornerSize))
                             .background(if (isSelected) Color(0xFF48576e) else Color.Transparent)
                             .pointerInput(Unit) {
                                 detectTapGestures(onLongPress = {

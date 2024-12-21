@@ -30,96 +30,94 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.core.presentation.theme.DarkGray
 import com.example.musicapp.core.presentation.theme.White
-import com.example.musicapp.core.presentation.theme.commonShape
 import com.example.musicapp.util.MediaControllerManager
 
 
 @Composable
 fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerManager) {
 
-    val queue by mediaControllerManager.queue.collectAsState()
+    val currentSong by mediaControllerManager.currentSong.collectAsState()
 
     val playBackState by mediaControllerManager.playBackState.collectAsState()
 
-    queue?.let {
-        Column(
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            .fillMaxWidth()
+            .background(DarkGray)
+            .height(MiniPlayerHeight)
+    ) {
+        Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
                 .fillMaxWidth()
-                .background(DarkGray)
-                .height(MiniPlayerHeight)
+                .weight(1f)
+                .padding(8.dp)
+                .clickable(enabled = true, onClick = state::expandSoft),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+
+            Thumbnail(
+                Modifier
+                    .clip(RoundedCornerShape(DefaultCornerSize))
+                    .fillMaxHeight()
+                    .aspectRatio(1f),
+                thumbnailSource = currentSong.thumbnailSource
+            )
+
+            Column(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                    .fillMaxWidth()
                     .weight(1f)
-                    .padding(8.dp)
-                    .clickable(enabled = true, onClick = state::expandSoft),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-
-                Thumbnail(
-                    Modifier
-                        .clip(commonShape)
-                        .fillMaxHeight()
-                        .aspectRatio(1f),
-                    thumbnailSource = it.getCurrentThumbnail()
-                )
-
-                Column(
+                Text(
+                    text = currentSong.title,
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(
-                        text = it.getCurrentSong().title,
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .basicMarquee(
-                                iterations = Int.MAX_VALUE,
-                                spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
-                            ),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp, color = White
-                    )
-                    Text(
-                        text = it.getCurrentSong().artist,
-                        modifier = Modifier.padding(start = 8.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp, color = White,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
-                    )
-                }
-                IconButton(onClick = { TODO("Add song to favourite") }) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = null,
-                        tint = White,
-                    )
-                }
+                        .padding(start = 8.dp)
+                        .basicMarquee(
+                            iterations = Int.MAX_VALUE,
+                            spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
+                        ),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp, color = White
+                )
+                Text(
+                    text = currentSong.artist,
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp, color = White,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            }
+            IconButton(onClick = { TODO("Add song to favourite") }) {
                 Icon(
-                    painter = painterResource(playBackState.playerState.resource),
+                    imageVector = Icons.Default.FavoriteBorder,
                     contentDescription = null,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxHeight()
-                        .aspectRatio(1f)
-                        .clickable {
-                            mediaControllerManager.togglePlayPause()
-                        }, tint = White
+                    tint = White,
                 )
-                IconButton(onClick = { mediaControllerManager.playNextSong() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null, tint = White
-                    )
-                }
+            }
+            Icon(
+                painter = painterResource(playBackState.playerState.resource),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .clickable {
+                        mediaControllerManager.togglePlayPause()
+                    }, tint = White
+            )
+            IconButton(onClick = { mediaControllerManager.playNextSong() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null, tint = White
+                )
             }
         }
     }

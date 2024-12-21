@@ -16,14 +16,16 @@ import javax.inject.Inject
 @HiltViewModel
 class YoutubeViewModel @Inject constructor() : ViewModel() {
 
-    private val _playlist = MutableStateFlow<PlaylistPage?>(null)
-    val playlist: StateFlow<PlaylistPage?> = _playlist.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _home = MutableStateFlow(HomePage(emptyList()))
     val home: StateFlow<HomePage> = _home.asStateFlow()
+
+    private val _playlist = MutableStateFlow<PlaylistPage?>(null)
+    val playlist: StateFlow<PlaylistPage?> = _playlist.asStateFlow()
+
 
     init {
         reload()
@@ -35,7 +37,7 @@ class YoutubeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun loadPlaylist(playlistId: String) = load {
+    fun loadPlaylist(playlistId: String) = load(_isLoading) {
         CustomYoutube.playlist(playlistId).onSuccess {
             Log.d("YoutubeViewModel", "loadPlaylist: $it")
             _playlist.value = it

@@ -1,11 +1,8 @@
 package com.example.musicapp.other.domain.model
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.net.toUri
-import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.example.musicapp.extension.toBitmap
 import java.util.UUID
@@ -21,9 +18,9 @@ data class Song(
 ) : Identifiable {
     companion object {
         private const val UNIDENTIFIED_ID = "unidentified"
-        fun unidentifiedSong(): Song {
+        fun unidentifiedSong(id: String? = null): Song {
             return Song(
-                id = UNIDENTIFIED_ID,
+                id = id ?: UNIDENTIFIED_ID,
                 title = "No song is playing",
                 artist = "No artist",
                 audioSource = AudioSource.FromLocalFile(Uri.EMPTY),
