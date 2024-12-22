@@ -10,11 +10,11 @@ sealed class Queue(
     open val songs: List<Any> = emptyList(),
 ) {
 
-    fun getSong(index: Int?): Song {
-        if (index == null) return Song.unidentifiedSong()
+    fun getSong(index: Int?): CurrentSong {
+        if (index == null) return CurrentSong.unidentifiedSong()
         return when(this) {
-            is Other -> songs.getOrNull(index) ?: Song.unidentifiedSong()
-            is Youtube -> songs.getOrNull(index)?.toSong() ?: Song.unidentifiedSong()
+            is Other -> CurrentSong.OtherSong(songs.getOrNull(index) ?: Song.unidentifiedSong())
+            is Youtube -> CurrentSong.YoutubeSong(songs.getOrNull(index) ?: SongItem.unidentifiedSong())
         }
     }
 

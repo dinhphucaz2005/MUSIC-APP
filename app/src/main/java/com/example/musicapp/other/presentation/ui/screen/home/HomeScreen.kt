@@ -124,7 +124,7 @@ fun HomeScreen(
                 .height(120.dp),
             headlineContent = {
                 Text(
-                    text = currentSong.title,
+                    text = currentSong.getTitle(),
                     style = MaterialTheme.typography.titleLarge,
                     color = White,
                     overflow = TextOverflow.Ellipsis,
@@ -133,7 +133,7 @@ fun HomeScreen(
             },
             supportingContent = {
                 Text(
-                    text = currentSong.artist,
+                    text = currentSong.getArtistName(),
                     style = MaterialTheme.typography.titleMedium,
                     color = White
                 )
@@ -145,7 +145,7 @@ fun HomeScreen(
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(DefaultCornerSize)),
                     contentScale = ContentScale.Crop,
-                    thumbnailSource = currentSong.thumbnailSource
+                    thumbnailSource = currentSong.getThumbnail()
                 )
             }
         )
@@ -242,7 +242,7 @@ private fun ColumnScope.HomeContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         key = { _, item -> item.id }
     ) { itemModifier, index, song ->
-        SongItem(
+        SongItemContent(
             modifier = itemModifier.pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     mediaControllerManager.playQueue(
@@ -263,7 +263,7 @@ private fun ColumnScope.HomeContent(
 }
 
 @Composable
-fun SongItem(
+fun SongItemContent(
     modifier: Modifier = Modifier, song: Song,
 ) {
     MyListItem(
@@ -310,6 +310,6 @@ fun SongItem(
 @Composable
 private fun SongItemPreview() {
     MusicTheme {
-        SongItem(song = Song.unidentifiedSong())
+        SongItemContent(song = Song.unidentifiedSong())
     }
 }

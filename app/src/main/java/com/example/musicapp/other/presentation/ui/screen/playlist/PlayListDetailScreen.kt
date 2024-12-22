@@ -145,7 +145,7 @@ fun PlayListDetail(
 
                     Icon(
                         imageVector = Icons.Default.MoreVert, modifier = Modifier.clickable {
-                            TODO("Show more options")
+                            /*TODO("Show more options")*/
                         }, tint = MaterialTheme.colorScheme.primary, contentDescription = null
                     )
                 }
@@ -218,7 +218,7 @@ fun PlayListDetail(
                 }
 
                 Button(
-                    onClick = { TODO("Shuffle all songs") },
+                    onClick = { /*TODO("Shuffle all songs")*/ },
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .padding(horizontal = 30.dp)

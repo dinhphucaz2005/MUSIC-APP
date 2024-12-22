@@ -117,8 +117,10 @@ fun YoutubeScreen(
                         .wrapContentHeight(),
                     onClick = { item ->
                         when (item) {
-                            is AlbumItem -> TODO()
-                            is ArtistItem -> TODO()
+                            is AlbumItem -> {
+                                // TODO: Navigate to album detail
+                            }
+                            is ArtistItem -> navController.navigate(YoutubeRoute.ARTIST + "/" + item.id)
                             is PlaylistItem -> navController.navigate(YoutubeRoute.PLAYLIST_DETAIL + "/" + item.id)
                             is SongItem -> mediaControllerManager.playYoutubeSong(item)
                         }

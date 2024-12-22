@@ -115,7 +115,7 @@ fun PlaylistDetail(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 CommonIcon(icon = R.drawable.ic_search,
-                    onClick = { TODO("Implement search in playlist") })
+                    onClick = { /*TODO("Implement search in playlist")*/ })
             }
         },
         modifier = Modifier

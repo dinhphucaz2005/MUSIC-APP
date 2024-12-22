@@ -193,9 +193,6 @@ private fun App(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    LaunchedEffect(navBackStackEntry) {
-        println(navBackStackEntry?.destination?.route)
-    }
 
     val density = LocalDensity.current
 
@@ -232,6 +229,10 @@ private fun App(
             collapsedBound = bottomInset + (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
             expandedBound = maxHeight,
         )
+
+        LaunchedEffect(navBackStackEntry) {
+            playerBottomSheetState.collapseSoft()
+        }
 
         LaunchedEffect(queue) {
             if (queue != null) {
@@ -271,7 +272,8 @@ private fun App(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .wrapContentHeight()
+                .wrapContentHeight(),
+            navController = navController,
         )
 
         MainNavigationBar(

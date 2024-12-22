@@ -16,13 +16,14 @@ data class Song(
     val thumbnailSource: ThumbnailSource,
     val durationMillis: Long
 ) : Identifiable {
+
+
     companion object {
         private const val UNIDENTIFIED_ID = "unidentified"
         fun unidentifiedSong(id: String? = null): Song {
             return Song(
                 id = id ?: UNIDENTIFIED_ID,
-                title = "No song is playing",
-                artist = "No artist",
+                title = "No song is playing", artist = "No artist",
                 audioSource = AudioSource.FromLocalFile(Uri.EMPTY),
                 thumbnailSource = ThumbnailSource.FromBitmap(null),
                 durationMillis = 0L

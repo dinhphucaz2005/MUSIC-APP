@@ -50,6 +50,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.innertube.pages.RelatedPage
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.R
@@ -74,11 +76,12 @@ import com.example.musicapp.core.presentation.theme.Primary
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
+import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.presentation.ui.screen.home.SongItem
+import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.youtube.presentation.YoutubeRoute
 import com.example.musicapp.youtube.presentation.componenets.SongItemFromYoutube
 import com.example.musicapp.youtube.presentation.componenets.Songs
 import kotlinx.coroutines.CoroutineScope
@@ -89,7 +92,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun BottomSheetPlayer(
     state: BottomSheetState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
 
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
@@ -104,7 +108,8 @@ fun BottomSheetPlayer(
         SongScreenContent(
             state = state,
             mediaControllerManager = mediaControllerManager,
-            songViewModel = hiltViewModel<SongViewModel>()
+            songViewModel = hiltViewModel<SongViewModel>(),
+            navController = navController
         )
     }
 }
@@ -134,7 +139,8 @@ private fun SongScreenContentPreview() {
             SongScreenContent(
                 playerBottomSheetState,
                 mediaControllerManager,
-                FakeModule.provideSongViewModel()
+                FakeModule.provideSongViewModel(),
+                navController = rememberNavController()
             )
         }
     }
@@ -143,10 +149,11 @@ private fun SongScreenContentPreview() {
 }
 
 @Composable
-fun SongScreenContent(
+private fun SongScreenContent(
     state: BottomSheetState,
     mediaControllerManager: MediaControllerManager,
-    songViewModel: SongViewModel
+    songViewModel: SongViewModel,
+    navController: NavHostController
 ) {
 
     val menuState = LocalMenuState.current
@@ -172,7 +179,7 @@ fun SongScreenContent(
     }
 
     LaunchedEffect(currentSong) {
-        songViewModel.getRelated(currentSong.id)
+        currentSong.getArtistId()?.let { songViewModel.getRelated(it) }
     }
 
 
@@ -185,7 +192,7 @@ fun SongScreenContent(
             Modifier
                 .fillMaxSize()
                 .blur(50.dp),
-            currentSong.thumbnailSource,
+            currentSong.getThumbnail(),
             contentScale = ContentScale.FillHeight
         )
         Box(
@@ -218,7 +225,7 @@ fun SongScreenContent(
             }
 
             Text(
-                text = currentSong.title,
+                text = currentSong.getTitle(),
                 color = White,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
@@ -230,10 +237,20 @@ fun SongScreenContent(
             )
 
             Text(
-                text = currentSong.artist,
+                text = currentSong.getArtistName(),
                 color = White,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
+                modifier = Modifier.clickable {
+                    currentSong.getArtistId()?.let {
+                        navController.navigate(YoutubeRoute.ARTIST + "/$it") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
             )
 
             Thumbnail(
@@ -241,7 +258,7 @@ fun SongScreenContent(
                     .clip(RoundedCornerShape(DefaultCornerSize))
                     .fillMaxWidth()
                     .aspectRatio(1f),
-                thumbnailSource = currentSong.thumbnailSource
+                thumbnailSource = currentSong.getThumbnail()
             )
 
             CustomSlider(
@@ -268,7 +285,7 @@ fun SongScreenContent(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = currentSong.durationMillis.toDurationString(),
+                    text = currentSong.getDurationMillis().toDurationString(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -477,7 +494,7 @@ fun QueueView(
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) { itemModifier, index, item ->
-                    SongItem(song = item, modifier = itemModifier.clickable {
+                    SongItemContent(song = item, modifier = itemModifier.clickable {
                         mediaControllerManager.playAtIndex(index)
                     })
                 }
@@ -493,13 +510,13 @@ fun QueueView(
 private fun MenuPreview() {
     MusicTheme {
         Menu(
-            song = FakeModule.provideSong()
+            song = FakeModule.provideCurrentSong()
         )
     }
 }
 
 @Composable
-fun Menu(modifier: Modifier = Modifier, song: Song) {
+fun Menu(modifier: Modifier = Modifier, song: CurrentSong) {
 
     Column(
         modifier = modifier
@@ -513,7 +530,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
         MyListItem(
             headlineContent = {
                 Text(
-                    text = song.title,
+                    text = song.getTitle(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -522,7 +539,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
             },
             leadingContent = {
                 Thumbnail(
-                    thumbnailSource = song.thumbnailSource,
+                    thumbnailSource = song.getThumbnail(),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxHeight()
@@ -532,7 +549,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
             },
             supportingContent = {
                 Text(
-                    text = song.artist + " \u2022 " + song.durationMillis.toDurationString(),
+                    text = song.getArtistName() + " \u2022 " + song.getDurationMillis().toDurationString(),
                     style = MaterialTheme.typography.labelMedium,
                     color = LightGray,
                     modifier = Modifier.padding(top = 4.dp)

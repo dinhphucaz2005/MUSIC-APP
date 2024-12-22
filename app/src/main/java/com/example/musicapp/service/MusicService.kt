@@ -15,8 +15,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import com.example.musicapp.helper.NotificationHelper
+import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -50,7 +50,6 @@ class MusicService : MediaLibraryService() {
 
 
     private val binder = MusicBinder()
-        get() = field
 
     inner class MusicBinder : Binder() {
         val service: MusicService
@@ -70,7 +69,7 @@ class MusicService : MediaLibraryService() {
         _queueFlow.value?.index = i
     }
 
-    fun getCurrentSong(): Song? = _queueFlow.value?.getSong(index = _queueFlow.value?.index)
+    fun getCurrentSong(): CurrentSong? = _queueFlow.value?.getSong(index = _queueFlow.value?.index)
 
     override fun onCreate() {
         super.onCreate()

@@ -13,7 +13,7 @@ import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.presentation.ui.screen.home.SongItem
+import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.presentation.ui.screen.playlist.LoadingScreen
 import com.example.musicapp.other.viewmodels.CloudViewModel
 
@@ -32,7 +32,7 @@ fun CloudScreen(viewModel: CloudViewModel = hiltViewModel()) {
             items = songs,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) { itemModifier, index, item ->
-            SongItem(itemModifier.clickable {
+            SongItemContent(itemModifier.clickable {
                 val queue = Queue.Builder()
                     .setId(Queue.FIREBASE_ID)
                     .setOtherSongs(songs)

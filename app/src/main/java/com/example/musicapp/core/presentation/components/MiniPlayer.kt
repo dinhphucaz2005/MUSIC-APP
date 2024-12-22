@@ -66,7 +66,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     .clip(RoundedCornerShape(DefaultCornerSize))
                     .fillMaxHeight()
                     .aspectRatio(1f),
-                thumbnailSource = currentSong.thumbnailSource
+                thumbnailSource = currentSong.getThumbnail()
             )
 
             Column(
@@ -76,7 +76,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
-                    text = currentSong.title,
+                    text = currentSong.getTitle(),
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .basicMarquee(
@@ -87,7 +87,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     fontSize = 16.sp, color = White
                 )
                 Text(
-                    text = currentSong.artist,
+                    text = currentSong.getArtistName(),
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, color = White,
@@ -95,7 +95,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     maxLines = 1
                 )
             }
-            IconButton(onClick = { TODO("Add song to favourite") }) {
+            IconButton(onClick = { /*TODO("Add song to favourite")*/ }) {
                 Icon(
                     imageVector = Icons.Default.FavoriteBorder,
                     contentDescription = null,

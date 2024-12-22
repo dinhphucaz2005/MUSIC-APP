@@ -3,6 +3,7 @@ package com.example.musicapp.youtube.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.innertube.CustomYoutube
+import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.HomePage
 import com.example.innertube.pages.PlaylistPage
 import com.example.musicapp.extension.load
@@ -26,6 +27,9 @@ class YoutubeViewModel @Inject constructor() : ViewModel() {
     private val _playlist = MutableStateFlow<PlaylistPage?>(null)
     val playlist: StateFlow<PlaylistPage?> = _playlist.asStateFlow()
 
+    private val _artistPage = MutableStateFlow<ArtistPage?>(null)
+    val artistPage: StateFlow<ArtistPage?> = _artistPage.asStateFlow()
+
 
     init {
         reload()
@@ -33,25 +37,36 @@ class YoutubeViewModel @Inject constructor() : ViewModel() {
 
     fun reload() {
         load(_isLoading) {
-//            CustomYoutube.home().onSuccess { home ->
-//                _home.update { home }
-//                println(home)
-//            }
             _home.update { CustomYoutube.loadHome() }
         }
     }
 
     fun loadPlaylist(playlistId: String) = load(_isLoading) {
-        CustomYoutube.playlist(playlistId).onSuccess {
-            Log.d("YoutubeViewModel", "loadPlaylist: $it")
-            _playlist.value = it
-        }.onFailure {
-            Log.e("YoutubeViewModel", "Failed to load playlist", it)
-        }
+        CustomYoutube
+            .playlist(playlistId)
+            .onSuccess {
+                _playlist.value = it
+            }
+            .onFailure {
+                Log.e("YoutubeViewModel", "Failed to load playlist", it)
+            }
     }
 
     fun resetPlaylist() {
         _playlist.value = null
+    }
+
+
+    fun loadArtist(artistId: String) = load(_isLoading) {
+        CustomYoutube
+            .artist(artistId)
+            .onSuccess {
+                _artistPage.value = it
+            }
+            .onFailure {
+                Log.e("YoutubeViewModel", "Failed to load artist", it)
+            }
+
     }
 
 }

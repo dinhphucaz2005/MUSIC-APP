@@ -2,12 +2,17 @@ package com.example.musicapp.di
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.innertube.models.AlbumItem
+import com.example.innertube.models.Artist
+import com.example.innertube.models.ArtistItem
+import com.example.innertube.models.SongItem
+import com.example.innertube.pages.ArtistPage
+import com.example.innertube.pages.ArtistSection
 import com.example.musicapp.other.domain.model.AudioSource
-import com.example.musicapp.other.domain.model.PlayBackState
+import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.PlayList
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
-import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
@@ -25,47 +30,30 @@ object FakeModule {
 
     private val songRepository = object : SongRepository {
 
-        override suspend fun getSongsFromPlaylist(playListId: String): List<Song> {
-            TODO("Not yet implemented")
-        }
+        override suspend fun getSongsFromPlaylist(playListId: String): List<Song> = emptyList()
 
         override suspend fun createPlayList(name: String) {
-            TODO("Not yet implemented")
         }
 
         override suspend fun savePlayList(id: String, name: String) {
-            TODO("Not yet implemented")
         }
 
         override suspend fun deletePlayList(id: String) {
-            TODO("Not yet implemented")
         }
 
         override suspend fun addSongsToPlaylist(playListId: String, songs: List<Song>) {
-            TODO("Not yet implemented")
         }
 
 
         override suspend fun deleteSongs(selectedSongIds: List<String>) {
-            TODO("Not yet implemented")
         }
 
         override suspend fun getLocalSong(): List<Song> {
-            TODO("Not yet implemented")
+            return emptyList()
         }
 
         override suspend fun getPlayLists(): List<PlayList> {
-            TODO("Not yet implemented")
-        }
-    }
-
-    private val cloudRepository = object : CloudRepository {
-        override suspend fun load(): List<Song> {
-            TODO("Not yet implemented")
-        }
-
-        override fun upload(songs: List<Song>) {
-            TODO("Not yet implemented")
+            return emptyList()
         }
     }
 
@@ -92,8 +80,6 @@ object FakeModule {
         return MediaControllerManager(context, null)
     }
 
-    fun providePlayBackState(): PlayBackState = PlayBackState()
-
     @Composable
     fun provideSong(): Song = Song(
         id = "1",
@@ -103,4 +89,54 @@ object FakeModule {
         thumbnailSource = ThumbnailSource.FromBitmap(null),
         durationMillis = (4 * 60 + 38) * 1000
     )
+
+    fun provideArtistPage(): ArtistPage {
+        return ArtistPage(
+            artist = ArtistItem(UUID.randomUUID().toString(), "Music Time", "", null, null),
+            sections = listOf(
+                ArtistSection(
+                    "Music Time",
+                    items = listOf(provideSongItem()),
+                    moreEndpoint = null,
+                ),
+                ArtistSection(
+                    "Music Time",
+                    items = listOf(provideAlbumItem()),
+                    moreEndpoint = null,
+                )
+            ),
+            description = "Music Time"
+        )
+    }
+
+    private fun provideAlbumItem(): AlbumItem {
+       return AlbumItem(
+            browseId = UUID.randomUUID().toString(),
+            playlistId = UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(),
+            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix G",
+            artists = listOf(Artist("Music Time", null)),
+            year = null,
+            thumbnail = "",
+            explicit = false
+        )
+    }
+
+    private fun provideSongItem(): SongItem {
+        return SongItem(
+            id = UUID.randomUUID().toString(),
+            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
+            artists = listOf(Artist("Music Time", null)),
+            album = null,
+            duration = null,
+            thumbnail = "",
+            explicit = false,
+            endpoint = null,
+        )
+    }
+
+    @Composable
+    fun provideCurrentSong(): CurrentSong {
+        return CurrentSong.OtherSong(provideSong())
+    }
 }

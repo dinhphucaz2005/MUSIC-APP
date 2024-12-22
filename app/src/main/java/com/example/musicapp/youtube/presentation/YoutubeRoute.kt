@@ -5,6 +5,8 @@ object YoutubeRoute {
     const val HOME = "youtube_home"
     const val SEARCH = "youtube_search"
     const val PLAYLIST_DETAIL = "youtube_playlist_detail"
+    const val ARTIST = "youtube_artist"
 
+    const val ARTIST_ID = "artistId"
     const val PLAYLIST_ID = "playlistId"
 }
