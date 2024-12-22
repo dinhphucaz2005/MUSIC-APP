@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -103,11 +105,13 @@ inline fun <T> LazyColumnWithAnimation2(
         if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
     animationDuration: Int = 200,
     initialOffsetX: Float = 100f,
+    state: LazyListState = rememberLazyListState(),
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline content: @Composable LazyListScope.(itemModifier: Modifier, index: Int, item: T) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
+        state = state,
         verticalArrangement = verticalArrangement
     ) {
         itemsIndexed(items = items, key = { index, item -> key?.invoke(index, item) ?: item.hashCode() }) { index, item ->

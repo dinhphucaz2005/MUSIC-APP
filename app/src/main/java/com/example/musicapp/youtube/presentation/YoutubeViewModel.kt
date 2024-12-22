@@ -33,6 +33,10 @@ class YoutubeViewModel @Inject constructor() : ViewModel() {
 
     fun reload() {
         load(_isLoading) {
+//            CustomYoutube.home().onSuccess { home ->
+//                _home.update { home }
+//                println(home)
+//            }
             _home.update { CustomYoutube.loadHome() }
         }
     }

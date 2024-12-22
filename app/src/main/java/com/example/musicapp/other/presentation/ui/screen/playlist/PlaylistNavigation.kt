@@ -9,7 +9,7 @@ import androidx.navigation.navigation
 import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistRoute.PLAYLIST_ID
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import com.example.musicapp.song.presetation.components.Screens
+import com.example.musicapp.constants.Screens
 
 fun NavGraphBuilder.playlistNavigation(
     navController: NavHostController,

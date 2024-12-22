@@ -64,6 +64,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
+import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
 import com.example.musicapp.core.presentation.components.LocalMenuState
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
@@ -81,13 +82,11 @@ import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.service.MusicService
-import com.example.musicapp.song.presetation.components.Screens
-import com.example.musicapp.song.presetation.song.BottomSheetPlayer
+import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import com.example.musicapp.youtube.presentation.youtubeNavigation
 import dagger.hilt.android.AndroidEntryPoint
-import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 
 
@@ -119,7 +118,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startMusicService()
-        handlePermissions()
+//        handlePermissions()
         setContent {
             MusicTheme {
                 CompositionLocalProvider(
@@ -132,6 +131,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    @Deprecated("Use requestPermissionLauncher instead")
     private fun handlePermissions() {
         requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -173,7 +173,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaControllerManager = null
-        EventBus.getDefault().unregister(this)
     }
 
 
@@ -183,7 +182,6 @@ class MainActivity : ComponentActivity() {
         startService(musicServiceIntent)
     }
 }
-
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable

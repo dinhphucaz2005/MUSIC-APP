@@ -1,9 +1,14 @@
 package com.example.musicapp.other.presentation.ui.screen.home
 
+import android.Manifest
+import android.annotation.SuppressLint
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -23,14 +29,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,7 +59,6 @@ import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.HomeViewModel
@@ -60,22 +70,42 @@ import com.example.musicapp.util.MediaControllerManager
 @Composable
 fun Preview() {
     MusicTheme {
-        HomeContent(
-            mediaControllerManager = FakeModule.provideMediaControllerManager(),
-            playBackState = FakeModule.providePlayBackState(),
-            songs = List(20) { index -> Song.unidentifiedSong(index.toString()) },
-            currentSong = Song.unidentifiedSong(),
-            modifier = Modifier.fillMaxSize()
-        )
+        Column {
+            HomeContent(
+                mediaControllerManager = FakeModule.provideMediaControllerManager(),
+                songs = List(20) { index -> Song.unidentifiedSong(index.toString()) },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
 
+@SuppressLint("InlinedApi")
 @UnstableApi
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel
 ) {
+    var isReadMediaAudiosPermissionGranted by remember { mutableStateOf(false) }
+
+    val readMediaAudiosPermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted -> isReadMediaAudiosPermissionGranted = isGranted }
+    )
+
+    val requestReadMediaAudiosPermission = {
+        readMediaAudiosPermissionResultLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+    }
+
+    LaunchedEffect(isReadMediaAudiosPermissionGranted) {
+        if (!isReadMediaAudiosPermissionGranted) {
+            requestReadMediaAudiosPermission()
+        } else {
+            homeViewModel.loadSongs()
+        }
+    }
+
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
 
     val isLoading by homeViewModel.isLoading.collectAsStateWithLifecycle()
@@ -84,34 +114,8 @@ fun HomeScreen(
     val currentSong by mediaControllerManager.currentSong.collectAsState()
     val songs by homeViewModel.songs.collectAsState()
 
-    if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        HomeContent(
-            mediaControllerManager = mediaControllerManager,
-            playBackState = playBackState,
-            songs = songs,
-            currentSong = currentSong,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Composable
-private fun HomeContent(
-    modifier: Modifier = Modifier,
-    mediaControllerManager: MediaControllerManager,
-    playBackState: PlayBackState,
-    songs: List<Song>,
-    currentSong: Song,
-) {
     Column(
-        modifier = modifier
+        modifier = Modifier.fillMaxSize()
     ) {
         MyListItem(
             modifier = Modifier
@@ -183,33 +187,78 @@ private fun HomeContent(
             thickness = 2.dp,
             color = White
         )
-
-        LazyColumnWithAnimation2(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .fillMaxWidth()
-                .weight(1f),
-            items = songs,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            key = { _, item -> item.id }
-        ) { itemModifier, index, song ->
-            SongItem(
-                modifier = itemModifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        mediaControllerManager.playQueue(
-                            Queue
-                                .Builder()
-                                .setId(Queue.LOCAL_ID)
-                                .setIndex(index)
-                                .setOtherSongs(songs)
-                                .build()
-                        )
-                    })
-                },
-                song = song
-            )
+        if (!isReadMediaAudiosPermissionGranted) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+            ) {
+                Text(
+                    text = "Please grant the permission to read media audios",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = White
+                )
+                Button(onClick = { requestReadMediaAudiosPermission() }) {
+                    Text(text = "Grant Permission")
+                }
+            }
+        } else {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                HomeContent(
+                    mediaControllerManager = mediaControllerManager,
+                    songs = songs,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
         }
     }
+
+
+
+}
+
+@Composable
+private fun ColumnScope.HomeContent(
+    modifier: Modifier = Modifier,
+    mediaControllerManager: MediaControllerManager,
+    songs: List<Song>,
+) {
+
+    LazyColumnWithAnimation2(
+        modifier = modifier
+            .fillMaxWidth()
+            .weight(1f),
+        items = songs,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        key = { _, item -> item.id }
+    ) { itemModifier, index, song ->
+        SongItem(
+            modifier = itemModifier.pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    mediaControllerManager.playQueue(
+                        Queue
+                            .Builder()
+                            .setId(Queue.LOCAL_ID)
+                            .setIndex(index)
+                            .setOtherSongs(songs)
+                            .build()
+                    )
+                })
+            },
+            song = song
+        )
+    }
+
 
 }
 

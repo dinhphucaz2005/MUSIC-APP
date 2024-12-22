@@ -21,7 +21,12 @@ fun CommonIcon(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
-    Icon(painter = painterResource(icon), modifier = modifier
-        .clickable(enabled = enabled, onClick = { onClick?.invoke() })
-        .size(size), contentDescription = null, tint = tint)
+    Icon(
+        painter = painterResource(icon),
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = { onClick?.invoke() })
+            .size(size),
+        contentDescription = null,
+        tint = tint
+    )
 }

@@ -126,9 +126,6 @@ dependencies {
     //Edit tag audio
     implementation(libs.mp3agic)
 
-    //EventBus
-    implementation(libs.eventbus)
-
     //Color Picker
     implementation(libs.compose.color.picker.android)
 

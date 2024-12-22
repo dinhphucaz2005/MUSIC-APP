@@ -9,6 +9,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import com.example.innertube.CustomYoutube
+import com.example.innertube.models.BrowseEndpoint
 import com.example.innertube.models.SongItem
 import com.example.innertube.models.WatchEndpoint
 import com.example.musicapp.constants.LoopMode
@@ -20,6 +21,7 @@ import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
+import dagger.hilt.android.UnstableApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +51,7 @@ class MediaControllerManager(
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
 
-    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
+    private val _currentSong = MutableStateFlow(binder?.service?.getCurrentSong() ?: Song.unidentifiedSong())
     val currentSong = _currentSong.asStateFlow()
 
     init {

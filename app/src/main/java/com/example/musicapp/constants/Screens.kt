@@ -1,4 +1,4 @@
-package com.example.musicapp.song.presetation.components
+package com.example.musicapp.constants
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

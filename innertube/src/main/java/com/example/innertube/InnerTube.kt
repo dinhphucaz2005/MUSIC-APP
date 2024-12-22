@@ -29,7 +29,6 @@ import io.ktor.http.contentType
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.encodeBase64
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.net.Proxy
 import java.util.Locale
@@ -63,8 +62,7 @@ open class InnerTube {
 
     var useLoginForBrowse: Boolean = false
 
-    @OptIn(ExperimentalSerializationApi::class)
-    fun createClient() = HttpClient(OkHttp) {
+    private fun createClient() = HttpClient(OkHttp) {
         expectSuccess = true
 
         install(ContentNegotiation) {

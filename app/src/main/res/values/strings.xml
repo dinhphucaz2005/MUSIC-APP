@@ -48,4 +48,7 @@
     <string name="dismiss_queue">Dismiss Queue</string>
     <string name="report">Report</string>
     <string name="sleep_timer">Sleep timer</string>
+    <string name="up_next">UP NEXT</string>
+    <string name="lyrics">LYRICS</string>
+    <string name="related">RELATED</string>
 </resources>

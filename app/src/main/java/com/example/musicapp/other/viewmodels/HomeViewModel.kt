@@ -22,11 +22,8 @@ class HomeViewModel @Inject constructor(
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs = _songs.asStateFlow()
 
-    init {
-        loadSong()
-    }
 
-    private fun loadSong() = load(_isLoading) {
+    fun loadSongs() = load(_isLoading) {
         _songs.update { repository.getLocalSong() }
     }
 

@@ -1,5 +1,6 @@
 package com.example.musicapp.other.domain.model
 
+import com.example.innertube.models.BrowseEndpoint
 import com.example.innertube.models.SongItem
 import com.example.musicapp.extension.toSong
 
@@ -8,17 +9,6 @@ sealed class Queue(
     open var index: Int = 0,
     open val songs: List<Any> = emptyList(),
 ) {
-    fun getCurrentThumbnail(): ThumbnailSource {
-        return when (this) {
-            is Other -> (songs.getOrNull(index) ?: Song.unidentifiedSong()).thumbnailSource
-
-            is Youtube -> ThumbnailSource.FromUrl(
-                (songs.getOrNull(index) ?: SongItem.unidentifiedSong()).thumbnail
-            )
-
-        }
-    }
-
 
     fun getSong(index: Int?): Song {
         if (index == null) return Song.unidentifiedSong()
@@ -38,6 +28,7 @@ sealed class Queue(
         override val id: String,
         override var index: Int,
         override val songs: List<SongItem>,
+        val relatedEndpoint: BrowseEndpoint? = null,
     ) : Queue()
 
     companion object {
@@ -47,16 +38,21 @@ sealed class Queue(
 
     class Builder {
         private var id = ""
-        private val otherSongs: MutableList<Song> = mutableListOf()
-        private val youtubeSongs: MutableList<SongItem> = mutableListOf()
+        private var otherSongs: List<Song> = emptyList()
+        private var youtubeSongs: List<SongItem> = emptyList()
+        private val relatedEndpoint: BrowseEndpoint? = null
         private var index = 0
 
         fun setId(id: String) = apply { this.id = id }
-        fun setOtherSongs(songs: List<Song>) = apply { otherSongs.addAll(songs) }
-        fun setYoutubeSongs(songs: List<SongItem>) = apply { youtubeSongs.addAll(songs) }
+
+        fun setOtherSongs(songs: List<Song>) = apply { otherSongs = songs }
+
+        fun setYoutubeSongs(songs: List<SongItem>) = apply { youtubeSongs = songs }
+
+        fun setRelatedEndpoint(relatedEndpoint: BrowseEndpoint) =
+            apply { relatedEndpoint.let { this.relatedEndpoint } }
 
         fun setIndex(index: Int) = apply { this.index = index }
-
 
         fun build(): Queue {
             return when {

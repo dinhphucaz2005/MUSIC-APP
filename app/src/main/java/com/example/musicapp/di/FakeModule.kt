@@ -76,7 +76,7 @@ object FakeModule {
 
     @Composable
     fun provideSongViewModel(): SongViewModel =
-        SongViewModel(cloudRepository)
+        SongViewModel()
 
     @Composable
     fun provideHomeViewModel(): HomeViewModel =

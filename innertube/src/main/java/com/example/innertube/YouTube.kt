@@ -61,7 +61,7 @@ import java.net.Proxy
  * Modified from [ViMusic](https://github.com/vfsfitvnm/ViMusic)
  */
 open class YouTube {
-    // Use InnerTube2() instead of InnerTube()
+    // Use CustomInnerTube() instead of InnerTube()
     val innerTube = CustomInnerTube()
 
 

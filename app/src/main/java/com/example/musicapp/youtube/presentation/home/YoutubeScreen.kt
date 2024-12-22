@@ -134,7 +134,7 @@ fun YoutubeScreen(
 val ListItemHeight = 60.dp
 
 @Composable
-private fun LazyItemScope.HomePageSection(
+private fun HomePageSection(
     section: HomePage.Section,
     modifier: Modifier,
     onClick: (YTItem) -> Unit
