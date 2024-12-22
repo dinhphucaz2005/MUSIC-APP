@@ -218,4 +218,8 @@ class MediaControllerManager(
             )
         }
     }
+
+    fun downLoadCurrentSong() {
+        binder?.service?.downloadCurrentSong()
+    }
 }

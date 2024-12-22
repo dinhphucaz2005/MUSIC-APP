@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 rootProject.name = "My Music App"
 include(":app")
 include(":innertube")
+include(":cache")

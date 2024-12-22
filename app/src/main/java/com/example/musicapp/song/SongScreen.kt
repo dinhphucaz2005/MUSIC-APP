@@ -179,7 +179,9 @@ private fun SongScreenContent(
     }
 
     LaunchedEffect(currentSong) {
-        currentSong.getArtistId()?.let { songViewModel.getRelated(it) }
+        if (currentSong is CurrentSong.YoutubeSong) {
+            songViewModel.getRelated((currentSong as CurrentSong.YoutubeSong).song.id)
+        }
     }
 
 
@@ -218,9 +220,10 @@ private fun SongScreenContent(
                 Spacer(Modifier.weight(1f))
 
                 CommonIcon(icon = R.drawable.ic_edit, onClick = {
-                    menuState.show {
-                        Menu(song = currentSong)
-                    }
+                    mediaControllerManager.downLoadCurrentSong()
+//                    menuState.show {
+//                        Menu(song = currentSong)
+//                    }
                 })
             }
 

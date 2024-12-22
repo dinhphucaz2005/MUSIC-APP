@@ -1,9 +1,7 @@
 package com.example.musicapp.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.room.Room
-import com.example.musicapp.constants.DATABASE_NAME
 import com.example.musicapp.other.data.database.AppDAO
 import com.example.musicapp.other.data.database.AppDatabase
 import dagger.Module
@@ -23,11 +21,13 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            DATABASE_NAME
+            "app_database"
         ).build()
     }
 
     @Provides
     @Singleton
     fun provideAppDao(database: AppDatabase): AppDAO = database.appDAO()
+
+
 }

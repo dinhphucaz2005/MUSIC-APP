@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import nd.phuc.cache.domain.CacheRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class YoutubeViewModel @Inject constructor() : ViewModel() {
+class YoutubeViewModel @Inject constructor(
+    private val cacheRepository: CacheRepository
+) : ViewModel() {
 
 
     private val _isLoading = MutableStateFlow(false)
@@ -42,10 +45,16 @@ class YoutubeViewModel @Inject constructor() : ViewModel() {
     }
 
     fun loadPlaylist(playlistId: String) = load(_isLoading) {
+        val playlist = cacheRepository.getPlaylist(playlistId)
+        if (playlist != null) {
+            _playlist.value = playlist
+            return@load
+        }
         CustomYoutube
             .playlist(playlistId)
             .onSuccess {
                 _playlist.value = it
+                cacheRepository.insertPlaylist(it)
             }
             .onFailure {
                 Log.e("YoutubeViewModel", "Failed to load playlist", it)

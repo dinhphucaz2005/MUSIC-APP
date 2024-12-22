@@ -1,5 +1,7 @@
 package com.example.innertube.models
 
+import kotlinx.serialization.Serializable
+
 sealed class YTItem {
     abstract val id: String
     abstract val title: String
@@ -8,16 +10,19 @@ sealed class YTItem {
     abstract val shareLink: String
 }
 
+@Serializable
 data class Artist(
     val name: String,
     val id: String?,
 )
 
+@Serializable
 data class Album(
     val name: String,
     val id: String,
 )
 
+@Serializable
 data class SongItem(
     override val id: String,
     override val title: String,
@@ -57,6 +62,7 @@ data class AlbumItem(
         get() = "https://music.youtube.com/playlist?list=$playlistId"
 }
 
+@Serializable
 data class PlaylistItem(
     override val id: String,
     override val title: String,

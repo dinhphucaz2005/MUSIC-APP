@@ -7,7 +7,9 @@ import com.example.innertube.models.PlaylistItem
 import com.example.innertube.models.SongItem
 import com.example.innertube.models.oddElements
 import com.example.innertube.utils.parseTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PlaylistPage(
     val playlist: PlaylistItem,
     val songs: List<SongItem>,

@@ -74,31 +74,26 @@ import com.example.musicapp.core.presentation.theme.DarkGray
 import com.example.musicapp.core.presentation.theme.LightGray
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.White
-import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.presentation.ui.screen.cloud.CloudScreen
 import com.example.musicapp.other.presentation.ui.screen.home.HomeScreen
 import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNavigation
 import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
+import com.example.musicapp.service.DownloadService
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import com.example.musicapp.youtube.presentation.youtubeNavigation
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var repository: SongRepository
-
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
-
 
     private var mediaControllerManager by mutableStateOf<MediaControllerManager?>(null)
 
@@ -235,10 +230,8 @@ private fun App(
         }
 
         LaunchedEffect(queue) {
-            if (queue != null) {
+            if (queue != null && playerBottomSheetState.isDismissed) {
                 playerBottomSheetState.collapseSoft()
-            } else {
-                playerBottomSheetState.dismiss()
             }
         }
 

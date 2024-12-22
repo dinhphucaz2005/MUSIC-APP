@@ -216,4 +216,11 @@ class MusicService : MediaLibraryService() {
         notificationManager.cancel(NotificationHelper.NOTIFICATION_ID)
     }
 
+    fun downloadCurrentSong() {
+        val downloadService = Intent(this, DownloadService::class.java)
+        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())
+        downloadService.putExtra(DownloadService.FILE_NAME, getCurrentSong()?.getTitle())
+        startService(downloadService)
+    }
+
 }

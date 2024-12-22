@@ -10,25 +10,23 @@ androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.6.1"
 androidx-activity-compose = "1.9.3"
 androidx-test-junit = "1.2.1"
-composeBom = "2024.11.00"
-animation = "1.7.5"
+composeBom = "2024.12.01"
+animation = "1.7.6"
 composeColorPickerAndroid = "0.7.0"
 constraintlayoutCompose = "1.1.0"
 datastorePreferencesCoreJvm = "1.1.1"
 dec = "0.1.2"
 dragselect = "2.3.0"
-eventbus = "3.3.1"
 firebaseDatabase = "21.0.0"
 firebaseStorage = "21.0.1"
 fontawesomecompose = "1.1.0"
 glanceAppwidget = "1.1.1"
 googleServices = "4.4.2"
 junit = "4.13.2"
-#noinspection GradleDependency
 kotlin = "2.0.21"
+kotlinxSerializationJson = "1.7.3"
 ktor = "3.0.0"
 lifecycle-viewmodel = "2.8.7"
-compose-plugin = "1.7.0"
 material3 = "1.3.1"
 media = "1.7.0"
 #Warning: Update version of Media3. This may affect background playback functionality
@@ -36,8 +34,12 @@ media = "1.7.0"
 media3 = "1.3.1"
 mp3agic = "0.9.1"
 coil3 = "3.0.0"
-navigationCompose = "2.8.4"
+navigationCompose = "2.8.5"
+roomCompiler = "2.6.1"
 squigglyslider = "1.0.0"
+appcompat = "1.7.0"
+material = "1.12.0"
+ksp = "2.0.10-1.0.24"
 
 [libraries]
 
@@ -78,6 +80,9 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 
 
 # UI Test
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 
@@ -96,9 +101,6 @@ dec = { module = "org.brotli:dec", version.ref = "dec" }
 # DragSelect
 dragselect = { module = "com.dragselectcompose:dragselect", version.ref = "dragselect" }
 
-# EventBus
-eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
-
 # Firebase
 firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseStorage" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
@@ -116,6 +118,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 
 
 # Ktor
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -136,13 +139,16 @@ mp3agic = { module = "com.mpatric:mp3agic", version.ref = "mp3agic" }
 
 # SquigglySlider
 squigglyslider = { module = "me.saket.squigglyslider:squigglyslider", version.ref = "squigglyslider" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+android-library = { id = "com.android.library", version.ref = "agp" }
+com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
 ktor = [

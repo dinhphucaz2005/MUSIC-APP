@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.com.google.devtools.ksp)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
@@ -70,6 +72,9 @@ dependencies {
 
     // Inner Tube Module
     implementation(project(":innertube"))
+
+    // Cache
+    implementation(project(":cache"))
 
     // Media3
     implementation(libs.androidx.media)
@@ -158,7 +163,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Room
-    val roomVersion = "2.5.0"
-    implementation("androidx.room:room-ktx:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

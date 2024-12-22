@@ -8,6 +8,7 @@ import com.example.innertube.models.ArtistItem
 import com.example.innertube.models.SongItem
 import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.ArtistSection
+import com.example.innertube.pages.PlaylistPage
 import com.example.musicapp.other.domain.model.AudioSource
 import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.PlayList
@@ -19,6 +20,7 @@ import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
+import nd.phuc.cache.domain.CacheRepository
 import java.util.UUID
 
 object FakeModule {
@@ -28,7 +30,7 @@ object FakeModule {
         name = "UNNAMED"
     )
 
-    private val songRepository = object : SongRepository {
+    private fun provideSongRepository(): SongRepository = object : SongRepository {
 
         override suspend fun getSongsFromPlaylist(playListId: String): List<Song> = emptyList()
 
@@ -60,7 +62,7 @@ object FakeModule {
 
     @Composable
     fun providePlaylistViewModel() =
-        PlaylistViewModel(songRepository)
+        PlaylistViewModel(provideSongRepository())
 
     @Composable
     fun provideSongViewModel(): SongViewModel =
@@ -68,11 +70,23 @@ object FakeModule {
 
     @Composable
     fun provideHomeViewModel(): HomeViewModel =
-        HomeViewModel(songRepository)
+        HomeViewModel(provideSongRepository())
+
+    private fun provideCacheRepository(): CacheRepository {
+        return object : CacheRepository {
+            override suspend fun insertPlaylist(playlistPage: PlaylistPage) {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun getPlaylist(id: String): PlaylistPage? {
+                TODO("Not yet implemented")
+            }
+        }
+    }
 
     @Composable
     fun provideYoutubeViewModel(): YoutubeViewModel =
-        YoutubeViewModel()
+        YoutubeViewModel(cacheRepository = provideCacheRepository())
 
     @Composable
     fun provideMediaControllerManager(): MediaControllerManager {
@@ -80,8 +94,7 @@ object FakeModule {
         return MediaControllerManager(context, null)
     }
 
-    @Composable
-    fun provideSong(): Song = Song(
+    private fun provideSong(): Song = Song(
         id = "1",
         title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
         artist = "Music Time",
