@@ -1,4 +1,4 @@
-package com.example.musicapp.youtube.presentation.playlist
+package com.example.musicapp.youtube.presentation.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -47,11 +47,10 @@ import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
-import com.example.musicapp.youtube.presentation.componenets.SongItemFromYoutube
 
 @Preview
 @Composable
-private fun PlaylistDetailPreview() {
+private fun PlaylistScreenPreview() {
 
     val playlistItem = PlaylistItem(
         title = "Liked Music",
@@ -84,7 +83,7 @@ private fun PlaylistDetailPreview() {
 }
 
 @Composable
-fun PlaylistDetail(
+fun PlaylistScreen(
     playlistId: String, navController: NavHostController, youtubeViewModel: YoutubeViewModel
 ) {
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
@@ -181,8 +180,8 @@ fun PlaylistContent(
             ) {
                 CommonIcon(
                     icon = R.drawable.ic_shuffle,
-                    size = 24.dp,
-                    onClick = { /*TODO*/ })
+                    size = 24.dp
+                )
                 Text(
                     text = "Blissful Soul",
                     maxLines = 2,
@@ -219,15 +218,15 @@ fun PlaylistContent(
                 CommonIcon(
                     icon = R.drawable.ic_play,
                     size = 32.dp,
-                    onClick = { /*TODO*/ })
+                    onClick = { })
                 CommonIcon(
                     icon = R.drawable.ic_play,
                     size = 48.dp,
-                    onClick = { /*TODO*/ })
+                    onClick = { })
                 CommonIcon(
                     icon = R.drawable.ic_play,
                     size = 32.dp,
-                    onClick = { /*TODO*/ })
+                    onClick = { })
             }
         }
         itemsIndexed(playlist.songs) { index, song ->

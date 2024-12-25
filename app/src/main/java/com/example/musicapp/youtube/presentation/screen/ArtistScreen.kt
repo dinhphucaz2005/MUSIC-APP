@@ -1,5 +1,6 @@
-package com.example.musicapp.youtube.presentation.artist
+package com.example.musicapp.youtube.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.innertube.models.AlbumItem
 import com.example.innertube.models.ArtistItem
 import com.example.innertube.models.PlaylistItem
@@ -39,12 +42,15 @@ import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.youtube.presentation.YoutubeRoute
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
-import com.example.musicapp.youtube.presentation.componenets.SongItemFromYoutube
 
 @Composable
 fun ArtistScreen(
-    modifier: Modifier = Modifier, artistId: String, youtubeViewModel: YoutubeViewModel
+    modifier: Modifier = Modifier,
+    artistId: String,
+    youtubeViewModel: YoutubeViewModel,
+    navController: NavHostController
 ) {
 
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
@@ -64,7 +70,11 @@ fun ArtistScreen(
             CircularProgressIndicator()
         } else {
             artistPage?.let {
-                ArtistContent(artistPage = it, mediaControllerManager = mediaControllerManager)
+                ArtistContent(
+                    artistPage = it,
+                    mediaControllerManager = mediaControllerManager,
+                    navController = navController
+                )
             }
         }
     }
@@ -74,12 +84,20 @@ fun ArtistScreen(
 @Composable
 private fun ArtistContentPreview() {
     MusicTheme {
-        ArtistContent(FakeModule.provideArtistPage(), FakeModule.provideMediaControllerManager())
+        ArtistContent(
+            artistPage = FakeModule.provideArtistPage(),
+            mediaControllerManager = FakeModule.provideMediaControllerManager(),
+            navController = rememberNavController()
+        )
     }
 }
 
 @Composable
-private fun ArtistContent(artistPage: ArtistPage, mediaControllerManager: MediaControllerManager) {
+private fun ArtistContent(
+    artistPage: ArtistPage,
+    mediaControllerManager: MediaControllerManager,
+    navController: NavHostController
+) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -93,7 +111,6 @@ private fun ArtistContent(artistPage: ArtistPage, mediaControllerManager: MediaC
                         .aspectRatio(1f)
                 ) {
                     Thumbnail(
-//                        thumbnailSource = ThumbnailSource.FromBitmap(null),
                         thumbnailSource = ThumbnailSource.FromUrl(artistPage.artist.thumbnail),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -148,6 +165,9 @@ private fun ArtistContent(artistPage: ArtistPage, mediaControllerManager: MediaC
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .width(120.dp)
+                                            .clickable {
+                                                navController.navigate(YoutubeRoute.ALBUM + "/" + item.id)
+                                            }
                                     ) {
                                         Thumbnail(
                                             thumbnailSource = ThumbnailSource.FromUrl(item.thumbnail),
@@ -162,7 +182,6 @@ private fun ArtistContent(artistPage: ArtistPage, mediaControllerManager: MediaC
                                                 color = White, fontSize = 12.sp
                                             ),
                                         )
-
                                     }
                                 }
                             }

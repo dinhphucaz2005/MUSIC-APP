@@ -1,4 +1,4 @@
-package com.example.musicapp.youtube.presentation.componenets
+package com.example.musicapp.youtube.presentation.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

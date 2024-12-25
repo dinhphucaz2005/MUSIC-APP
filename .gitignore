@@ -17,4 +17,4 @@ local.properties
 README.pdf
 /app/src/main/assets/yt.json
 */build
-./.kotlin
+.kotlin

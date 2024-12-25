@@ -52,8 +52,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.innertube.models.SongItem
 import com.example.innertube.pages.RelatedPage
 import com.example.musicapp.LocalMediaControllerManager
+import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
@@ -65,7 +67,6 @@ import com.example.musicapp.core.presentation.components.BottomSheetState
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.CustomSlider
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
-import com.example.musicapp.core.presentation.components.LocalMenuState
 import com.example.musicapp.core.presentation.components.MiniPlayer
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
@@ -82,8 +83,8 @@ import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.musicapp.youtube.presentation.componenets.SongItemFromYoutube
-import com.example.musicapp.youtube.presentation.componenets.Songs
+import com.example.musicapp.youtube.presentation.screen.SongItemFromYoutube
+import com.example.musicapp.youtube.presentation.screen.Songs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -449,15 +450,18 @@ private fun Related(
         ) {
             item {
                 relatedPage?.songs?.let { songs ->
-                    Songs(songs = songs, modifier = Modifier.fillMaxWidth()) { song ->
+                    Songs(songs = songs, modifier = Modifier.fillMaxWidth(), onClick = { song ->
                         mediaControllerManager.playYoutubeSong(song = song)
-                    }
+                    })
                 }
             }
         }
     }
 }
 
+@Composable
+fun BottomMenuContent(song: SongItem) {
+}
 @Composable
 fun QueueView(
     queue: Queue?,
@@ -499,7 +503,7 @@ fun QueueView(
                 ) { itemModifier, index, item ->
                     SongItemContent(song = item, modifier = itemModifier.clickable {
                         mediaControllerManager.playAtIndex(index)
-                    })
+                    }, menuState = LocalMenuState.current)
                 }
             }
 

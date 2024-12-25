@@ -6,6 +6,7 @@ import com.example.innertube.models.AlbumItem
 import com.example.innertube.models.Artist
 import com.example.innertube.models.ArtistItem
 import com.example.innertube.models.SongItem
+import com.example.innertube.pages.AlbumPage
 import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.ArtistSection
 import com.example.innertube.pages.PlaylistPage
@@ -75,11 +76,10 @@ object FakeModule {
     private fun provideCacheRepository(): CacheRepository {
         return object : CacheRepository {
             override suspend fun insertPlaylist(playlistPage: PlaylistPage) {
-                TODO("Not yet implemented")
             }
 
             override suspend fun getPlaylist(id: String): PlaylistPage? {
-                TODO("Not yet implemented")
+                return null
             }
         }
     }
@@ -94,7 +94,7 @@ object FakeModule {
         return MediaControllerManager(context, null)
     }
 
-    private fun provideSong(): Song = Song(
+    fun provideSong(): Song = Song(
         id = "1",
         title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
         artist = "Music Time",
@@ -121,6 +121,21 @@ object FakeModule {
             description = "Music Time"
         )
     }
+
+    fun provideAlbumPage(): AlbumPage = AlbumPage(
+        album = AlbumItem(
+            browseId = UUID.randomUUID().toString(),
+            playlistId = UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(),
+            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
+            artists = listOf(Artist("Music Time", null)),
+            year = null,
+            thumbnail = "",
+            explicit = false
+        ),
+        songs = List(20) { provideSongItem() },
+        otherVersions = emptyList()
+    )
 
     private fun provideAlbumItem(): AlbumItem {
        return AlbumItem(

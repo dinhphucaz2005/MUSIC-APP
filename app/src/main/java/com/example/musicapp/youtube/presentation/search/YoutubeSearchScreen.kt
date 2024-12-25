@@ -16,7 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.core.presentation.components.DefaultSearchBar
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
-import com.example.musicapp.youtube.presentation.componenets.SongItemFromYoutube
+import com.example.musicapp.youtube.presentation.screen.SongItemFromYoutube
 import kotlinx.coroutines.launch
 
 @Composable

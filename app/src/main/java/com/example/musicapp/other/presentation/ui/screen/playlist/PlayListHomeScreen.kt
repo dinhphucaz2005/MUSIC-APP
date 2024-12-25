@@ -189,14 +189,3 @@ fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel)
         }
     }
 }
-
-@Composable
-fun LoadingScreen(contentModifier: Modifier) {
-    Box(
-        modifier = contentModifier, contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-

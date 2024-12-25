@@ -1,9 +1,10 @@
-package com.example.musicapp.youtube.presentation.home
+package com.example.musicapp.youtube.presentation.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -12,9 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -117,9 +119,7 @@ fun YoutubeScreen(
                         .wrapContentHeight(),
                     onClick = { item ->
                         when (item) {
-                            is AlbumItem -> {
-                                // TODO: Navigate to album detail
-                            }
+                            is AlbumItem -> navController.navigate(YoutubeRoute.ALBUM + "/" + item.id)
                             is ArtistItem -> navController.navigate(YoutubeRoute.ARTIST + "/" + item.id)
                             is PlaylistItem -> navController.navigate(YoutubeRoute.PLAYLIST_DETAIL + "/" + item.id)
                             is SongItem -> mediaControllerManager.playYoutubeSong(item)
@@ -214,26 +214,63 @@ private fun HomePageSection(
             }
 
         } else {
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                itemsIndexed(items = section.items, key = { _, item -> item.id }) { _, item ->
-                    Box(
-                        modifier = Modifier
-                            .aspectRatio(16f / 9)
-                            .clip(RoundedCornerShape(DefaultCornerSize))
-                            .background(LightGray)
-                            .clickable(onClick = { onClick(item) })
-                    ) {
-                        Thumbnail(
-                            thumbnailSource = ThumbnailSource.FromUrl(item.thumbnail),
-                            modifier = Modifier.fillMaxSize()
-                        )
+                LazyRow(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val maxWidth = maxWidth
+                    itemsIndexed(
+                        items = section.items,
+                        key = { _, item -> item.id }
+                    ) { _, item ->
+                        val (width: Dp, aspectRatio: Float) = when (item) {
+                            is SongItem -> Pair(maxWidth - 80.dp, 16f / 9)
+                            is AlbumItem -> Pair(maxWidth / 2, 1f)
+                            is PlaylistItem -> Pair(maxWidth / 2, 1f)
+                            else -> Pair(maxWidth, 1f)
+                        }
+                        Column(
+                            modifier = Modifier
+                                .width(width)
+                                .clickable(onClick = { onClick(item) })
+                        ) {
+
+                            Thumbnail(
+                                thumbnailSource = ThumbnailSource.FromUrl(item.thumbnail),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(aspectRatio)
+                                    .clip(RoundedCornerShape(DefaultCornerSize)),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 6.dp)
+                                    .height(40.dp)
+                            ) {
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = White,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 2
+                                )
+                            }
+                        }
                     }
                 }
-            }
 
+            }
         }
     }
 }

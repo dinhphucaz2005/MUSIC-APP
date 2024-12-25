@@ -95,7 +95,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     maxLines = 1
                 )
             }
-            IconButton(onClick = { /*TODO("Add song to favourite")*/ }) {
+            IconButton(onClick = { TODO("Add song to favourite") }) {
                 Icon(
                     imageVector = Icons.Default.FavoriteBorder,
                     contentDescription = null,

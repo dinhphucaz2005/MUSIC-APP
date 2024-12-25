@@ -3,6 +3,7 @@ package com.example.musicapp.youtube.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.innertube.CustomYoutube
+import com.example.innertube.pages.AlbumPage
 import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.HomePage
 import com.example.innertube.pages.PlaylistPage
@@ -22,15 +23,15 @@ class YoutubeViewModel @Inject constructor(
 
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
     private val _home = MutableStateFlow(HomePage(emptyList()))
-    val home: StateFlow<HomePage> = _home.asStateFlow()
-
+    private val _albumPage = MutableStateFlow<AlbumPage?>(null)
     private val _playlist = MutableStateFlow<PlaylistPage?>(null)
-    val playlist: StateFlow<PlaylistPage?> = _playlist.asStateFlow()
-
     private val _artistPage = MutableStateFlow<ArtistPage?>(null)
+
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val home: StateFlow<HomePage> = _home.asStateFlow()
+    val playlist: StateFlow<PlaylistPage?> = _playlist.asStateFlow()
+    val albumPage: StateFlow<AlbumPage?> = _albumPage.asStateFlow()
     val artistPage: StateFlow<ArtistPage?> = _artistPage.asStateFlow()
 
 
@@ -76,6 +77,17 @@ class YoutubeViewModel @Inject constructor(
                 Log.e("YoutubeViewModel", "Failed to load artist", it)
             }
 
+    }
+
+    fun loadAlbum(id: String)  = load(_isLoading) {
+        CustomYoutube
+            .album(id)
+            .onSuccess {
+                _albumPage.value = it
+            }
+            .onFailure {
+                Log.e("YoutubeViewModel", "Failed to load album", it)
+            }
     }
 
 }

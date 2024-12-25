@@ -1,20 +1,14 @@
 package com.example.musicapp
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,7 +60,6 @@ import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
 import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
-import com.example.musicapp.core.presentation.components.LocalMenuState
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.core.presentation.theme.Black
@@ -80,7 +73,6 @@ import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNaviga
 import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import com.example.musicapp.service.DownloadService
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.util.MediaControllerManager
@@ -92,8 +84,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
 
     private var mediaControllerManager by mutableStateOf<MediaControllerManager?>(null)
 
@@ -125,30 +115,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    @Deprecated("Use requestPermissionLauncher instead")
-    private fun handlePermissions() {
-        requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                if (permissions[Manifest.permission.READ_MEDIA_AUDIO] == true) {
-                    // TODO: load song from local storage
-                } else {
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            // TODO: load song from local storage
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestPermissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.READ_MEDIA_AUDIO,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    )
-                )
-            }
-        }
-    }
 
     override fun onStart() {
         super.onStart()

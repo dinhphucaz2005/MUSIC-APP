@@ -35,7 +35,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 
-val LocalMenuState = compositionLocalOf { MenuState() }
 
 @Stable
 class MenuState(

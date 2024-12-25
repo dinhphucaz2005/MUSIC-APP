@@ -52,6 +52,7 @@
     <string name="lyrics">LYRICS</string>
     <string name="related">RELATED</string>
     <string name="download">Download</string>
+    <string name="exo_download_notification_channel_name">Exo Download Notification Channel Name</string>
 
     <plurals name="n_song">
         <item quantity="one">%d song</item>

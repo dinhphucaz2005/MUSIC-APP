@@ -10,11 +10,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.musicapp.constants.Screens
+import com.example.musicapp.youtube.presentation.YoutubeRoute.ALBUM_ID
 import com.example.musicapp.youtube.presentation.YoutubeRoute.ARTIST_ID
 import com.example.musicapp.youtube.presentation.YoutubeRoute.PLAYLIST_ID
-import com.example.musicapp.youtube.presentation.artist.ArtistScreen
-import com.example.musicapp.youtube.presentation.home.YoutubeScreen
-import com.example.musicapp.youtube.presentation.playlist.PlaylistDetail
+import com.example.musicapp.youtube.presentation.screen.AlbumScreen
+import com.example.musicapp.youtube.presentation.screen.ArtistScreen
+import com.example.musicapp.youtube.presentation.screen.PlaylistScreen
+import com.example.musicapp.youtube.presentation.screen.YoutubeScreen
 import com.example.musicapp.youtube.presentation.search.YoutubeSearchScreen
 import com.example.musicapp.youtube.presentation.search.YoutubeSearchViewModel
 
@@ -37,7 +39,11 @@ fun NavGraphBuilder.youtubeNavigation(
         ) { navBackStackEntry ->
             val playlistId =
                 navBackStackEntry.arguments?.getString(PLAYLIST_ID) ?: return@composable
-            PlaylistDetail(playlistId, navController, youtubeViewModel)
+            PlaylistScreen(
+                playlistId = playlistId,
+                navController = navController,
+                youtubeViewModel = youtubeViewModel
+            )
         }
 
         composable(YoutubeRoute.SEARCH) {
@@ -54,7 +60,26 @@ fun NavGraphBuilder.youtubeNavigation(
             })
         ) { navBackStackEntry ->
             val artistId = navBackStackEntry.arguments?.getString(ARTIST_ID) ?: return@composable
-            ArtistScreen(modifier = Modifier.fillMaxSize(), artistId = artistId, youtubeViewModel = youtubeViewModel)
+            ArtistScreen(
+                modifier = Modifier.fillMaxSize(),
+                artistId = artistId,
+                youtubeViewModel = youtubeViewModel,
+                navController = navController
+            )
+        }
+
+        composable(
+            route = YoutubeRoute.ALBUM + "/{$ALBUM_ID}",
+            arguments = listOf(navArgument(ALBUM_ID) {
+                type = NavType.StringType
+            })
+        ) { navBackStackEntry ->
+            val albumId = navBackStackEntry.arguments?.getString(ALBUM_ID) ?: return@composable
+            AlbumScreen(
+                modifier = Modifier.fillMaxSize(),
+                albumId = albumId,
+                youtubeViewModel = youtubeViewModel
+            )
         }
 
     }

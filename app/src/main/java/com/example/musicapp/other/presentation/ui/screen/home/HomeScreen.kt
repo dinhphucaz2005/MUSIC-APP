@@ -49,10 +49,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
+import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
+import com.example.musicapp.core.presentation.components.MenuState
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.theme.MusicTheme
@@ -233,7 +235,7 @@ private fun ColumnScope.HomeContent(
     mediaControllerManager: MediaControllerManager,
     songs: List<Song>,
 ) {
-
+    val menuState = LocalMenuState.current
     LazyColumnWithAnimation2(
         modifier = modifier
             .fillMaxWidth()
@@ -255,7 +257,8 @@ private fun ColumnScope.HomeContent(
                     )
                 })
             },
-            song = song
+            song = song,
+            menuState = menuState
         )
     }
 
@@ -264,7 +267,7 @@ private fun ColumnScope.HomeContent(
 
 @Composable
 fun SongItemContent(
-    modifier: Modifier = Modifier, song: Song,
+    modifier: Modifier = Modifier, song: Song, menuState: MenuState
 ) {
     MyListItem(
         headlineContent = {
@@ -293,7 +296,11 @@ fun SongItemContent(
             )
         },
         trailingContent = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                menuState.show {
+                    HomeScreenMenuContent()
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert, contentDescription = null,
                     tint = White,
@@ -308,8 +315,35 @@ fun SongItemContent(
 
 @Preview
 @Composable
+private fun HomeScreenMenuContentPreview() {
+    MusicTheme {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            HomeScreenMenuContent()
+        }
+    }
+}
+
+@Composable
+private fun HomeScreenMenuContent() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "This is HomeScreenMenuContent",
+            color = White
+        )
+    }
+}
+
+@Preview
+@Composable
 private fun SongItemPreview() {
     MusicTheme {
-        SongItemContent(song = Song.unidentifiedSong())
+        SongItemContent(song = Song.unidentifiedSong(), menuState = MenuState())
     }
 }

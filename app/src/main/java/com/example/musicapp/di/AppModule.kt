@@ -19,6 +19,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.io.File
 import javax.inject.Singleton
 
 @Module
@@ -30,6 +31,12 @@ object AppModule {
     @Singleton
     fun provideApplicationContext(app: Application): Context {
         return app.applicationContext
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileCache(context: Context): File {
+        return File(context.getExternalFilesDir("Music"), "media")
     }
 
     @Provides
