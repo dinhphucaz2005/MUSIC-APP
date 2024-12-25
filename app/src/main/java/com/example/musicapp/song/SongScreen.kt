@@ -7,6 +7,7 @@ import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -52,7 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.innertube.models.SongItem
 import com.example.innertube.pages.RelatedPage
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
@@ -77,13 +78,12 @@ import com.example.musicapp.core.presentation.theme.Primary
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.Queue
+import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.musicapp.youtube.presentation.screen.SongItemFromYoutube
 import com.example.musicapp.youtube.presentation.screen.Songs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -180,9 +180,7 @@ private fun SongScreenContent(
     }
 
     LaunchedEffect(currentSong) {
-        if (currentSong is CurrentSong.YoutubeSong) {
-            songViewModel.getRelated((currentSong as CurrentSong.YoutubeSong).song.id)
-        }
+        songViewModel.getRelated("1")
     }
 
 
@@ -229,7 +227,7 @@ private fun SongScreenContent(
             }
 
             Text(
-                text = currentSong.getTitle(),
+                text = currentSong.getSongTitle(),
                 color = White,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
@@ -241,7 +239,7 @@ private fun SongScreenContent(
             )
 
             Text(
-                text = currentSong.getArtistName(),
+                text = currentSong.getSongArtist(),
                 color = White,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.clickable {
@@ -289,7 +287,7 @@ private fun SongScreenContent(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = currentSong.getDurationMillis().toDurationString(),
+                    text = currentSong.getDuration(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -358,13 +356,15 @@ private fun SongScreenContent(
             val list = listOf(
                 Pair(R.string.up_next) {
                     menuState.show {
-                        QueueView(
-                            queue = queue,
-                            mediaControllerManager = mediaControllerManager,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.6f)
-                        )
+                        queue?.let {
+                            QueueView(
+                                queue = it,
+                                mediaControllerManager = mediaControllerManager,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.6f)
+                            )
+                        }
                     }
                 },
                 Pair(R.string.lyrics) {
@@ -373,16 +373,11 @@ private fun SongScreenContent(
                     }
                 },
                 Pair(R.string.related) {
-                    if (queue is Queue.Youtube) {
-                        menuState.show {
-                            Related(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(0.6f),
-                                mediaControllerManager = mediaControllerManager,
-                                relatedPage = relatedPage
-                            )
-                        }
+                    menuState.show {
+                        Related(
+                            mediaControllerManager = mediaControllerManager,
+                            relatedPage = relatedPage
+                        )
                     }
                 },
             )
@@ -450,9 +445,11 @@ private fun Related(
         ) {
             item {
                 relatedPage?.songs?.let { songs ->
-                    Songs(songs = songs, modifier = Modifier.fillMaxWidth(), onClick = { song ->
-                        mediaControllerManager.playYoutubeSong(song = song)
-                    })
+                    Songs(
+                        songs = songs,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = mediaControllerManager::playYoutubeSong
+                    )
                 }
             }
         }
@@ -460,14 +457,13 @@ private fun Related(
 }
 
 @Composable
-fun BottomMenuContent(song: SongItem) {
-}
-@Composable
 fun QueueView(
-    queue: Queue?,
+    queue: Queue,
     mediaControllerManager: MediaControllerManager,
     modifier: Modifier = Modifier,
 ) {
+    val menuState = LocalMenuState.current
+
     Column(
         modifier = modifier
             .padding(12.dp),
@@ -478,36 +474,19 @@ fun QueueView(
             style = MaterialTheme.typography.titleMedium,
             color = White,
         )
-        when (queue) {
-            is Queue.Youtube -> {
-                LazyColumnWithAnimation2(
-                    items = queue.songs,
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) { itemModifier, index, item ->
-                    SongItemFromYoutube(
-                        modifier = itemModifier.background(Color.Transparent),
-                        song = item,
-                        onClick = {
-                            mediaControllerManager.playAtIndex(index)
-                        }
-                    )
-                }
-            }
-
-            is Queue.Other -> {
-                LazyColumnWithAnimation2(
-                    items = queue.songs,
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) { itemModifier, index, item ->
-                    SongItemContent(song = item, modifier = itemModifier.clickable {
+        LazyColumnWithAnimation2(modifier = modifier
+            .fillMaxWidth()
+            .weight(1f),
+            items = queue.songs,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            key = { _, item -> item.id }) { itemModifier, index, song ->
+            SongItemContent(
+                modifier = itemModifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
                         mediaControllerManager.playAtIndex(index)
-                    }, menuState = LocalMenuState.current)
-                }
-            }
-
-            null -> return
+                    })
+                }, song = song, menuState = menuState
+            )
         }
     }
 }
@@ -516,14 +495,14 @@ fun QueueView(
 @Composable
 private fun MenuPreview() {
     MusicTheme {
-        Menu(
-            song = FakeModule.provideCurrentSong()
-        )
+//        Menu(
+//            song = FakeModule.provideCurrentSong()
+//        )
     }
 }
 
 @Composable
-fun Menu(modifier: Modifier = Modifier, song: CurrentSong) {
+fun Menu(modifier: Modifier = Modifier, song: Song) {
 
     Column(
         modifier = modifier
@@ -537,7 +516,7 @@ fun Menu(modifier: Modifier = Modifier, song: CurrentSong) {
         MyListItem(
             headlineContent = {
                 Text(
-                    text = song.getTitle(),
+                    text = song.getSongTitle(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -556,7 +535,7 @@ fun Menu(modifier: Modifier = Modifier, song: CurrentSong) {
             },
             supportingContent = {
                 Text(
-                    text = song.getArtistName() + " \u2022 " + song.getDurationMillis().toDurationString(),
+                    text = song.getSongArtist() + " \u2022 " + song.getDuration(),
                     style = MaterialTheme.typography.labelMedium,
                     color = LightGray,
                     modifier = Modifier.padding(top = 4.dp)

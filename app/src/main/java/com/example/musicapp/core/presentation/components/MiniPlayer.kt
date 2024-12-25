@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -76,7 +75,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
-                    text = currentSong.getTitle(),
+                    text = currentSong.getSongTitle(),
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .basicMarquee(
@@ -87,19 +86,12 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     fontSize = 16.sp, color = White
                 )
                 Text(
-                    text = currentSong.getArtistName(),
+                    text = currentSong.getSongArtist(),
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, color = White,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
-                )
-            }
-            IconButton(onClick = { TODO("Add song to favourite") }) {
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = null,
-                    tint = White,
                 )
             }
             Icon(

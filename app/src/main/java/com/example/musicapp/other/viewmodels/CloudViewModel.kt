@@ -3,11 +3,10 @@ package com.example.musicapp.other.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicapp.constants.DEFAULT_DURATION_MILLIS
-import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.extension.load
+import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
-import com.example.musicapp.extension.load
-import com.example.musicapp.util.MediaControllerManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,8 +29,8 @@ class CloudViewModel @Inject constructor(
         .onStart { if (_songs.value.isEmpty()) loadSong() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(DEFAULT_DURATION_MILLIS), false)
 
-    private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    val songs: StateFlow<List<Song>> = _songs.asStateFlow()
+    private val _songs = MutableStateFlow<List<FirebaseSong>>(emptyList())
+    val songs: StateFlow<List<FirebaseSong>> = _songs.asStateFlow()
 
     private fun loadSong() = load(_isLoading) {
         _songs.update { cloudRepository.load() }

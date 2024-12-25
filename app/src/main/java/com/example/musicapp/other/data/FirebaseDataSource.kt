@@ -1,16 +1,13 @@
 package com.example.musicapp.other.data
 
 import android.media.MediaMetadataRetriever
-import android.provider.MediaStore.Audio
 import android.util.Log
 import androidx.core.net.toFile
-import com.example.musicapp.other.domain.model.AudioSource
-import com.example.musicapp.other.domain.model.Identifiable
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.extension.DEFAULT_COMPRESS_FORMAT
 import com.example.musicapp.extension.toByteArray
 import com.example.musicapp.helper.FileHelper
+import com.example.musicapp.other.domain.model.LocalSong
+import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.util.FirebaseKey
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
@@ -38,29 +35,20 @@ class FirebaseDataSource @Inject constructor(
 
     @Serializable
     data class ServerSong(
-        override val id: String,
-        val title: String,
-        val artist: String,
-        val songUri: String,
-        val thumbnailUri: String?,
-        val durationMillis: Long,
-    ) : Identifiable {
-        constructor() : this(
-            id = UUID.randomUUID().toString(),
-            title = "Unknown name",
-            artist = "Unknown artist",
-            songUri = "",
-            thumbnailUri = null,
-            durationMillis = 0L
-        )
-
-        constructor(id: String?, song: Song, songUri: String, imageUri: String?) : this(
+        val id: String = UUID.randomUUID().toString(),
+        val title: String = "Unknown name",
+        val artist: String = "Unknown artist",
+        val songUri: String = "",
+        val thumbnailUri: String? = null,
+        val durationMillis: Long = 0L,
+    ) {
+        constructor(id: String?, localSong: LocalSong, songUri: String, imageUri: String?) : this(
             id = id ?: UUID.randomUUID().toString(),
-            title = song.title,
-            artist = song.artist,
+            title = localSong.title,
+            artist = localSong.artist,
             songUri = songUri,
             thumbnailUri = imageUri,
-            durationMillis = song.durationMillis
+            durationMillis = localSong.durationMillis ?: 0L
         )
     }
 
@@ -68,18 +56,14 @@ class FirebaseDataSource @Inject constructor(
     private val databaseChild = database.child(FirebaseKey.SONGS)
     private val storageChild = storage.child(FirebaseKey.SONGS)
 
-    fun uploadSongs(songs: List<Song>) {
+    fun uploadSongs(localSongs: List<LocalSong>) {
         CoroutineScope(Dispatchers.IO).launch {
             val retriever = MediaMetadataRetriever()
-            val tasks = songs.mapNotNull { song ->
+            val tasks = localSongs.mapNotNull { song ->
                 try {
                     Log.d(TAG, "uploadSongs: ${song.title}")
-                    val file = when (val audioSource = song.audioSource) {
-                        is AudioSource.FromLocalFile -> audioSource.uri.toFile()
-                        is AudioSource.FromUrl -> null
-                    }
-                    if (file != null)
-                        retriever.setDataSource(file.absolutePath)
+                    val file = song.audio.toFile()
+                    retriever.setDataSource(file.absolutePath)
                     val id = FileHelper.getFileHash(file) ?: song.id
 
                     async {
@@ -109,8 +93,8 @@ class FirebaseDataSource @Inject constructor(
         }
     }
 
-    private suspend fun uploadSongToStorage(song: Song, file: File?, id: String) {
-        val thumbnailUri = when (val thumbnailSource = song.thumbnailSource) {
+    private suspend fun uploadSongToStorage(localSong: LocalSong, file: File?, id: String) {
+        val thumbnailUri = when (val thumbnailSource = localSong.thumbnailSource) {
             is ThumbnailSource.FromUrl ->
                 thumbnailSource.url
 
@@ -120,14 +104,11 @@ class FirebaseDataSource @Inject constructor(
                 .await().storage.downloadUrl.await().toString()
         }
 
-        val songUri = when (val audioSource = song.audioSource) {
-            is AudioSource.FromLocalFile -> storageChild.child("$id | ${file?.name}")
-                .putFile(audioSource.uri)
-                .await().storage.downloadUrl.await().toString()
+        val songUri = storageChild.child("$id | ${file?.name}")
+            .putFile(localSong.audio)
+            .await().storage.downloadUrl.await().toString()
 
-            is AudioSource.FromUrl -> return
-        }
-        val serverSong = ServerSong(id, song, songUri, thumbnailUri)
+        val serverSong = ServerSong(id, localSong, songUri, thumbnailUri)
         databaseChild.child(id).setValue(serverSong)
     }
 

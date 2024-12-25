@@ -9,9 +9,7 @@ import com.example.innertube.models.SongItem
 import com.example.innertube.pages.AlbumPage
 import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.ArtistSection
-import com.example.innertube.pages.PlaylistPage
-import com.example.musicapp.other.domain.model.AudioSource
-import com.example.musicapp.other.domain.model.CurrentSong
+import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.PlayList
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
@@ -21,7 +19,6 @@ import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
-import nd.phuc.cache.domain.CacheRepository
 import java.util.UUID
 
 object FakeModule {
@@ -33,31 +30,29 @@ object FakeModule {
 
     private fun provideSongRepository(): SongRepository = object : SongRepository {
 
-        override suspend fun getSongsFromPlaylist(playListId: String): List<Song> = emptyList()
+        override suspend fun getSongsFromPlaylist(playListId: String): List<LocalSong> = emptyList()
+        override suspend fun getSongByPath(path: String): LocalSong? = null
 
-        override suspend fun createPlayList(name: String) {
+        override suspend fun createPlayList(name: String) = Unit
+
+        override suspend fun savePlayList(id: String, name: String) = Unit
+
+        override suspend fun deletePlayList(id: String) = Unit
+        override suspend fun addSongsToPlaylist(playListId: String, localSongs: List<LocalSong>) =
+            Unit
+
+        override suspend fun deleteSongs(selectedSongIds: List<String>) = Unit
+
+        override suspend fun getLocalSong(): List<LocalSong> = emptyList()
+
+        override suspend fun getPlayLists(): List<PlayList> = emptyList()
+        override suspend fun likeSong(song: Song) {
+            TODO("Not yet implemented")
         }
 
-        override suspend fun savePlayList(id: String, name: String) {
-        }
+        override suspend fun unlikeSong(id: Long) = Unit
 
-        override suspend fun deletePlayList(id: String) {
-        }
-
-        override suspend fun addSongsToPlaylist(playListId: String, songs: List<Song>) {
-        }
-
-
-        override suspend fun deleteSongs(selectedSongIds: List<String>) {
-        }
-
-        override suspend fun getLocalSong(): List<Song> {
-            return emptyList()
-        }
-
-        override suspend fun getPlayLists(): List<PlayList> {
-            return emptyList()
-        }
+        override suspend fun getLikedSongs(): List<Song> = emptyList()
     }
 
 
@@ -73,20 +68,8 @@ object FakeModule {
     fun provideHomeViewModel(): HomeViewModel =
         HomeViewModel(provideSongRepository())
 
-    private fun provideCacheRepository(): CacheRepository {
-        return object : CacheRepository {
-            override suspend fun insertPlaylist(playlistPage: PlaylistPage) {
-            }
-
-            override suspend fun getPlaylist(id: String): PlaylistPage? {
-                return null
-            }
-        }
-    }
-
     @Composable
-    fun provideYoutubeViewModel(): YoutubeViewModel =
-        YoutubeViewModel(cacheRepository = provideCacheRepository())
+    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel()
 
     @Composable
     fun provideMediaControllerManager(): MediaControllerManager {
@@ -94,11 +77,11 @@ object FakeModule {
         return MediaControllerManager(context, null)
     }
 
-    fun provideSong(): Song = Song(
+    fun provideSong(): LocalSong = LocalSong(
         id = "1",
         title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
         artist = "Music Time",
-        audioSource = AudioSource.FromUrl("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
+        audio = android.net.Uri.EMPTY,
         thumbnailSource = ThumbnailSource.FromBitmap(null),
         durationMillis = (4 * 60 + 38) * 1000
     )
@@ -161,10 +144,5 @@ object FakeModule {
             explicit = false,
             endpoint = null,
         )
-    }
-
-    @Composable
-    fun provideCurrentSong(): CurrentSong {
-        return CurrentSong.OtherSong(provideSong())
     }
 }

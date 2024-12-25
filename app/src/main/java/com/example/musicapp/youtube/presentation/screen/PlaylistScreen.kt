@@ -44,7 +44,9 @@ import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.theme.LightGray
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.di.FakeModule
+import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.ThumbnailSource
+import com.example.musicapp.other.domain.model.YoutubeSong
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 
@@ -234,10 +236,10 @@ fun PlaylistContent(
                 modifier = Modifier.padding(
                     horizontal = 8.dp
                 ), song = song, onClick = {
-                    mediaControllerManager.playYoutubePlaylist(
-                        playlistId = playlist.playlist.id,
-                        songs = playlist.songs,
-                        index = index
+                    mediaControllerManager.playQueue(
+                        songs = playlist.songs.map { YoutubeSong(it) },
+                        index = index,
+                        id = Queue.YOUTUBE_PLAYLIST_ID + "/" + playlist.playlist.id
                     )
                 }
             )

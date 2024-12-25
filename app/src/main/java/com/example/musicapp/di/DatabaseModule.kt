@@ -29,5 +29,8 @@ object DatabaseModule {
     @Singleton
     fun provideAppDao(database: AppDatabase): AppDAO = database.appDAO()
 
+    @Provides
+    @Singleton
+    fun provideFavouriteSongDao(database: AppDatabase) = database.likedSongDAO()
 
 }

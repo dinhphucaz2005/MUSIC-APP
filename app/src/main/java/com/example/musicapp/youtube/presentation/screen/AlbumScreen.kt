@@ -114,11 +114,12 @@ private fun AlbumContent(albumPage: AlbumPage, mediaControllerManager: MediaCont
                 },
                 song = item,
                 onClick = {
-                    mediaControllerManager.playYoutubePlaylist(
-                        playlistId = albumPage.album.playlistId,
-                        songs = albumPage.songs,
-                        index = index
-                    )
+                    TODO()
+//                    mediaControllerManager.playYoutubePlaylist(
+//                        playlistId = albumPage.album.playlistId,
+//                        songs = albumPage.songs,
+//                        index = index
+//                    )
                 }
             )
         }

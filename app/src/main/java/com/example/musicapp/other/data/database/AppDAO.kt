@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.musicapp.other.data.database.entity.PlayListEntity
+import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import com.example.musicapp.other.data.database.entity.SongEntity
 
 @Dao
@@ -27,13 +27,13 @@ interface AppDAO {
 
     // PlayList
     @Query("SELECT * FROM playlist")
-    suspend fun getPlayLists(): List<PlayListEntity>
+    suspend fun getPlayLists(): List<PlaylistEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addPlayList(playListEntity: PlayListEntity): Long
+    suspend fun addPlayList(playListEntity: PlaylistEntity): Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updatePlayList(playListEntity: PlayListEntity)
+    suspend fun updatePlayList(playListEntity: PlaylistEntity)
 
     @Query("DELETE FROM playlist WHERE id = :id")
     suspend fun deletePlayList(id: String)
@@ -45,5 +45,5 @@ interface AppDAO {
     suspend fun getSongsByPlayListId(playlistId: String): List<SongEntity>
 
     @Query("SELECT * FROM playlist WHERE id = :id")
-    fun getPlayList(id: String): PlayListEntity?
+    fun getPlayList(id: String): PlaylistEntity?
 }

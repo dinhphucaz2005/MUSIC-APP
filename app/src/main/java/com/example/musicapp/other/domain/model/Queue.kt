@@ -1,64 +1,21 @@
 package com.example.musicapp.other.domain.model
 
-import com.example.innertube.models.BrowseEndpoint
-import com.example.innertube.models.SongItem
-import com.example.musicapp.extension.toSong
-
-sealed class Queue(
-    open val id: String = "",
-    open var index: Int = 0,
-    open val songs: List<Any> = emptyList(),
+data class Queue(
+    val id: String = "",
+    var index: Int = 0,
+    val songs: List<Song> = emptyList(),
 ) {
-
-    fun getSong(index: Int?): CurrentSong {
-        if (index == null) return CurrentSong.unidentifiedSong()
-        return when(this) {
-            is Other -> CurrentSong.OtherSong(songs.getOrNull(index) ?: Song.unidentifiedSong())
-            is Youtube -> CurrentSong.YoutubeSong(songs.getOrNull(index) ?: SongItem.unidentifiedSong())
-        }
-    }
-
-    data class Other(
-        override val id: String,
-        override var index: Int,
-        override val songs: List<Song>,
-    ) : Queue()
-
-    data class Youtube(
-        override val id: String,
-        override var index: Int,
-        override val songs: List<SongItem>,
-        val relatedEndpoint: BrowseEndpoint? = null,
-    ) : Queue()
-
     companion object {
-        const val FIREBASE_ID: String = "firebase"
-        const val LOCAL_ID = "local"
-    }
-
-    class Builder {
-        private var id = ""
-        private var otherSongs: List<Song> = emptyList()
-        private var youtubeSongs: List<SongItem> = emptyList()
-        private val relatedEndpoint: BrowseEndpoint? = null
-        private var index = 0
-
-        fun setId(id: String) = apply { this.id = id }
-
-        fun setOtherSongs(songs: List<Song>) = apply { otherSongs = songs }
-
-        fun setYoutubeSongs(songs: List<SongItem>) = apply { youtubeSongs = songs }
-
-        fun setRelatedEndpoint(relatedEndpoint: BrowseEndpoint) =
-            apply { relatedEndpoint.let { this.relatedEndpoint } }
-
-        fun setIndex(index: Int) = apply { this.index = index }
-
-        fun build(): Queue {
-            return when {
-                otherSongs.isNotEmpty() -> Other(id, index, otherSongs)
-                else -> Youtube(id, index, youtubeSongs)
-            }
-        }
+        const val LOCAL_ID = "LOCAL_ID"
+        const val FIREBASE_ID = "FIREBASE_ID"
+        const val YOUTUBE_SONG_ID = "YOUTUBE_SONG_ID"
+        const val YOUTUBE_PLAYLIST_ID = "YOUTUBE_PLAYLIST_ID"
     }
 }
+
+/*
+usage:
+    LOCAL_ID: Queue from local file
+    YOUTUBE_SONG_ID: Queue from song of youtube (example: YOUTUBE_SONG_ID + "/" + youtubeSongId)
+    YOUTUBE_PLAYLIST_ID: Queue from playlist of youtube(example: YOUTUBE_PLAYLIST_ID + "/" + playlistId)
+ */

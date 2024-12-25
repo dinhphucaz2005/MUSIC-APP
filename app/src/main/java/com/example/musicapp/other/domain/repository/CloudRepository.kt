@@ -1,10 +1,11 @@
 package com.example.musicapp.other.domain.repository
 
-import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.FirebaseSong
+import com.example.musicapp.other.domain.model.LocalSong
 
 interface CloudRepository {
 
-    suspend fun load(): List<Song>
+    suspend fun load(): List<FirebaseSong>
 
-    fun upload(songs: List<Song>)
+    fun upload(localSongs: List<LocalSong>)
 }

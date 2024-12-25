@@ -3,15 +3,13 @@ package com.example.musicapp.helper
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.core.net.toUri
-import com.example.musicapp.other.domain.model.AudioSource
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.extension.getAuthor
 import com.example.musicapp.extension.getDuration
 import com.example.musicapp.extension.getFileId
 import com.example.musicapp.extension.getImageBitmap
 import com.example.musicapp.extension.getTitle
-import kotlinx.coroutines.Deferred
+import com.example.musicapp.other.domain.model.LocalSong
+import com.example.musicapp.other.domain.model.ThumbnailSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,10 +21,11 @@ object MediaRetrieverHelper {
     private const val TAG = "MediaRetrieverHelper"
     private const val NUMBER_OF_THREADS = 6
 
-    private val hashMap = hashMapOf<String, Song>() // <Path, Song>
+    private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
     private var lastExtract = System.currentTimeMillis()
 
-    suspend fun extracts(filePaths: List<String>): List<Song> {
+
+    suspend fun extracts(filePaths: List<String>): List<LocalSong> {
         if (filePaths.isEmpty()) return emptyList()
         return withContext(Dispatchers.IO) {
             val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
@@ -38,7 +37,7 @@ object MediaRetrieverHelper {
             val jobs = chunks.map { chunk ->
                 async {
                     val retriever = MediaMetadataRetriever()
-                    val result = mutableListOf<Song>()
+                    val result = mutableListOf<LocalSong>()
 
                     // Process each file in the chunk
                     chunk.forEach { path ->
@@ -58,7 +57,8 @@ object MediaRetrieverHelper {
         }
     }
 
-    private fun extract(retriever: MediaMetadataRetriever, path: String): Song? {
+
+    fun extract(retriever: MediaMetadataRetriever, path: String): LocalSong? {
         return try {
             val file = File(path)
             if (!file.exists()) { // File not found
@@ -71,17 +71,17 @@ object MediaRetrieverHelper {
 
             retriever.setDataSource(path)
 
-            val song = Song(
+            val localSong = LocalSong(
                 id = file.getFileId(),
                 title = retriever.getTitle() ?: file.nameWithoutExtension,
                 artist = retriever.getAuthor(),
-                audioSource = AudioSource.FromLocalFile(file.toUri()),
+                audio = file.toUri(),
                 thumbnailSource = ThumbnailSource.FromBitmap(retriever.getImageBitmap()),
                 durationMillis = retriever.getDuration(),
             )
 
-            hashMap[path] = song // Save song to hashmap to avoid extract again
-            song
+            hashMap[path] = localSong // Save song to hashmap to avoid extract again
+            localSong
         } catch (e: Exception) {
             Log.e(TAG, "Error retrieving song info for path: $path", e)
             null

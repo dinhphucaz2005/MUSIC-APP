@@ -1,6 +1,6 @@
 [versions]
 
-agp = "8.5.2"
+agp = "8.7.3"
 
 accompanist-navigation-animation = "0.32.0"
 accompanist-swipe-refresh = "0.32.0"
@@ -39,7 +39,7 @@ roomCompiler = "2.6.1"
 squigglyslider = "1.0.0"
 appcompat = "1.7.0"
 material = "1.12.0"
-ksp = "2.0.10-1.0.24"
+ksp = "2.0.20-1.0.25"
 
 [libraries]
 
@@ -143,10 +143,10 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
@@ -160,10 +160,20 @@ ktor = [
     "ktor-serialization-kotlinx-json",
     "ktor-client-content-negotiation"
 ]
+
 coil = [
     "coil-compose",
     "coil-compose-core",
     "coil-network-ktor2",
     "coil-network-ktor3",
     "coil-mp"
+]
+
+media3 = [
+    "androidx-media3-ui",
+    "androidx-media3-common",
+    "androidx-media3-session",
+    "androidx-media3-exoplayer",
+    "androidx-media3-exoplayer-dash",
+    "androidx-media3-datasource-okhttp"
 ]

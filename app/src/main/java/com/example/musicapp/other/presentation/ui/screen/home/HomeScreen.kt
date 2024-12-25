@@ -60,7 +60,6 @@ import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.HomeViewModel
@@ -126,7 +125,7 @@ fun HomeScreen(
                 .height(120.dp),
             headlineContent = {
                 Text(
-                    text = currentSong.getTitle(),
+                    text = currentSong.getSongTitle(),
                     style = MaterialTheme.typography.titleLarge,
                     color = White,
                     overflow = TextOverflow.Ellipsis,
@@ -135,7 +134,7 @@ fun HomeScreen(
             },
             supportingContent = {
                 Text(
-                    text = currentSong.getArtistName(),
+                    text = currentSong.getSongArtist(),
                     style = MaterialTheme.typography.titleMedium,
                     color = White
                 )
@@ -248,12 +247,9 @@ private fun ColumnScope.HomeContent(
             modifier = itemModifier.pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     mediaControllerManager.playQueue(
-                        Queue
-                            .Builder()
-                            .setId(Queue.LOCAL_ID)
-                            .setIndex(index)
-                            .setOtherSongs(songs)
-                            .build()
+                        songs = songs,
+                        index = index,
+                        id = Queue.LOCAL_ID
                     )
                 })
             },
@@ -272,7 +268,7 @@ fun SongItemContent(
     MyListItem(
         headlineContent = {
             Text(
-                text = song.title,
+                text = song.getSongTitle(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = White,
@@ -286,12 +282,12 @@ fun SongItemContent(
                 .aspectRatio(1f)
             Thumbnail(
                 modifier = imageModifier,
-                thumbnailSource = song.thumbnailSource
+                thumbnailSource = song.getThumbnail()
             )
         },
         supportingContent = {
             Text(
-                text = "${song.artist} \u00B7 ${song.durationMillis.toDurationString()}",
+                text = "${song.getSongArtist()} \u00B7 ${song.getDuration()}",
                 color = White
             )
         },

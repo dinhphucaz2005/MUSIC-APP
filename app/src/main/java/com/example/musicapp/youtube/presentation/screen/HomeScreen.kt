@@ -122,6 +122,7 @@ fun YoutubeScreen(
                             is AlbumItem -> navController.navigate(YoutubeRoute.ALBUM + "/" + item.id)
                             is ArtistItem -> navController.navigate(YoutubeRoute.ARTIST + "/" + item.id)
                             is PlaylistItem -> navController.navigate(YoutubeRoute.PLAYLIST_DETAIL + "/" + item.id)
+
                             is SongItem -> mediaControllerManager.playYoutubeSong(item)
                         }
                     }

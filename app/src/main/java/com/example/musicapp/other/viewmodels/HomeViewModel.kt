@@ -2,7 +2,7 @@ package com.example.musicapp.other.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.musicapp.extension.load
-import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    private val _songs = MutableStateFlow<List<LocalSong>>(emptyList())
     val songs = _songs.asStateFlow()
 
 

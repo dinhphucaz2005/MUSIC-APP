@@ -15,8 +15,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import com.example.musicapp.helper.NotificationHelper
-import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.Queue
+import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @UnstableApi
 @AndroidEntryPoint
@@ -59,24 +60,33 @@ class MusicService : MediaLibraryService() {
     private val _queueFlow = MutableStateFlow<Queue?>(null)
     val queueFlow: StateFlow<Queue?> = _queueFlow.asStateFlow()
 
-    fun updateQueue(newQueue: Queue) {
+    fun updateQueue(queue: Queue) {
         serviceScope.launch {
-            _queueFlow.emit(newQueue)
+            _queueFlow.emit(queue)
         }
     }
 
-    fun updateIndex(i: Int) {
-        _queueFlow.value?.index = i
+    private val _currentSongFlow = MutableStateFlow(Song.unidentifiedSong())
+    val currentSongFlow: StateFlow<Song> = _currentSongFlow.asStateFlow()
+
+    private fun updateCurrentSong(index: Int) {
+        serviceScope.launch {
+            val song = queueFlow.value?.songs?.getOrNull(index) ?: Song.unidentifiedSong()
+            _currentSongFlow.emit(song)
+        }
     }
 
-    fun getCurrentSong(): CurrentSong? = _queueFlow.value?.getSong(index = _queueFlow.value?.index)
+    @Inject
+    lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     override fun onCreate() {
         super.onCreate()
-        player =
-            ExoPlayer.Builder(this)
-                .setMediaSourceFactory(CustomMediaSourceFactory.getInstance(this))
-                .build()
+
+        player = ExoPlayer
+            .Builder(this)
+            .setMediaSourceFactory(customMediaSourceFactory.getInstance())
+            .build()
+
         player.apply {
             playWhenReady = true
             addListener(object : Player.Listener {
@@ -100,6 +110,7 @@ class MusicService : MediaLibraryService() {
                     super.onMediaMetadataChanged(mediaMetadata)
                     updateNotification()
                     updateMusicWidget()
+                    updateCurrentSong(player.currentMediaItemIndex)
                 }
             })
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
@@ -112,6 +123,8 @@ class MusicService : MediaLibraryService() {
         notificationManager = NotificationManagerCompat.from(this)
         notificationManager.createNotificationChannel(NotificationHelper.createNotificationChannel())
     }
+
+
 
     private fun updateMusicWidget() {
         serviceScope.launch {
@@ -218,8 +231,8 @@ class MusicService : MediaLibraryService() {
 
     fun downloadCurrentSong() {
         val downloadService = Intent(this, DownloadService::class.java)
-        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())
-        downloadService.putExtra(DownloadService.FILE_NAME, getCurrentSong()?.getTitle())
+//        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())
+//        downloadService.putExtra(DownloadService.FILE_NAME, getCurrentSong()?.getTitle())
         startService(downloadService)
     }
 

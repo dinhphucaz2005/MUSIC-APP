@@ -1,7 +1,6 @@
 package com.example.musicapp.other.presentation.ui.screen.playlist
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,12 +41,12 @@ import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.LoadingScreen
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.MyTextField
 import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 
@@ -160,7 +159,7 @@ fun PlayListEdit(
 @UnstableApi
 @Composable
 fun SelectableSongItem(
-    modifier: Modifier = Modifier, song: Song, isSelected: Boolean = false,
+    modifier: Modifier = Modifier, localSong: LocalSong, isSelected: Boolean = false,
 ) {
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
@@ -170,10 +169,10 @@ fun SelectableSongItem(
             .fillMaxHeight()
             .aspectRatio(1f)
 
-        Thumbnail(thumbnailSource = song.thumbnailSource, modifier = imageModifier)
+        Thumbnail(thumbnailSource = localSong.thumbnailSource, modifier = imageModifier)
 
         Text(
-            text = song.title,
+            text = localSong.title,
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp),
