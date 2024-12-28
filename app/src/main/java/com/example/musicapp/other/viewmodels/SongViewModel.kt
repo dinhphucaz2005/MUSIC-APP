@@ -5,6 +5,8 @@ import com.example.innertube.CustomYoutube
 import com.example.innertube.models.WatchEndpoint
 import com.example.innertube.pages.RelatedPage
 import com.example.musicapp.extension.load
+import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,9 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class SongViewModel @Inject constructor() : ViewModel() {
+class SongViewModel @Inject constructor(
+    private val songRepository: SongRepository
+) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -40,4 +44,6 @@ class SongViewModel @Inject constructor() : ViewModel() {
         _relatedPage.update { relatedPage }
 
     }
+
+
 }

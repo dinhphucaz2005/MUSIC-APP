@@ -1,63 +1,59 @@
 package com.example.musicapp.other.data
 
 import com.example.musicapp.other.data.database.AppDAO
-import com.example.musicapp.other.data.database.LikedSongDAO
-import com.example.musicapp.other.data.database.entity.LikedSong
 import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import com.example.musicapp.other.data.database.entity.SongEntity
-import com.example.musicapp.other.data.database.entity.toEntity
+import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
-import java.util.UUID
+import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.YoutubeSong
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class RoomDataSource @Inject constructor(
     private val dao: AppDAO,
-    private val likedSongDAO: LikedSongDAO
 ) {
 
-    suspend fun createNewPlayList(name: String) {
-        val id = UUID.randomUUID().toString()
-        dao.addPlayList(PlaylistEntity(id, name))
-    }
+    suspend fun createPlayList(name: String) = dao.addPlayList(PlaylistEntity(name = name))
 
+    suspend fun updatePlaylist(id: Int, name: String) = dao.updatePlayList(PlaylistEntity(id, name))
 
-    suspend fun savePlayList(id: String, name: String) {
-        dao.updatePlayList(PlaylistEntity(id, name))
-    }
+    suspend fun addSongs(songs: List<Song>, playListId: Int) {
+        songs.forEach { song ->
+            val audioSource = when (song) {
+                is LocalSong -> song.uri.path
+                is FirebaseSong -> song.audioUrl
+                is YoutubeSong -> song.id
+                else -> null
+            }
+            val exists: Boolean = audioSource
+                ?.let { dao.isSongExists(it, playListId) }
+                ?.let { it > 0 } == true
 
-    suspend fun addSongsNew(localSongs: List<LocalSong>, playListId: String) {
-        localSongs.forEach { song ->
-            song.toEntity(playListId)?.let { dao.addSong(it) }
+            if (exists) return
+
+            SongEntity.create(song = song, playlistId = playListId)?.let { dao.addSong(it) }
         }
     }
 
-    suspend fun deletePlayList(id: String) = dao.deletePlayList(id)
+    suspend fun getSongsByPlaylistId(playListId: Int): List<SongEntity> =
+        dao.getSongsByPlaylistId(playListId)
 
-    suspend fun deleteSongs(selectedSongIds: List<String>) {
-        selectedSongIds.forEach { dao.deleteSong(it) }
-    }
+    suspend fun deletePlayList(id: Int) = dao.deletePlayList(id)
 
-    suspend fun getPlayList(playListId: String): List<SongEntity> {
-        return dao.getSongsByPlayListId(playListId)
+    suspend fun deleteSongs(songIds: List<String>) {
+        songIds.forEach {
+            val id = it.toIntOrNull() ?: return
+            dao.deleteSongById(id)
+        }
     }
 
     suspend fun getPlayLists(): List<PlaylistEntity> = dao.getPlayLists()
 
-    suspend fun getFavouriteSongs() = likedSongDAO.getLikedSongs()
+    suspend fun deleteSongByAudioSource(audioSource: String, playListId: Int) =
+        dao.deleteSongByAudioSource(audioSource, playListId)
 
-
-    suspend fun deleteLikedSong(likedSong: LikedSong) =
-        likedSongDAO.deleteLikedSong(likedSong)
-
-    suspend fun getLikedSongById(id: String) = likedSongDAO.getLikedSongById(id)
-
-    suspend fun addLikedSong(likedSong: LikedSong) =
-        likedSongDAO.addLikedSong(likedSong)
-
-    suspend fun deleteLikedSongById(id: Long) {
-        likedSongDAO.deleteLikedSongById(id)
-    }
+    suspend fun deleteSongById(id: Int) = dao.deleteSongById(id)
 
 }

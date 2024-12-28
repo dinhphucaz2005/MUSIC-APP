@@ -10,6 +10,7 @@ data class Queue(
         const val FIREBASE_ID = "FIREBASE_ID"
         const val YOUTUBE_SONG_ID = "YOUTUBE_SONG_ID"
         const val YOUTUBE_PLAYLIST_ID = "YOUTUBE_PLAYLIST_ID"
+        const val SAVED_PLAYLIST_ID = "SAVED_PLAYLIST_ID"
     }
 }
 
@@ -18,4 +19,5 @@ usage:
     LOCAL_ID: Queue from local file
     YOUTUBE_SONG_ID: Queue from song of youtube (example: YOUTUBE_SONG_ID + "/" + youtubeSongId)
     YOUTUBE_PLAYLIST_ID: Queue from playlist of youtube(example: YOUTUBE_PLAYLIST_ID + "/" + playlistId)
+    SAVED_PLAYLIST_ID: Queue from playlist of app(example: SAVED_PLAYLIST_ID + "/" + playlistId)
  */

@@ -1,12 +1,9 @@
 package com.example.musicapp.other.data
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import com.example.musicapp.helper.MediaRetrieverHelper
 import com.example.musicapp.other.domain.model.LocalSong
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,16 +34,7 @@ class LocalDataSource @Inject constructor() {
         return MediaRetrieverHelper.extracts(paths)
     }
 
-    suspend fun getSongByPath(context: Context, path: String): LocalSong? =
-        withContext(Dispatchers.IO) {
-            val retriever = MediaMetadataRetriever()
-            try {
-                MediaRetrieverHelper.extract(retriever, path)
-            } catch (e: Exception) {
-                null
-            } finally {
-                retriever.release()
-            }
-        }
+    fun getSongByPath(path: String): LocalSong? =
+        MediaRetrieverHelper.get(path)
 
 }

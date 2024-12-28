@@ -1,18 +1,18 @@
 package com.example.musicapp.other.data.repository
 
 import android.content.Context
-import com.example.musicapp.extension.getFileId
+import android.media.MediaMetadataRetriever
 import com.example.musicapp.other.data.LocalDataSource
 import com.example.musicapp.other.data.RoomDataSource
-import com.example.musicapp.other.data.database.entity.LikedSong
+import com.example.musicapp.other.data.database.entity.PlaylistEntity
+import com.example.musicapp.other.data.database.entity.SongEntity
 import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.PlayList
+import com.example.musicapp.other.domain.model.Playlist
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.other.domain.model.YoutubeSong
 import com.example.musicapp.other.domain.repository.SongRepository
-import java.io.File
 import javax.inject.Inject
 
 class SongRepositoryImpl @Inject constructor(
@@ -21,78 +21,86 @@ class SongRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource
 ) : SongRepository {
 
-
-    override suspend fun getSongsFromPlaylist(playListId: String): List<LocalSong> {
-        val localSong = localDataSource.get(context)
-        return roomDataSource.getPlayList(playListId).mapNotNull {
-            val file = File(it.path)
-            if (file.exists()) {
-                localSong.find { song -> song.id == file.getFileId() }?.copy(id = it.id)
-            } else null
-        }
-    }
-
-    override suspend fun createPlayList(name: String) {
-        roomDataSource.createNewPlayList(name)
-    }
-
-    override suspend fun savePlayList(id: String, name: String) {
-        roomDataSource.savePlayList(id, name)
-    }
-
-    override suspend fun deletePlayList(id: String) = roomDataSource.deletePlayList(id)
-
-
-    override suspend fun addSongsToPlaylist(playListId: String, localSongs: List<LocalSong>) {
-        roomDataSource.addSongsNew(localSongs, playListId)
-    }
-
-    override suspend fun deleteSongs(selectedSongIds: List<String>) =
-        roomDataSource.deleteSongs(selectedSongIds)
-
-    override suspend fun getLocalSong(): List<LocalSong> = localDataSource.get(context)
-
-    override suspend fun getSongByPath(path: String): LocalSong? =
-        localDataSource.getSongByPath(context, path)
-
-
-    override suspend fun getPlayLists(): List<PlayList> = roomDataSource.getPlayLists().map {
-        PlayList(id = it.id, name = it.name)
-    }
-
-    override suspend fun likeSong(song: Song) {
-        roomDataSource.addLikedSong(song.toLikedSong())
-    }
-
-    override suspend fun unlikeSong(id: Long) {
-        roomDataSource.deleteLikedSongById(id)
-    }
-
-    override suspend fun getLikedSongs(): List<Song> {
-        return roomDataSource.getFavouriteSongs().mapNotNull {
+    override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> {
+        val retriever = MediaMetadataRetriever()
+        val isLikedPlaylist = (playlistId == PlaylistEntity.LIKED_PLAYLIST_ID)
+        val songs = roomDataSource.getSongsByPlaylistId(playlistId).mapNotNull {
             when (it.type) {
+                SongEntity.LOCAL_SONG -> localDataSource.getSongByPath(path = it.audioSource)
+                    ?.copy(isLiked = isLikedPlaylist, id = it.id.toString())
 
-                LikedSong.LOCAL -> getSongByPath(it.audioSource)?.copy(id = it.id.toString())
-
-                LikedSong.FIREBASE -> FirebaseSong(
+                SongEntity.FIREBASE_SONG -> FirebaseSong(
                     id = it.id.toString(),
                     title = it.title ?: "Unknown",
-                    artist = it.artist ?: "Unknown",
+                    artist = it.artists?.get(0)?.name ?: "Unknown",
+                    audioUrl = it.audioSource,
                     thumbnailSource = ThumbnailSource.FromUrl(it.thumbnail),
                     durationMillis = it.durationMillis,
-                    audioUrl = it.audioSource
+                    isLiked = isLikedPlaylist
                 )
 
-//                LikedSong.YOUTUBE -> YoutubeSong(
-//                    id = it.id.toString(),
-//                    title = it.title ?: "Unknown",
-//                    artists = emptyList(),
-//                    thumbnail = it.thumbnail ?: "",
-//                    duration = it.durationMillis ?: 0
-//                )
+                SongEntity.YOUTUBE_SONG -> YoutubeSong(
+                    id = it.id.toString(),
+                    mediaId = it.audioSource,
+                    title = it.title ?: "Unknown",
+                    artists = it.artists ?: emptyList(),
+                    thumbnail = it.thumbnail ?: "",
+                    durationMillis = it.durationMillis,
+                    isLiked = isLikedPlaylist
+                )
 
                 else -> null
             }
         }
+        retriever.release()
+        return songs
     }
+
+    override suspend fun createPlayList(name: String) {
+        roomDataSource.createPlayList(name)
+    }
+
+    override suspend fun updatePlaylist(playlistId: Int, name: String) {
+        roomDataSource.updatePlaylist(playlistId, name)
+    }
+
+    override suspend fun deletePlayList(id: Int) = roomDataSource.deletePlayList(id)
+
+    override suspend fun addSongsToPlaylist(playListId: Int, localSongs: List<Song>) {
+        roomDataSource.addSongs(localSongs, playListId)
+    }
+
+    override suspend fun deleteSongs(songIds: List<String>) {
+        roomDataSource.deleteSongs(songIds)
+    }
+
+    override suspend fun getLocalSong(): List<LocalSong> {
+        val likedSongs = roomDataSource.getSongsByPlaylistId(PlaylistEntity.LIKED_PLAYLIST_ID)
+        val localSongs = localDataSource.get(context)
+        for (song in localSongs) {
+            if (likedSongs.any { it.audioSource == song.uri.path }) song.isLiked = true
+        }
+        return localSongs
+    }
+
+    override suspend fun getPlayLists(): List<Playlist> {
+        return roomDataSource.getPlayLists().mapNotNull {
+            if (it.id == null) null
+            else Playlist(id = it.id, name = it.name)
+        }
+    }
+
+    override suspend fun likeSong(song: Song) =
+        roomDataSource.addSongs(listOf(song), PlaylistEntity.LIKED_PLAYLIST_ID)
+
+    override suspend fun unlikeSong(song: Song) {
+        val audioSource = when (song) {
+            is LocalSong -> song.uri.path
+            is FirebaseSong -> song.audioUrl
+            is YoutubeSong -> song.mediaId
+            else -> null
+        } ?: return
+        roomDataSource.deleteSongByAudioSource(audioSource, PlaylistEntity.LIKED_PLAYLIST_ID)
+    }
+
 }

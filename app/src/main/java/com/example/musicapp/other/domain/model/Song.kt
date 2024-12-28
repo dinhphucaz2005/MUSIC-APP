@@ -9,12 +9,14 @@ import com.example.innertube.models.Artist
 import com.example.innertube.models.SongItem
 import com.example.musicapp.extension.toArtistString
 import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.other.data.database.entity.LikedSong
 import java.util.UUID
 
 abstract class Song(
-    open val id: String = UUID.randomUUID().toString()
 ) {
+
+    abstract val id: String
+
+    abstract var isLiked: Boolean
 
     abstract fun getSongTitle(): String
 
@@ -28,22 +30,22 @@ abstract class Song(
 
     abstract fun getArtistId(): String?
 
-    abstract fun toLikedSong(): LikedSong
-
     companion object {
+
         fun unidentifiedSong(id: String = UUID.randomUUID().toString()): Song {
-            return object : Song(id) {
+            return object : Song() {
+
+                override fun getAudio(): Uri {
+                    return Uri.EMPTY
+                }
+
                 override fun getArtistId(): String? {
                     return null
                 }
 
-                override fun toLikedSong(): LikedSong {
-                    return LikedSong(
-                        audioSource = "",
-                        thumbnail = "",
-                        type = LikedSong.UNKNOWN
-                    )
-                }
+                override val id: String = id
+
+                override var isLiked: Boolean = false
 
                 override fun getSongTitle(): String = "No song is playing"
 
@@ -68,16 +70,20 @@ abstract class Song(
         }
     }
 
+    abstract fun getAudio(): Uri
 }
 
 data class LocalSong(
     override val id: String,
     val title: String,
     val artist: String,
-    val audio: Uri,
+    val uri: Uri,
     val thumbnailSource: ThumbnailSource,
-    val durationMillis: Long?
+    val durationMillis: Long?,
+    override var isLiked: Boolean = false
 ) : Song() {
+
+    override fun getAudio(): Uri = this.uri
 
     override fun getSongTitle(): String = this.title
 
@@ -88,7 +94,7 @@ data class LocalSong(
     override fun getDuration(): String = this.durationMillis.toDurationString()
 
     override fun toMediaItem(): MediaItem = MediaItem.Builder().apply {
-        setUri(audio)
+        setUri(uri)
         setMediaMetadata(
             MediaMetadata.Builder().apply {
                 setTitle(title)
@@ -107,11 +113,6 @@ data class LocalSong(
         return null
     }
 
-    override fun toLikedSong(): LikedSong = LikedSong(
-        audioSource = audio.path ?: "",
-        type = LikedSong.LOCAL
-    )
-
 }
 
 data class FirebaseSong(
@@ -120,8 +121,11 @@ data class FirebaseSong(
     val artist: String,
     val audioUrl: String,
     val thumbnailSource: ThumbnailSource,
-    val durationMillis: Long?
+    val durationMillis: Long?,
+    override var isLiked: Boolean = false
 ) : Song() {
+
+    override fun getAudio(): Uri = this.audioUrl.toUri()
 
     override fun getSongTitle(): String = this.title
 
@@ -151,29 +155,28 @@ data class FirebaseSong(
         return null
     }
 
-    override fun toLikedSong(): LikedSong = LikedSong(
-        audioSource = audioUrl,
-        thumbnail = if (thumbnailSource is ThumbnailSource.FromUrl) thumbnailSource.url else null,
-        type = LikedSong.FIREBASE
-    )
-
 }
 
 data class YoutubeSong(
     override val id: String,
+    val mediaId: String,
     val title: String,
     val artists: List<Artist>,
     val thumbnail: String,
-    val durationMillis: Long?
+    val durationMillis: Long?,
+    override var isLiked: Boolean = false
 ) : Song() {
 
     constructor(songItem: SongItem) : this(
         id = songItem.id,
+        mediaId = songItem.id,
         title = songItem.title,
         artists = songItem.artists,
         thumbnail = songItem.thumbnail,
         durationMillis = songItem.duration?.times(1000L)
     )
+
+    override fun getAudio(): Uri = this.mediaId.toUri()
 
     override fun getSongTitle(): String = this.title
 
@@ -198,8 +201,8 @@ data class YoutubeSong(
          *
          * @see [com.example.musicapp.service.CustomMediaSourceFactory.createDataSourceFactory] Go to the function that retrieves the song URL using the provided ID.
          */
-        setCustomCacheKey(id)
-        setUri(id)
+        setCustomCacheKey(mediaId)
+        setUri(mediaId)
         setMediaMetadata(
             MediaMetadata.Builder().apply {
                 setTitle(getSongTitle())
@@ -213,10 +216,5 @@ data class YoutubeSong(
         return this.artists.firstOrNull()?.id
     }
 
-    override fun toLikedSong(): LikedSong = LikedSong(
-        audioSource = id,
-        thumbnail = thumbnail,
-        type = LikedSong.YOUTUBE
-    )
 
 }

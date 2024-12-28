@@ -53,6 +53,10 @@
     <string name="related">RELATED</string>
     <string name="download">Download</string>
     <string name="exo_download_notification_channel_name">Exo Download Notification Channel Name</string>
+    <string name="favourite_songs">Favourite Songs</string>
+    <string name="saved_playlist">Saved Playlists</string>
+    <string name="add_to_next">Add to next</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
 
     <plurals name="n_song">
         <item quantity="one">%d song</item>

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -33,11 +35,16 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.core.presentation.theme.DarkGray
 import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 
 
 @Composable
-fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerManager) {
+fun MiniPlayer(
+    state: BottomSheetState,
+    mediaControllerManager: MediaControllerManager,
+    songViewModel: SongViewModel
+) {
 
     val currentSong by mediaControllerManager.currentSong.collectAsState()
 
@@ -94,6 +101,16 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                     maxLines = 1
                 )
             }
+
+            IconButton(onClick = {
+                mediaControllerManager.toggleLikedSong(currentSong)
+            }) {
+                Icon(
+                    imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = null, tint = White
+                )
+            }
+
             Icon(
                 painter = painterResource(playBackState.playerState.resource),
                 contentDescription = null,
@@ -105,6 +122,7 @@ fun MiniPlayer(state: BottomSheetState, mediaControllerManager: MediaControllerM
                         mediaControllerManager.togglePlayPause()
                     }, tint = White
             )
+
             IconButton(onClick = { mediaControllerManager.playNextSong() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

@@ -33,7 +33,7 @@ inline fun <T> LazyColumnWithAnimation2(
         state = state,
         verticalArrangement = verticalArrangement
     ) {
-        itemsIndexed(items = items, key = { index, item -> key?.invoke(index, item) ?: item.hashCode() }) { index, item ->
+        itemsIndexed(items = items, key = key) { index, item ->
             val offsetX = remember { Animatable(initialOffsetX) }
 
             LaunchedEffect(item) {

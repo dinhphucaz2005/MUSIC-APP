@@ -12,18 +12,20 @@ import com.example.musicapp.other.data.database.entity.SongEntity
 interface AppDAO {
 
     // Song
-    @Query("SELECT * FROM song")
-    suspend fun getSongs(): List<SongEntity>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addSong(songEntity: SongEntity): Long
 
-    @Query("DELETE FROM song WHERE id = :id")
-    suspend fun deleteSong(id: String)
+    @Query("SELECT COUNT(*) FROM song WHERE audioSource = :audioSource AND playlist_id = :playlist")
+    suspend fun isSongExists(audioSource: String, playlist: Int): Int
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateSong(songEntity: SongEntity)
 
+    @Query("SELECT * FROM song WHERE playlist_id = :playlistId")
+    suspend fun getSongsByPlaylistId(playlistId: Int): List<SongEntity>
+
+    @Query("DELETE FROM song WHERE playlist_id = :playlistId")
+    suspend fun deleteSongByPlaylistId(playlistId: Int)
 
     // PlayList
     @Query("SELECT * FROM playlist")
@@ -36,14 +38,13 @@ interface AppDAO {
     suspend fun updatePlayList(playListEntity: PlaylistEntity)
 
     @Query("DELETE FROM playlist WHERE id = :id")
-    suspend fun deletePlayList(id: String)
+    suspend fun deletePlayList(id: Int)
 
-    @Query("DELETE FROM song WHERE playlist_id = :playlistId")
-    suspend fun deleteSongByPlaylistId(playlistId: Long)
+    @Query("DELETE FROM song WHERE audioSource = :audioSource AND playlist_id = :playlistId")
+    suspend fun deleteSongByAudioSource(audioSource: String, playlistId: Int)
 
-    @Query("SELECT * FROM song WHERE playlist_id = :playlistId")
-    suspend fun getSongsByPlayListId(playlistId: String): List<SongEntity>
+    @Query("DELETE FROM song WHERE id = :id")
+    suspend fun deleteSongById(id: Int)
 
-    @Query("SELECT * FROM playlist WHERE id = :id")
-    fun getPlayList(id: String): PlaylistEntity?
+
 }

@@ -10,7 +10,7 @@ import com.example.innertube.pages.AlbumPage
 import com.example.innertube.pages.ArtistPage
 import com.example.innertube.pages.ArtistSection
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.PlayList
+import com.example.musicapp.other.domain.model.Playlist
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.other.domain.repository.SongRepository
@@ -20,39 +20,33 @@ import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import java.util.UUID
+import kotlin.random.Random
 
 object FakeModule {
 
-    val playlist = PlayList(
-        id = UUID.randomUUID().toString(),
-        name = "UNNAMED"
-    )
 
     private fun provideSongRepository(): SongRepository = object : SongRepository {
 
-        override suspend fun getSongsFromPlaylist(playListId: String): List<LocalSong> = emptyList()
-        override suspend fun getSongByPath(path: String): LocalSong? = null
+        override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> = emptyList()
 
         override suspend fun createPlayList(name: String) = Unit
 
-        override suspend fun savePlayList(id: String, name: String) = Unit
+        override suspend fun updatePlaylist(playlistId: Int, name: String) = Unit
 
-        override suspend fun deletePlayList(id: String) = Unit
-        override suspend fun addSongsToPlaylist(playListId: String, localSongs: List<LocalSong>) =
-            Unit
+        override suspend fun deletePlayList(id: Int) = Unit
 
-        override suspend fun deleteSongs(selectedSongIds: List<String>) = Unit
+        override suspend fun addSongsToPlaylist(playListId: Int, localSongs: List<Song>) = Unit
+
+        override suspend fun deleteSongs(songIds: List<String>) = Unit
 
         override suspend fun getLocalSong(): List<LocalSong> = emptyList()
 
-        override suspend fun getPlayLists(): List<PlayList> = emptyList()
-        override suspend fun likeSong(song: Song) {
-            TODO("Not yet implemented")
-        }
+        override suspend fun getPlayLists(): List<Playlist> = emptyList()
 
-        override suspend fun unlikeSong(id: Long) = Unit
+        override suspend fun likeSong(song: Song) = Unit
 
-        override suspend fun getLikedSongs(): List<Song> = emptyList()
+        override suspend fun unlikeSong(song: Song) = Unit
+
     }
 
 
@@ -62,7 +56,7 @@ object FakeModule {
 
     @Composable
     fun provideSongViewModel(): SongViewModel =
-        SongViewModel()
+        SongViewModel(provideSongRepository())
 
     @Composable
     fun provideHomeViewModel(): HomeViewModel =
@@ -77,11 +71,11 @@ object FakeModule {
         return MediaControllerManager(context, null)
     }
 
-    fun provideSong(): LocalSong = LocalSong(
+    fun provideLocalSong(): LocalSong = LocalSong(
         id = "1",
         title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
         artist = "Music Time",
-        audio = android.net.Uri.EMPTY,
+        uri = android.net.Uri.EMPTY,
         thumbnailSource = ThumbnailSource.FromBitmap(null),
         durationMillis = (4 * 60 + 38) * 1000
     )
@@ -143,6 +137,14 @@ object FakeModule {
             thumbnail = "",
             explicit = false,
             endpoint = null,
+        )
+    }
+
+    fun providePlaylist(): Playlist {
+        return Playlist(
+            id = Random.nextInt(),
+            name = "Nhạc Mix Gây Nghiện 2019",
+            songs = List(20) { Song.unidentifiedSong() }
         )
     }
 }

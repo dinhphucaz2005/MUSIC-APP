@@ -73,6 +73,7 @@ import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNaviga
 import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
+import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.util.MediaControllerManager
@@ -179,6 +180,7 @@ private fun App(
 
 
     val playListViewModel = hiltViewModel<PlaylistViewModel>()
+    val songViewModel = hiltViewModel<SongViewModel>()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -233,6 +235,7 @@ private fun App(
                 .align(Alignment.BottomCenter)
                 .wrapContentHeight(),
             navController = navController,
+            songViewModel = songViewModel
         )
 
         MainNavigationBar(

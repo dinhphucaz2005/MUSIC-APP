@@ -6,10 +6,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.musicapp.constants.Screens
 import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistRoute.PLAYLIST_ID
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import com.example.musicapp.constants.Screens
 
 fun NavGraphBuilder.playlistNavigation(
     navController: NavHostController,
@@ -23,20 +23,28 @@ fun NavGraphBuilder.playlistNavigation(
         composable(
             route = PlaylistRoute.DETAIL + "/{$PLAYLIST_ID}",
             arguments = listOf(navArgument(PLAYLIST_ID) {
-                type = NavType.StringType
+                type = NavType.IntType
             })
         ) { navBackStackEntry ->
-            val playlistId = navBackStackEntry.arguments?.getString(PLAYLIST_ID)
+            val playlistId = navBackStackEntry.arguments?.getInt(PLAYLIST_ID)
+            if (playlistId == null) {
+                navController.popBackStack()
+                return@composable
+            }
             PlayListDetail(playlistId, navController, playlistViewModel)
         }
         composable(
             route = PlaylistRoute.EDIT + "/{$PLAYLIST_ID}",
             arguments = listOf(navArgument(PLAYLIST_ID) {
-                type = NavType.StringType
+                type = NavType.IntType
             })
         ) { navBackStackEntry ->
-            val playlistId = navBackStackEntry.arguments?.getString(PLAYLIST_ID)
-            PlayListEdit(playlistId ?: "", navController, playlistViewModel, homeViewModel)
+            val playlistId = navBackStackEntry.arguments?.getInt(PLAYLIST_ID)
+            if (playlistId == null) {
+                navController.popBackStack()
+                return@composable
+            }
+            PlayListEdit(playlistId, navController, playlistViewModel, homeViewModel)
         }
     }
 }

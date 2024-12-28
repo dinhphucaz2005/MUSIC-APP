@@ -12,6 +12,7 @@ import com.example.innertube.models.SongItem
 import com.example.innertube.models.WatchEndpoint
 import com.example.musicapp.constants.LoopMode
 import com.example.musicapp.constants.PlayerState
+import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
@@ -64,6 +65,11 @@ class MediaControllerManager(
             }
         }, MoreExecutors.directExecutor())
         withController {
+
+            if (repeatMode == Player.REPEAT_MODE_OFF) {
+                repeatMode = Player.REPEAT_MODE_ALL
+            }
+
             _playBackState.update { PlayBackState(
                 PlayerState.fromBoolean(isPlaying),
                 LoopMode.fromInt(repeatMode, shuffleModeEnabled)
@@ -94,7 +100,7 @@ class MediaControllerManager(
 
 
     fun updatePlayListState() = withController {
-        _playBackState.update { it.updateLoopMode() }
+        _playBackState.value = _playBackState.value.updateLoopMode()
 //         Update controller with new loop mode
         when (_playBackState.value.loopMode) {
             LoopMode.SHUFFLE -> {
@@ -126,11 +132,6 @@ class MediaControllerManager(
         if (duration == 0L) 0f else currentPosition.toFloat() / duration
     }
 
-    private fun adjustPlaybackByOffset(offsetMillis: Long) = withController {
-        val newPosition = (currentPosition + offsetMillis).coerceIn(0L, duration)
-        seekTo(newPosition)
-    }
-
     fun getCurrentTrackPosition(): Long? = withController { currentPosition }
 
     fun playAtIndex(index: Int) = withController {
@@ -149,14 +150,6 @@ class MediaControllerManager(
         }
     }
 
-    fun fastForwardTrack() {
-        adjustPlaybackByOffset(5000L)
-    }
-
-    fun rewindTrack() {
-        adjustPlaybackByOffset(-5000L)
-    }
-
     fun playYoutubeSong(song: SongItem) {
         CoroutineScope(Dispatchers.IO).launch {
             val response = runBlocking(Dispatchers.IO) {
@@ -167,7 +160,7 @@ class MediaControllerManager(
                 .getOrNull()
                 ?.items ?: emptyList()
 
-            CoroutineScope(Dispatchers.Main).launch {
+            withMainContext {
                 playQueue(
                     songs = songs.map { YoutubeSong(it) },
                     index = 0,
@@ -198,5 +191,19 @@ class MediaControllerManager(
     fun downLoadCurrentSong() {
         binder?.service?.downloadCurrentSong()
     }
+
+    fun toggleLikedSong(song: Song) {
+        binder?.service?.toggleLikedSong(song)
+    }
+
+    fun addToNext(song: Song) {
+        binder?.service?.addToNext(song)
+    }
+
+    fun addToQueue(song: Song) {
+        binder?.service?.addToQueue(song)
+    }
+
+    fun getCurrentMediaItem(): Int? = withController { currentMediaItemIndex }
 
 }

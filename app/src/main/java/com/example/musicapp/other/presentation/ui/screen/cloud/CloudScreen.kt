@@ -10,12 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicapp.LocalMediaControllerManager
-import com.example.musicapp.LocalMenuState
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.LoadingScreen
 import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.viewmodels.CloudViewModel
+import com.example.musicapp.song.SongItemContent
 
 @Composable
 fun CloudScreen(viewModel: CloudViewModel = hiltViewModel()) {
@@ -24,12 +23,10 @@ fun CloudScreen(viewModel: CloudViewModel = hiltViewModel()) {
 
     val songs by viewModel.songs.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
     if (isLoading) {
         LoadingScreen()
     } else {
-
-        val menuState = LocalMenuState.current
-
         LazyColumnWithAnimation2(
             modifier = Modifier.fillMaxSize(),
             items = songs,
@@ -41,8 +38,9 @@ fun CloudScreen(viewModel: CloudViewModel = hiltViewModel()) {
                     mediaControllerManager.playQueue(songs = songs, index = index, id = Queue.FIREBASE_ID)
                 }),
                 song = item,
-                menuState = menuState
-            )
+            ) {
+
+            }
         }
     }
 }

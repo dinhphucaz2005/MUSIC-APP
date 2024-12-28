@@ -24,7 +24,6 @@ object MediaRetrieverHelper {
     private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
     private var lastExtract = System.currentTimeMillis()
 
-
     suspend fun extracts(filePaths: List<String>): List<LocalSong> {
         if (filePaths.isEmpty()) return emptyList()
         return withContext(Dispatchers.IO) {
@@ -58,7 +57,7 @@ object MediaRetrieverHelper {
     }
 
 
-    fun extract(retriever: MediaMetadataRetriever, path: String): LocalSong? {
+    private fun extract(retriever: MediaMetadataRetriever, path: String): LocalSong? {
         return try {
             val file = File(path)
             if (!file.exists()) { // File not found
@@ -75,7 +74,7 @@ object MediaRetrieverHelper {
                 id = file.getFileId(),
                 title = retriever.getTitle() ?: file.nameWithoutExtension,
                 artist = retriever.getAuthor(),
-                audio = file.toUri(),
+                uri = file.toUri(),
                 thumbnailSource = ThumbnailSource.FromBitmap(retriever.getImageBitmap()),
                 durationMillis = retriever.getDuration(),
             )
@@ -86,6 +85,10 @@ object MediaRetrieverHelper {
             Log.e(TAG, "Error retrieving song info for path: $path", e)
             null
         }
+    }
+
+    fun get(path: String): LocalSong? {
+        return hashMap[path]
     }
 }
 

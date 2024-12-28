@@ -7,7 +7,6 @@ import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,11 +23,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -40,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -78,23 +77,21 @@ import com.example.musicapp.core.presentation.theme.Primary
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
+import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.presentation.ui.screen.home.SongItemContent
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeRoute
 import com.example.musicapp.youtube.presentation.screen.Songs
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun BottomSheetPlayer(
     state: BottomSheetState,
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    songViewModel: SongViewModel
 ) {
 
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
@@ -104,12 +101,12 @@ fun BottomSheetPlayer(
         modifier = modifier,
         backgroundColor = MaterialTheme.colorScheme.background,
         onDismiss = { },
-        collapsedContent = { MiniPlayer(state, mediaControllerManager) }
+        collapsedContent = { MiniPlayer(state, mediaControllerManager, songViewModel) }
     ) {
         SongScreenContent(
             state = state,
             mediaControllerManager = mediaControllerManager,
-            songViewModel = hiltViewModel<SongViewModel>(),
+            songViewModel = songViewModel,
             navController = navController
         )
     }
@@ -171,7 +168,7 @@ private fun SongScreenContent(
 
     LaunchedEffect(pause) {
         if (!pause) while (true) {
-            CoroutineScope(Dispatchers.Main).launch {
+            withMainContext {
                 sliderPosition = mediaControllerManager.computePlaybackFraction() ?: 0f
                 current = mediaControllerManager.getCurrentTrackPosition().toDurationString()
             }
@@ -218,12 +215,9 @@ private fun SongScreenContent(
 
                 Spacer(Modifier.weight(1f))
 
-                CommonIcon(icon = R.drawable.ic_edit, onClick = {
-                    mediaControllerManager.downLoadCurrentSong()
-//                    menuState.show {
-//                        Menu(song = currentSong)
-//                    }
-                })
+                CommonIcon(
+                    icon = R.drawable.ic_edit, onClick = mediaControllerManager::downLoadCurrentSong
+                )
             }
 
             Text(
@@ -255,13 +249,17 @@ private fun SongScreenContent(
                 }
             )
 
-            Thumbnail(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(DefaultCornerSize))
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                thumbnailSource = currentSong.getThumbnail()
-            )
+            AnimatedBorder {
+                Thumbnail(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(DefaultCornerSize))
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                    thumbnailSource = currentSong.getThumbnail(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
 
             CustomSlider(
                 modifier = Modifier.fillMaxWidth(),
@@ -462,44 +460,49 @@ fun QueueView(
     mediaControllerManager: MediaControllerManager,
     modifier: Modifier = Modifier,
 ) {
-    val menuState = LocalMenuState.current
+    val menu = LocalMenuState.current
+    val currentIndex = mediaControllerManager.getCurrentMediaItem() ?: 0
+    val state = rememberLazyListState()
+
+    LaunchedEffect(currentIndex) {
+        state.scrollToItem(currentIndex)
+    }
+
 
     Column(
         modifier = modifier
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+
         Text(
             text = "Queue",
             style = MaterialTheme.typography.titleMedium,
             color = White,
         )
-        LazyColumnWithAnimation2(modifier = modifier
-            .fillMaxWidth()
-            .weight(1f),
+
+        LazyColumnWithAnimation2(
+            modifier = modifier
+                .fillMaxWidth()
+                .weight(1f),
             items = queue.songs,
+            state = state,
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            key = { _, item -> item.id }) { itemModifier, index, song ->
+            key = { _, item -> item.id }
+        ) { itemModifier, index, song ->
             SongItemContent(
-                modifier = itemModifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
+                song = song,
+                modifier = itemModifier.clickable(onClick = {
                         mediaControllerManager.playAtIndex(index)
                     })
-                }, song = song, menuState = menuState
-            )
+            ) {
+                menu.show { Menu(song = song) }
+            }
         }
+
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000)
-@Composable
-private fun MenuPreview() {
-    MusicTheme {
-//        Menu(
-//            song = FakeModule.provideCurrentSong()
-//        )
-    }
-}
 
 @Composable
 fun Menu(modifier: Modifier = Modifier, song: Song) {

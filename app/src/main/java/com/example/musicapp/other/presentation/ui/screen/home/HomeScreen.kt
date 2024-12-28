@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,9 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,28 +42,33 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
-import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
-import com.example.musicapp.core.presentation.components.MenuState
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
+import com.example.musicapp.core.presentation.theme.Black
+import com.example.musicapp.core.presentation.theme.DarkGray
+import com.example.musicapp.core.presentation.theme.LightGray
 import com.example.musicapp.core.presentation.theme.MusicTheme
 import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
+import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.HomeViewModel
+import com.example.musicapp.song.MiniSongItemContent
+import com.example.musicapp.song.SongItemContent
 import com.example.musicapp.util.MediaControllerManager
 
 @ExperimentalMaterial3Api
@@ -235,6 +241,7 @@ private fun ColumnScope.HomeContent(
     songs: List<Song>,
 ) {
     val menuState = LocalMenuState.current
+
     LazyColumnWithAnimation2(
         modifier = modifier
             .fillMaxWidth()
@@ -252,94 +259,80 @@ private fun ColumnScope.HomeContent(
                         id = Queue.LOCAL_ID
                     )
                 })
-            },
-            song = song,
-            menuState = menuState
-        )
-    }
-
-
-}
-
-@Composable
-fun SongItemContent(
-    modifier: Modifier = Modifier, song: Song, menuState: MenuState
-) {
-    MyListItem(
-        headlineContent = {
-            Text(
-                text = song.getSongTitle(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = White,
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp)
-            )
-        },
-        leadingContent = {
-            val imageModifier = Modifier
-                .clip(RoundedCornerShape(DefaultCornerSize))
-                .fillMaxHeight()
-                .aspectRatio(1f)
-            Thumbnail(
-                modifier = imageModifier,
-                thumbnailSource = song.getThumbnail()
-            )
-        },
-        supportingContent = {
-            Text(
-                text = "${song.getSongArtist()} \u00B7 ${song.getDuration()}",
-                color = White
-            )
-        },
-        trailingContent = {
-            IconButton(onClick = {
-                menuState.show {
-                    HomeScreenMenuContent()
+            }, song = song
+        ) {
+            menuState.show {
+                if (song is LocalSong) {
+                    HomeScreenMoreChoiceContent(song, { menuState.dismiss() })
                 }
-            }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert, contentDescription = null,
-                    tint = White,
-                )
             }
-        },
-        modifier = modifier
-            .height(SongItemHeight)
-            .fillMaxWidth()
-    )
+        }
+    }
 }
 
 @Preview
 @Composable
-private fun HomeScreenMenuContentPreview() {
+private fun HomeScreenMoreChoiceContentPreview() {
     MusicTheme {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
         ) {
-            HomeScreenMenuContent()
+            HomeScreenMoreChoiceContent(FakeModule.provideLocalSong()) {}
         }
     }
 }
 
 @Composable
-private fun HomeScreenMenuContent() {
-    Box(
+private fun HomeScreenMoreChoiceContent(song: LocalSong, dismiss: () -> Unit) {
+    val mediaControllerManager = LocalMediaControllerManager.current ?: return
+
+    val lists = listOf(
+        Triple(R.drawable.ic_disc, R.string.add_to_playlist) { TODO() },
+        Triple(R.drawable.ic_disc, R.string.add_to_next) { mediaControllerManager.addToNext(song) },
+        Triple(
+            R.drawable.ic_disc,
+            R.string.add_to_queue
+        ) { mediaControllerManager.addToQueue(song) }
+    )
+
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.5f),
-        contentAlignment = Alignment.Center
+            .wrapContentHeight()
+            .clip(RoundedCornerShape(topStart = DefaultCornerSize, topEnd = DefaultCornerSize))
+            .background(DarkGray)
     ) {
-        Text(
-            text = "This is HomeScreenMenuContent",
-            color = White
-        )
+        MiniSongItemContent(song = song)
+        HorizontalDivider(thickness = 2.dp, modifier = Modifier.fillMaxWidth(), color = LightGray)
+        lists.fastForEach { (icon, text, action) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(52.dp)
+                    .clickable(onClick = {
+                        action()
+                        dismiss()
+                    }),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = White
+                )
+                Text(
+                    text = stringResource(id = text),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = White,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        }
     }
-}
 
-@Preview
-@Composable
-private fun SongItemPreview() {
-    MusicTheme {
-        SongItemContent(song = Song.unidentifiedSong(), menuState = MenuState())
-    }
 }

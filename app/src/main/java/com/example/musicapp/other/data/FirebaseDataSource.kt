@@ -62,7 +62,7 @@ class FirebaseDataSource @Inject constructor(
             val tasks = localSongs.mapNotNull { song ->
                 try {
                     Log.d(TAG, "uploadSongs: ${song.title}")
-                    val file = song.audio.toFile()
+                    val file = song.uri.toFile()
                     retriever.setDataSource(file.absolutePath)
                     val id = FileHelper.getFileHash(file) ?: song.id
 
@@ -105,7 +105,7 @@ class FirebaseDataSource @Inject constructor(
         }
 
         val songUri = storageChild.child("$id | ${file?.name}")
-            .putFile(localSong.audio)
+            .putFile(localSong.uri)
             .await().storage.downloadUrl.await().toString()
 
         val serverSong = ServerSong(id, localSong, songUri, thumbnailUri)

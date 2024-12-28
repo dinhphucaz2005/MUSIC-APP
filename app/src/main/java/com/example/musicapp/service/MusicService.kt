@@ -14,9 +14,15 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import com.example.musicapp.extension.withIOContext
+import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.helper.NotificationHelper
+import com.example.musicapp.other.domain.model.FirebaseSong
+import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.other.domain.model.YoutubeSong
+import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -142,7 +148,7 @@ class MusicService : MediaLibraryService() {
                 var isShuffle = false
                 var bitmap: ByteArray = byteArrayOf()
 
-                val job = CoroutineScope(Dispatchers.Main).launch {
+                val job = withMainContext {
                     title = player.mediaMetadata.title.toString()
                     isPlaying = player.isPlaying
                     repeatMode = player.repeatMode
@@ -234,6 +240,44 @@ class MusicService : MediaLibraryService() {
 //        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())
 //        downloadService.putExtra(DownloadService.FILE_NAME, getCurrentSong()?.getTitle())
         startService(downloadService)
+    }
+
+    @Inject
+    lateinit var songRepository: SongRepository
+
+    fun toggleLikedSong(song: Song) {
+        withIOContext {
+            if (song.isLiked) {
+                songRepository.unlikeSong(song)
+            } else {
+                songRepository.likeSong(song)
+            }
+            if (song.getAudio() == currentSongFlow.value.getAudio()) { // if the current song is liked
+                _currentSongFlow.emit(
+
+                    when (song) {
+                        is LocalSong -> song.copy(isLiked = !song.isLiked)
+                        is FirebaseSong -> song.copy(isLiked = !song.isLiked)
+                        is YoutubeSong -> song.copy(isLiked = !song.isLiked)
+                        else -> song
+                    }
+                )
+            }
+        }
+    }
+
+    fun addToNext(song: Song) {
+        player.addMediaItem(player.currentMediaItemIndex + 1, song.toMediaItem())
+        _queueFlow.value?.let {
+            updateQueue(it.copy(songs = it.songs.toMutableList().apply { add(it.index + 1, song) }))
+        }
+    }
+
+    fun addToQueue(song: Song) {
+        player.addMediaItem(song.toMediaItem())
+        _queueFlow.value?.let {
+            updateQueue(it.copy(songs = it.songs.toMutableList().apply { add(song) }))
+        }
     }
 
 }

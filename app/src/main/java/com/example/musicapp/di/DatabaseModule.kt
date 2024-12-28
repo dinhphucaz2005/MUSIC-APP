@@ -2,8 +2,11 @@ package com.example.musicapp.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.musicapp.other.data.database.AppDAO
 import com.example.musicapp.other.data.database.AppDatabase
+import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,15 +25,26 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "app_database"
+        ).addCallback(object : RoomDatabase.Callback() {
+//            override fun onOpen(db: SupportSQLiteDatabase) {
+//                super.onOpen(db)
+//
+//                val cursor = db.query("SELECT COUNT(*) FROM playlist WHERE id = 0")
+//                cursor.moveToFirst()
+//                val count = cursor.getInt(0)
+//                cursor.close()
+//
+//                if (count == 0) {
+//                    db.execSQL("INSERT INTO playlist (id, name) VALUES (${PlaylistEntity.LIKED_PLAYLIST_ID}, 'Liked Songs')")
+//                }
+//            }
+        }
         ).build()
+
     }
 
     @Provides
     @Singleton
     fun provideAppDao(database: AppDatabase): AppDAO = database.appDAO()
-
-    @Provides
-    @Singleton
-    fun provideFavouriteSongDao(database: AppDatabase) = database.likedSongDAO()
 
 }
