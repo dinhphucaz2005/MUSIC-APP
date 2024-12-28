@@ -2,9 +2,11 @@ package com.example.musicapp.util
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import com.example.innertube.CustomYoutube
@@ -12,11 +14,14 @@ import com.example.innertube.models.SongItem
 import com.example.innertube.models.WatchEndpoint
 import com.example.musicapp.constants.LoopMode
 import com.example.musicapp.constants.PlayerState
+import com.example.musicapp.extension.withIOContext
 import com.example.musicapp.extension.withMainContext
+import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.YoutubeSong
+import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +36,8 @@ import kotlinx.coroutines.runBlocking
 @SuppressLint("UnsafeOptInUsageError")
 class MediaControllerManager(
     context: Context,
-    private val binder: MusicService.MusicBinder?
+    private val binder: MusicService.MusicBinder?,
+    private val songRepository: SongRepository
 ) : Player.Listener {
 
     private val controllerFuture = binder?.service?.getSession()?.token?.let {
@@ -40,19 +46,51 @@ class MediaControllerManager(
         .buildAsync()
     }
 
+
     private var controller: MediaController? = null
 
     val queue: StateFlow<Queue?>
         get() = binder?.service?.queueFlow ?: MutableStateFlow(null)
 
-    val currentSong: StateFlow<Song>
-        get() = binder?.service?.currentSongFlow ?: MutableStateFlow(Song.unidentifiedSong())
 
     private val _playBackState = MutableStateFlow(PlayBackState())
     val playBackState = _playBackState.asStateFlow()
 
+    private val _currentSong = MutableStateFlow(CurrentSong.unidentifiedSong())
+    val currentSong: StateFlow<CurrentSong> = _currentSong.asStateFlow()
+
+
+    override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+        super.onMediaMetadataChanged(mediaMetadata)
+        val index = getCurrentMediaIndex()
+        if (index != null) {
+            val song = queue.value?.songs?.get(index) ?: return
+            val isLiked = song.getAudio().let { likedSongsSet.contains(it) }
+            _currentSong.update { CurrentSong(song, isLiked) }
+        }
+    }
+
+    private var likedSongsSet: Set<Uri> = emptySet()
 
     init {
+        Log.d(TAG, "init")
+        withIOContext {
+            songRepository.getLikedSongs().collect { likedSongs ->
+                likedSongsSet = likedSongs.map { it.getAudio() }.toSet()
+                val song = if (queue.value?.songs?.isEmpty() == true) {
+                    CurrentSong.unidentifiedSong()
+                } else {
+                    val index = runBlocking(Dispatchers.Main) {
+                        getCurrentMediaIndex()
+                    } ?: 0
+                    val song = queue.value?.songs?.get(index) ?: return@collect
+                    val isLiked = song.getAudio().let { likedSongsSet.contains(it) }
+                    CurrentSong(song, isLiked)
+                }
+                val isLiked = song.data.getAudio().let { likedSongsSet.contains(it) }
+                _currentSong.update { CurrentSong(song.data, isLiked) }
+            }
+        }
         controllerFuture?.addListener({
             try {
                 controller = controllerFuture.get().apply {
@@ -192,8 +230,17 @@ class MediaControllerManager(
         binder?.service?.downloadCurrentSong()
     }
 
-    fun toggleLikedSong(song: Song) {
-        binder?.service?.toggleLikedSong(song)
+    fun toggleLikedCurrentSong() {
+        withIOContext {
+            val song = currentSong.value
+            if (song.isLiked) {
+                songRepository.unlikeSong(song.data)
+                _currentSong.update { CurrentSong(song.data, false) }
+            } else {
+                songRepository.likeSong(song.data)
+                _currentSong.update { CurrentSong(song.data, true) }
+            }
+        }
     }
 
     fun addToNext(song: Song) {
@@ -204,6 +251,6 @@ class MediaControllerManager(
         binder?.service?.addToQueue(song)
     }
 
-    fun getCurrentMediaItem(): Int? = withController { currentMediaItemIndex }
+    fun getCurrentMediaIndex(): Int? = withController { currentMediaItemIndex }
 
 }

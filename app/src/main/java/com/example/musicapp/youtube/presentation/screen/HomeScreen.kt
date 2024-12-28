@@ -50,10 +50,10 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.youtube.presentation.YoutubeRoute
@@ -62,7 +62,7 @@ import com.example.musicapp.youtube.presentation.YoutubeViewModel
 @Preview
 @Composable
 private fun YoutubeScreenPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         YoutubeScreen(
             navController = rememberNavController(),
             youtubeViewModel = FakeModule.provideYoutubeViewModel()

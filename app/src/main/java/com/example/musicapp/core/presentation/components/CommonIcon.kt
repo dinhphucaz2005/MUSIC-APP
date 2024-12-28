@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.example.musicapp.constants.IconSize
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.White
 
 @Composable
 fun CommonIcon(

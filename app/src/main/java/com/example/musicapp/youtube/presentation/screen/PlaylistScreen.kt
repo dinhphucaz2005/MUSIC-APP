@@ -41,8 +41,8 @@ import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.ThumbnailSource
@@ -64,7 +64,7 @@ private fun PlaylistScreenPreview() {
         shuffleEndpoint = WatchEndpoint(),
         radioEndpoint = null,
     )
-    MusicTheme {
+    MyMusicAppTheme {
         PlaylistContent(
             playlist = PlaylistPage(playlistItem, List(20) {
                 SongItem(

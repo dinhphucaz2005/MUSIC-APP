@@ -13,6 +13,15 @@ import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.other.domain.model.YoutubeSong
 import com.example.musicapp.other.domain.repository.SongRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SongRepositoryImpl @Inject constructor(
@@ -23,11 +32,10 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> {
         val retriever = MediaMetadataRetriever()
-        val isLikedPlaylist = (playlistId == PlaylistEntity.LIKED_PLAYLIST_ID)
         val songs = roomDataSource.getSongsByPlaylistId(playlistId).mapNotNull {
             when (it.type) {
                 SongEntity.LOCAL_SONG -> localDataSource.getSongByPath(path = it.audioSource)
-                    ?.copy(isLiked = isLikedPlaylist, id = it.id.toString())
+                    ?.copy(id = it.id.toString())
 
                 SongEntity.FIREBASE_SONG -> FirebaseSong(
                     id = it.id.toString(),
@@ -36,7 +44,6 @@ class SongRepositoryImpl @Inject constructor(
                     audioUrl = it.audioSource,
                     thumbnailSource = ThumbnailSource.FromUrl(it.thumbnail),
                     durationMillis = it.durationMillis,
-                    isLiked = isLikedPlaylist
                 )
 
                 SongEntity.YOUTUBE_SONG -> YoutubeSong(
@@ -46,7 +53,6 @@ class SongRepositoryImpl @Inject constructor(
                     artists = it.artists ?: emptyList(),
                     thumbnail = it.thumbnail ?: "",
                     durationMillis = it.durationMillis,
-                    isLiked = isLikedPlaylist
                 )
 
                 else -> null
@@ -54,6 +60,48 @@ class SongRepositoryImpl @Inject constructor(
         }
         retriever.release()
         return songs
+    }
+
+    // use for getLikedSongs  to make sure that local songs are loaded before getting liked songs
+    private val _isReady = MutableStateFlow(false)
+    private val isReady: StateFlow<Boolean> get() = _isReady
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getLikedSongs(): Flow<List<Song>> {
+        return isReady.filter { it }
+            .flatMapLatest {
+                roomDataSource.getLikedSongs()
+                    .map { songEntities ->
+                        songEntities.mapNotNull { entity ->
+                            when (entity.type) {
+                                SongEntity.LOCAL_SONG -> {
+                                    val song = localDataSource.getSongByPath(entity.audioSource)
+                                    song?.copy(id = entity.id.toString())
+                                }
+
+                                SongEntity.FIREBASE_SONG -> FirebaseSong(
+                                    id = entity.id.toString(),
+                                    title = entity.title ?: "Unknown",
+                                    artist = entity.artists?.getOrNull(0)?.name ?: "Unknown",
+                                    audioUrl = entity.audioSource,
+                                    thumbnailSource = ThumbnailSource.FromUrl(entity.thumbnail),
+                                    durationMillis = entity.durationMillis,
+                                )
+
+                                SongEntity.YOUTUBE_SONG -> YoutubeSong(
+                                    id = entity.id.toString(),
+                                    mediaId = entity.audioSource,
+                                    title = entity.title ?: "Unknown",
+                                    artists = entity.artists ?: emptyList(),
+                                    thumbnail = entity.thumbnail ?: "",
+                                    durationMillis = entity.durationMillis,
+                                )
+
+                                else -> null
+                            }
+                        }
+                    }
+            }
     }
 
     override suspend fun createPlayList(name: String) {
@@ -75,20 +123,22 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLocalSong(): List<LocalSong> {
-        val likedSongs = roomDataSource.getSongsByPlaylistId(PlaylistEntity.LIKED_PLAYLIST_ID)
-        val localSongs = localDataSource.get(context)
-        for (song in localSongs) {
-            if (likedSongs.any { it.audioSource == song.uri.path }) song.isLiked = true
+        return withContext(Dispatchers.IO) {
+            val songs = localDataSource.get(context)
+            _isReady.value = true
+            songs
         }
-        return localSongs
     }
 
-    override suspend fun getPlayLists(): List<Playlist> {
-        return roomDataSource.getPlayLists().mapNotNull {
-            if (it.id == null) null
-            else Playlist(id = it.id, name = it.name)
+    override fun getPlayLists(): Flow<List<Playlist>> =
+        roomDataSource.getPlayLists().map {
+            it.mapNotNull { entity ->
+                if (entity.id == null)
+                    null
+                else
+                    Playlist(id = entity.id, name = entity.name)
+            }
         }
-    }
 
     override suspend fun likeSong(song: Song) =
         roomDataSource.addSongs(listOf(song), PlaylistEntity.LIKED_PLAYLIST_ID)

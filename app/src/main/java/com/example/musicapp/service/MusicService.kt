@@ -242,30 +242,6 @@ class MusicService : MediaLibraryService() {
         startService(downloadService)
     }
 
-    @Inject
-    lateinit var songRepository: SongRepository
-
-    fun toggleLikedSong(song: Song) {
-        withIOContext {
-            if (song.isLiked) {
-                songRepository.unlikeSong(song)
-            } else {
-                songRepository.likeSong(song)
-            }
-            if (song.getAudio() == currentSongFlow.value.getAudio()) { // if the current song is liked
-                _currentSongFlow.emit(
-
-                    when (song) {
-                        is LocalSong -> song.copy(isLiked = !song.isLiked)
-                        is FirebaseSong -> song.copy(isLiked = !song.isLiked)
-                        is YoutubeSong -> song.copy(isLiked = !song.isLiked)
-                        else -> song
-                    }
-                )
-            }
-        }
-    }
-
     fun addToNext(song: Song) {
         player.addMediaItem(player.currentMediaItemIndex + 1, song.toMediaItem())
         _queueFlow.value?.let {

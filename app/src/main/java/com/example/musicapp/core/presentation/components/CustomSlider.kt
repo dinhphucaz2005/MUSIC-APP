@@ -6,7 +6,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.ui.theme.MyMusicAppTheme
 import me.saket.squiggles.SquigglySlider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,5 +35,5 @@ fun CustomSlider(
 @Preview
 @Composable
 private fun PreviewCustomSlider() {
-    MusicTheme { CustomSlider(0.5f, {}, {}) }
+    MyMusicAppTheme { CustomSlider(0.5f, {}, {}) }
 }

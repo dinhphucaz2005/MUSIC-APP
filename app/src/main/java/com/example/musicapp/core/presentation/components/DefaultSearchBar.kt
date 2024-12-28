@@ -8,7 +8,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,9 +30,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.musicapp.R
-import com.example.musicapp.core.presentation.theme.OnSecondary
-import com.example.musicapp.core.presentation.theme.SearchBarBackground
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.OnSecondary
+import com.example.musicapp.ui.theme.SearchBarBackground
+import com.example.musicapp.ui.theme.White
 
 @Composable
 fun DefaultSearchBar(

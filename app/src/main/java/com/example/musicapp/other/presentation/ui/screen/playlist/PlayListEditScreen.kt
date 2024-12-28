@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.dragselectcompose.grid.indicator.internal.RadioButtonUnchecked
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.viewmodels.HomeViewModel
@@ -34,7 +34,7 @@ import kotlin.random.Random
 @Preview
 @Composable
 fun PreviewScreen() {
-    MusicTheme {
+    MyMusicAppTheme {
         PlayListEdit(
             Random.nextInt(),
             rememberNavController(),

@@ -30,8 +30,8 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.extension.toArtistString
 import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.other.domain.model.ThumbnailSource
@@ -82,7 +82,7 @@ fun SongItemFromYoutube(modifier: Modifier = Modifier, song: SongItem, onClick: 
 @Preview
 @Composable
 private fun SongsPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         Column {
             Songs(songs = List(20) {
                 SongItem.unidentifiedSong().copy(id = it.toString())

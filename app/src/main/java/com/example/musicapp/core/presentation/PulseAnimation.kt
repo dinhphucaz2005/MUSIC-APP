@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.core.presentation.theme.SandYellow
+import com.example.musicapp.ui.theme.SandYellow
 
 @Composable
 fun PulseAnimation(modifier: Modifier = Modifier) {

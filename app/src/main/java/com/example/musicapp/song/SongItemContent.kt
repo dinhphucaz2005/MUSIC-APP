@@ -42,17 +42,17 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 
 @Preview
 @Composable
 private fun HomeScreenMoreChoiceContentPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,7 +142,7 @@ fun SongItemContent(
 fun AnimatedBorder(
     modifier: Modifier = Modifier,
     colors: List<Color> = emptyList(),
-    content: @Composable () -> Unit
+    content: @Composable (Modifier) -> Unit
 ) {
 
     val infiniteTransition = rememberInfiniteTransition(label = "")
@@ -167,13 +167,12 @@ fun AnimatedBorder(
     }
 
     Surface(
-        modifier = modifier, shape = RoundedCornerShape(DefaultCornerSize), color = Black
+        modifier = modifier, shape = RoundedCornerShape(32.dp), color = Black
     ) {
         Surface(
             modifier = Modifier
                 .clipToBounds()
                 .fillMaxWidth()
-                .padding(4.dp)
                 .drawWithContent {
                     rotate(rotation.value) {
                         drawCircle(
@@ -181,11 +180,16 @@ fun AnimatedBorder(
                         )
                     }
                     drawContent()
-                },
-            shape = RoundedCornerShape(DefaultCornerSize),
+                }
+                .padding(8.dp),
+            shape = RoundedCornerShape(24.dp),
             color = Black
         ) {
-            content()
+            content(
+                Modifier
+                    .clipToBounds()
+                    .fillMaxSize()
+            )
         }
 
     }

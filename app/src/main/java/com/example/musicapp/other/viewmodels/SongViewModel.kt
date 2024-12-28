@@ -1,6 +1,7 @@
 package com.example.musicapp.other.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.innertube.CustomYoutube
 import com.example.innertube.models.WatchEndpoint
 import com.example.innertube.pages.RelatedPage
@@ -9,14 +10,16 @@ import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
 class SongViewModel @Inject constructor(
-    private val songRepository: SongRepository
+    songRepository: SongRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -25,6 +28,8 @@ class SongViewModel @Inject constructor(
     private val _relatedPage = MutableStateFlow<RelatedPage?>(null)
     val relatedPage: StateFlow<RelatedPage?> = _relatedPage.asStateFlow()
 
+    val likedSongs: StateFlow<List<Song>> = songRepository.getLikedSongs()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun getRelated(mediaId: String) = load(_isLoading) {
 

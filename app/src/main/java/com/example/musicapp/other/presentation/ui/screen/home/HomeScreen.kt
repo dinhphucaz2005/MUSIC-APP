@@ -57,11 +57,11 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.DarkGray
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.DarkGray
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Queue
@@ -76,7 +76,7 @@ import com.example.musicapp.util.MediaControllerManager
 @Preview
 @Composable
 fun Preview() {
-    MusicTheme {
+    MyMusicAppTheme {
         Column {
             HomeContent(
                 mediaControllerManager = FakeModule.provideMediaControllerManager(),
@@ -131,7 +131,7 @@ fun HomeScreen(
                 .height(120.dp),
             headlineContent = {
                 Text(
-                    text = currentSong.getSongTitle(),
+                    text = currentSong.data.getSongTitle(),
                     style = MaterialTheme.typography.titleLarge,
                     color = White,
                     overflow = TextOverflow.Ellipsis,
@@ -140,7 +140,7 @@ fun HomeScreen(
             },
             supportingContent = {
                 Text(
-                    text = currentSong.getSongArtist(),
+                    text = currentSong.data.getSongArtist(),
                     style = MaterialTheme.typography.titleMedium,
                     color = White
                 )
@@ -152,7 +152,7 @@ fun HomeScreen(
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(DefaultCornerSize)),
                     contentScale = ContentScale.Crop,
-                    thumbnailSource = currentSong.getThumbnail()
+                    thumbnailSource = currentSong.data.getThumbnail()
                 )
             }
         )
@@ -273,7 +273,7 @@ private fun ColumnScope.HomeContent(
 @Preview
 @Composable
 private fun HomeScreenMoreChoiceContentPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()

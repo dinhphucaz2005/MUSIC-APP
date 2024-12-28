@@ -7,6 +7,7 @@ import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.YoutubeSong
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,11 +50,14 @@ class RoomDataSource @Inject constructor(
         }
     }
 
-    suspend fun getPlayLists(): List<PlaylistEntity> = dao.getPlayLists()
+    fun getPlayLists(): Flow<List<PlaylistEntity>> = dao.getPlayLists()
 
     suspend fun deleteSongByAudioSource(audioSource: String, playListId: Int) =
         dao.deleteSongByAudioSource(audioSource, playListId)
 
     suspend fun deleteSongById(id: Int) = dao.deleteSongById(id)
+
+    fun getLikedSongs(): Flow<List<SongEntity>> =
+        dao.getSongsFromPlaylist(PlaylistEntity.LIKED_PLAYLIST_ID)
 
 }

@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.example.musicapp.other.presentation.ui.screen.playlist
 
 import androidx.compose.animation.core.Spring
@@ -37,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,52 +61,38 @@ import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.PlayListHeight
-import com.example.musicapp.core.presentation.components.CommonIcon
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyTextField
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.DarkGray
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.other.domain.model.Playlist
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
+import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.song.MiniSongItemContent
 import com.example.musicapp.song.SongItemContent
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.DarkGray
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 
 @Preview
 @Composable
 private fun PlayListHomePreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         PlayListHome(rememberNavController(), FakeModule.providePlaylistViewModel())
     }
 }
 
 @Composable
-fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel) {
+fun PlayListHome(
+    navController: NavHostController,
+    viewModel: PlaylistViewModel,
+    songViewModel: SongViewModel = hiltViewModel()
+) {
 
-    LaunchedEffect(Unit) {
-        viewModel.loadPlayLists()
-    }
-
-    val isLoading by viewModel.isLoading.collectAsState()
     val playlists by viewModel.playlists.collectAsState()
-    val favouritePlaylist by viewModel.favouritePlaylist.collectAsState()
-
-    LaunchedEffect(favouritePlaylist) {
-        println(favouritePlaylist.songs.size)
-    }
-
-
-    val onRefresh = {
-        viewModel.loadPlayLists()
-    }
-
+    val likedSongs by songViewModel.likedSongs.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -117,52 +100,49 @@ fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel)
         showDialog = false
     }
 
-    SwipeRefresh(
-        state = SwipeRefreshState(isLoading),
-        onRefresh = onRefresh
-    ) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize(),
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showDialog = true },
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.AddCircle,
-                        contentDescription = null
-                    )
-                }
-            }
-        ) { contentPadding ->
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Black)
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.tertiary
             ) {
-
-                Text(
-                    text = stringResource(R.string.saved_playlist) + " \u2022 ${playlists.size} playlists",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
+                Icon(
+                    imageVector = Icons.Outlined.AddCircle,
+                    contentDescription = null
                 )
+            }
+        }
+    ) { contentPadding ->
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(contentPadding)
-                        .background(Black)
-                ) {
-                    itemsIndexed(items = playlists, key = { _, item ->
-                        item.data.id
-                    }) { _, item ->
-                        ListItem(leadingContent = {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Black)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            Text(
+                text = stringResource(R.string.saved_playlist) + " \u2022 ${playlists.size} playlists",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(contentPadding)
+                    .background(Black)
+            ) {
+                itemsIndexed(items = playlists, key = { _, item ->
+                    item.data.id
+                }) { _, item ->
+                    ListItem(
+                        leadingContent = {
                             Image(
                                 painter = painterResource(R.drawable.image),
                                 contentDescription = null,
@@ -172,14 +152,16 @@ fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel)
                                     .fillMaxHeight()
                                     .aspectRatio(1f)
                             )
-                        }, headlineContent = {
+                        },
+                        headlineContent = {
                             Text(
                                 text = item.data.name,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
                             )
-                        }, modifier = Modifier
+                        },
+                        modifier = Modifier
                             .fillMaxWidth()
                             .height(PlayListHeight)
                             .animateItem(
@@ -193,17 +175,9 @@ fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel)
                             .pointerInput(Unit) {
                                 detectTapGestures(onTap = {
                                     navController.navigate(PlaylistRoute.DETAIL + "/" + item.data.id)
-                                }, onLongPress = {
-                                    TODO("Not yet implemented")
                                 })
-                            }, trailingContent = {
-                            if (item.isSelected) {
-                                CommonIcon(
-                                    icon = R.drawable.ic_delete,
-                                    tint = MaterialTheme.colorScheme.error
-                                ) { TODO("Not yet implemented") }
-                            }
-                        }, colors = ListItemDefaults.colors(
+                            },
+                        colors = ListItemDefaults.colors(
                             headlineColor = MaterialTheme.colorScheme.primary,
                             overlineColor = MaterialTheme.colorScheme.primary,
                             containerColor = Black,
@@ -211,56 +185,54 @@ fun PlayListHome(navController: NavHostController, viewModel: PlaylistViewModel)
                             leadingIconColor = MaterialTheme.colorScheme.primary,
                             trailingIconColor = MaterialTheme.colorScheme.primary,
                         )
-                        )
-                    }
+                    )
                 }
-
-                LikedPlayListContent(
-                    playlist = favouritePlaylist, modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
             }
 
-
-            if (showDialog) {
-                var name by remember { mutableStateOf("Unnamed") }
-                AlertDialog(modifier = Modifier,
-                    containerColor = MaterialTheme.colorScheme.background,
-                    onDismissRequest = {
-                        dismissCreatePlaylist()
-                    },
-                    text = {
-                        MyTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                        )
-                    },
-                    dismissButton = {
-                        Button(onClick = {
-                            dismissCreatePlaylist()
-                        }) {
-                            Text(text = "Cancel", color = MaterialTheme.colorScheme.background)
-                        }
-                    },
-                    confirmButton = {
-                        Button(onClick = {
-                            viewModel.createNewPlayList(name)
-                            dismissCreatePlaylist()
-                        }) {
-                            Text(text = "Save", color = MaterialTheme.colorScheme.background)
-                        }
-                    }
-                )
-            }
+            LikedPlayListContent(
+                songs = likedSongs, modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
         }
 
-    }
 
+        if (showDialog) {
+            var name by remember { mutableStateOf("Unnamed") }
+            AlertDialog(modifier = Modifier,
+                containerColor = MaterialTheme.colorScheme.background,
+                onDismissRequest = {
+                    dismissCreatePlaylist()
+                },
+                text = {
+                    MyTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                    )
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        dismissCreatePlaylist()
+                    }) {
+                        Text(text = "Cancel", color = MaterialTheme.colorScheme.background)
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        viewModel.createNewPlayList(name)
+                        dismissCreatePlaylist()
+                    }) {
+                        Text(text = "Save", color = MaterialTheme.colorScheme.background)
+                    }
+                }
+            )
+        }
+    }
 }
 
+
 @Composable
-fun LikedPlayListContent(playlist: Playlist, modifier: Modifier = Modifier) {
+fun LikedPlayListContent(songs: List<Song>, modifier: Modifier = Modifier) {
 
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
 
@@ -271,14 +243,14 @@ fun LikedPlayListContent(playlist: Playlist, modifier: Modifier = Modifier) {
     ) {
 
         Text(
-            text = stringResource(R.string.favourite_songs) + " \u2022 ${playlist.songs.size} songs",
+            text = stringResource(R.string.favourite_songs) + " \u2022 ${songs.size} songs",
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
         )
 
         LazyColumnWithAnimation2(
-            items = playlist.songs,
+            items = songs,
             key = { _, item -> item.id },
             modifier = Modifier
                 .fillMaxSize()
@@ -287,7 +259,9 @@ fun LikedPlayListContent(playlist: Playlist, modifier: Modifier = Modifier) {
                 song = song,
                 modifier = itemModifier.clickable(onClick = {
                     mediaControllerManager.playQueue(
-                        songs = playlist.songs, index, Queue.SAVED_PLAYLIST_ID + "/" + playlist.id
+                        songs = songs,
+                        index = index,
+                        "${Queue.LIKED_PLAYLIST_ID}/${songs.size}"
                     )
                 }),
             ) {
@@ -305,7 +279,7 @@ fun LikedPlayListContent(playlist: Playlist, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun MoreChoiceContentPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -330,7 +304,7 @@ private fun LikedPlaylistMoreChoiceContent(
     val lists = listOf(
         Triple(R.drawable.ic_disc, R.string.add_to_playlist) { TODO() },
         Triple(R.drawable.ic_disc, R.string.remove_from_playlist) {
-            mediaControllerManager.toggleLikedSong(song)
+            playlistViewModel.deleteLikedSong(song)
         },
         Triple(R.drawable.ic_disc, R.string.add_to_next) { mediaControllerManager.addToNext(song) },
         Triple(

@@ -62,11 +62,7 @@ import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.DarkGray
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.presentation.ui.screen.cloud.CloudScreen
 import com.example.musicapp.other.presentation.ui.screen.home.HomeScreen
 import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNavigation
@@ -76,15 +72,24 @@ import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.song.BottomSheetPlayer
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.DarkGray
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import com.example.musicapp.youtube.presentation.youtubeNavigation
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var songRepository: SongRepository
 
     private var mediaControllerManager by mutableStateOf<MediaControllerManager?>(null)
 
@@ -92,7 +97,7 @@ class MainActivity : ComponentActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
             mediaControllerManager =
-                MediaControllerManager(this@MainActivity, binder)
+                MediaControllerManager(this@MainActivity, binder, songRepository)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -104,9 +109,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startMusicService()
-//        handlePermissions()
         setContent {
-            MusicTheme {
+            MyMusicAppTheme {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {

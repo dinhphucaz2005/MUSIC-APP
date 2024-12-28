@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -71,16 +70,16 @@ import com.example.musicapp.core.presentation.components.MiniPlayer
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
-import com.example.musicapp.core.presentation.theme.LightGray
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.Primary
-import com.example.musicapp.core.presentation.theme.White
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.SongViewModel
+import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.Primary
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeRoute
 import com.example.musicapp.youtube.presentation.screen.Songs
@@ -133,7 +132,7 @@ private fun SongScreenContentPreview() {
             collapsedBound = bottomInset + (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
             expandedBound = maxHeight,
         )
-        MusicTheme {
+        MyMusicAppTheme {
             SongScreenContent(
                 playerBottomSheetState,
                 mediaControllerManager,
@@ -190,7 +189,7 @@ private fun SongScreenContent(
             Modifier
                 .fillMaxSize()
                 .blur(50.dp),
-            currentSong.getThumbnail(),
+            currentSong.data.getThumbnail(),
             contentScale = ContentScale.FillHeight
         )
         Box(
@@ -216,12 +215,13 @@ private fun SongScreenContent(
                 Spacer(Modifier.weight(1f))
 
                 CommonIcon(
-                    icon = R.drawable.ic_edit, onClick = mediaControllerManager::downLoadCurrentSong
+                    icon = R.drawable.ic_download,
+                    onClick = mediaControllerManager::downLoadCurrentSong
                 )
             }
 
             Text(
-                text = currentSong.getSongTitle(),
+                text = currentSong.data.getSongTitle(),
                 color = White,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
@@ -233,11 +233,11 @@ private fun SongScreenContent(
             )
 
             Text(
-                text = currentSong.getSongArtist(),
+                text = currentSong.data.getSongArtist(),
                 color = White,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.clickable {
-                    currentSong.getArtistId()?.let {
+                    currentSong.data.getArtistId()?.let {
                         navController.navigate(YoutubeRoute.ARTIST + "/$it") {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
@@ -249,13 +249,14 @@ private fun SongScreenContent(
                 }
             )
 
-            AnimatedBorder {
+            AnimatedBorder(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+            ) {
                 Thumbnail(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(DefaultCornerSize))
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-                    thumbnailSource = currentSong.getThumbnail(),
+                    modifier = it,
+                    thumbnailSource = currentSong.data.getThumbnail(),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -285,7 +286,7 @@ private fun SongScreenContent(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = currentSong.getDuration(),
+                    text = currentSong.data.getDuration(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -461,7 +462,7 @@ fun QueueView(
     modifier: Modifier = Modifier,
 ) {
     val menu = LocalMenuState.current
-    val currentIndex = mediaControllerManager.getCurrentMediaItem() ?: 0
+    val currentIndex = mediaControllerManager.getCurrentMediaIndex() ?: 0
     val state = rememberLazyListState()
 
     LaunchedEffect(currentIndex) {

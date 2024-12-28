@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
-import com.example.musicapp.core.presentation.theme.DarkGray
-import com.example.musicapp.core.presentation.theme.White
+import com.example.musicapp.ui.theme.DarkGray
+import com.example.musicapp.ui.theme.White
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 
@@ -72,7 +72,7 @@ fun MiniPlayer(
                     .clip(RoundedCornerShape(DefaultCornerSize))
                     .fillMaxHeight()
                     .aspectRatio(1f),
-                thumbnailSource = currentSong.getThumbnail()
+                thumbnailSource = currentSong.data.getThumbnail()
             )
 
             Column(
@@ -82,7 +82,7 @@ fun MiniPlayer(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
-                    text = currentSong.getSongTitle(),
+                    text = currentSong.data.getSongTitle(),
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .basicMarquee(
@@ -93,7 +93,7 @@ fun MiniPlayer(
                     fontSize = 16.sp, color = White
                 )
                 Text(
-                    text = currentSong.getSongArtist(),
+                    text = currentSong.data.getSongArtist(),
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, color = White,
@@ -103,7 +103,7 @@ fun MiniPlayer(
             }
 
             IconButton(onClick = {
-                mediaControllerManager.toggleLikedSong(currentSong)
+                mediaControllerManager.toggleLikedCurrentSong()
             }) {
                 Icon(
                     imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,

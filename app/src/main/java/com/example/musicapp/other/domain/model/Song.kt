@@ -16,8 +16,6 @@ abstract class Song(
 
     abstract val id: String
 
-    abstract var isLiked: Boolean
-
     abstract fun getSongTitle(): String
 
     abstract fun getSongArtist(): String
@@ -44,8 +42,6 @@ abstract class Song(
                 }
 
                 override val id: String = id
-
-                override var isLiked: Boolean = false
 
                 override fun getSongTitle(): String = "No song is playing"
 
@@ -80,7 +76,6 @@ data class LocalSong(
     val uri: Uri,
     val thumbnailSource: ThumbnailSource,
     val durationMillis: Long?,
-    override var isLiked: Boolean = false
 ) : Song() {
 
     override fun getAudio(): Uri = this.uri
@@ -122,7 +117,6 @@ data class FirebaseSong(
     val audioUrl: String,
     val thumbnailSource: ThumbnailSource,
     val durationMillis: Long?,
-    override var isLiked: Boolean = false
 ) : Song() {
 
     override fun getAudio(): Uri = this.audioUrl.toUri()
@@ -164,7 +158,6 @@ data class YoutubeSong(
     val artists: List<Artist>,
     val thumbnail: String,
     val durationMillis: Long?,
-    override var isLiked: Boolean = false
 ) : Song() {
 
     constructor(songItem: SongItem) : this(
@@ -215,6 +208,15 @@ data class YoutubeSong(
     override fun getArtistId(): String? {
         return this.artists.firstOrNull()?.id
     }
+}
 
-
+data class CurrentSong(
+    val data: Song,
+    val isLiked: Boolean = false,
+) {
+    companion object {
+        fun unidentifiedSong(): CurrentSong {
+            return CurrentSong(Song.unidentifiedSong())
+        }
+    }
 }

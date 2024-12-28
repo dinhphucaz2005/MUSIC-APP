@@ -3,6 +3,7 @@ package com.example.musicapp.other.domain.repository
 import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Playlist
 import com.example.musicapp.other.domain.model.Song
+import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {
 
@@ -20,10 +21,12 @@ interface SongRepository {
 
     suspend fun getLocalSong(): List<LocalSong>
 
-    suspend fun getPlayLists(): List<Playlist>
+    fun getPlayLists(): Flow<List<Playlist>>
 
     suspend fun likeSong(song: Song)
 
     suspend fun unlikeSong(song: Song)
+
+    fun getLikedSongs(): Flow<List<Song>>
 
 }

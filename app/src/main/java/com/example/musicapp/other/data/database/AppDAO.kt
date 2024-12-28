@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import com.example.musicapp.other.data.database.entity.SongEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDAO {
@@ -29,7 +30,7 @@ interface AppDAO {
 
     // PlayList
     @Query("SELECT * FROM playlist")
-    suspend fun getPlayLists(): List<PlaylistEntity>
+    fun getPlayLists(): Flow<List<PlaylistEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPlayList(playListEntity: PlaylistEntity): Long
@@ -46,5 +47,7 @@ interface AppDAO {
     @Query("DELETE FROM song WHERE id = :id")
     suspend fun deleteSongById(id: Int)
 
+    @Query("select * from song where playlist_id = :playlistId")
+    fun getSongsFromPlaylist(playlistId: Int): Flow<List<SongEntity>>
 
 }

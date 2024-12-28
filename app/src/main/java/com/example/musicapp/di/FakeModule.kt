@@ -19,11 +19,12 @@ import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.UUID
 import kotlin.random.Random
 
 object FakeModule {
-
 
     private fun provideSongRepository(): SongRepository = object : SongRepository {
 
@@ -41,11 +42,13 @@ object FakeModule {
 
         override suspend fun getLocalSong(): List<LocalSong> = emptyList()
 
-        override suspend fun getPlayLists(): List<Playlist> = emptyList()
+        override fun getPlayLists(): Flow<List<Playlist>> = flow { emit(emptyList()) }
 
         override suspend fun likeSong(song: Song) = Unit
 
         override suspend fun unlikeSong(song: Song) = Unit
+
+        override fun getLikedSongs(): Flow<List<Song>> = flow { emit(emptyList()) }
 
     }
 
@@ -68,7 +71,7 @@ object FakeModule {
     @Composable
     fun provideMediaControllerManager(): MediaControllerManager {
         val context = LocalContext.current
-        return MediaControllerManager(context, null)
+        return MediaControllerManager(context, null, provideSongRepository())
     }
 
     fun provideLocalSong(): LocalSong = LocalSong(

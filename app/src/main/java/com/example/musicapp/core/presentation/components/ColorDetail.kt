@@ -18,13 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.core.presentation.theme.MusicTheme
-import com.example.musicapp.core.presentation.theme.backgroundTemp
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.musicapp.ui.theme.backgroundTemp
 
 @Preview(backgroundColor = backgroundTemp, showBackground = true)
 @Composable
 fun Preview() {
-    MusicTheme {
+    MyMusicAppTheme {
         ColorDetail()
     }
 }

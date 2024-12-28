@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.sp
 import com.example.innertube.pages.AlbumPage
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.core.presentation.theme.Black
-import com.example.musicapp.core.presentation.theme.MusicTheme
+import com.example.musicapp.ui.theme.Black
+import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.util.MediaControllerManager
@@ -64,7 +64,7 @@ fun AlbumScreen(
 @Preview
 @Composable
 private fun ArtistContentPreview() {
-    MusicTheme {
+    MyMusicAppTheme {
         AlbumContent(FakeModule.provideAlbumPage(), FakeModule.provideMediaControllerManager())
     }
 }
