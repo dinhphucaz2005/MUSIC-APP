@@ -6,10 +6,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.musicapp.R
+import com.example.musicapp.other.data.database.entity.SearchEntity
 import com.example.musicapp.ui.theme.OnSecondary
 import com.example.musicapp.ui.theme.SearchBarBackground
 import com.example.musicapp.ui.theme.White
@@ -39,12 +42,13 @@ fun DefaultSearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onImeSearch: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    recentSearch: List<SearchEntity>,
+    onRecentSearchClicked: (SearchEntity) -> Unit
 ) {
     CompositionLocalProvider(
         LocalTextSelectionColors provides TextSelectionColors(
-            handleColor = White,
-            backgroundColor = White
+            handleColor = White, backgroundColor = White
         )
     ) {
         Column(
@@ -68,9 +72,7 @@ fun DefaultSearchBar(
                     )
                 },
                 leadingIcon = {
-                    androidx.compose.material3.IconButton(
-                        onClick = { onImeSearch() }
-                    ) {
+                    androidx.compose.material3.IconButton(onClick = { onImeSearch() }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
@@ -79,12 +81,9 @@ fun DefaultSearchBar(
                     }
                 },
                 singleLine = true,
-                keyboardActions = KeyboardActions(
-                    onSearch = { onImeSearch() }
-                ),
+                keyboardActions = KeyboardActions(onSearch = { onImeSearch() }),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Search
                 ),
                 trailingIcon = {
                     AnimatedVisibility(
@@ -92,11 +91,9 @@ fun DefaultSearchBar(
                         enter = scaleIn(initialScale = 0.5f) + fadeIn(),
                         exit = scaleOut(targetScale = 0.5f) + fadeOut()
                     ) {
-                        androidx.compose.material3.IconButton(
-                            onClick = {
-                                onSearchQueryChange("")
-                            }
-                        ) {
+                        androidx.compose.material3.IconButton(onClick = {
+                            onSearchQueryChange("")
+                        }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = stringResource(R.string.close_hint),
@@ -107,8 +104,7 @@ fun DefaultSearchBar(
                 },
                 modifier = modifier
                     .background(
-                        shape = RoundedCornerShape(100),
-                        color = SearchBarBackground
+                        shape = RoundedCornerShape(100), color = SearchBarBackground
                     )
                     .minimumInteractiveComponentSize()
             )
@@ -118,17 +114,21 @@ fun DefaultSearchBar(
                     .fillMaxWidth()
                     .fillMaxHeight(0.5f)
             ) {
-                items(10) { index ->
-                    Text(
-                        text = "Item $index",
-                        color = OnSecondary
-                    )
+                itemsIndexed(items = recentSearch, key = { _, item -> item.id!! }) { _, item ->
+                    item.searchQuery?.let {
+                        Text(
+                            text = it,
+                            color = OnSecondary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .minimumInteractiveComponentSize()
+                                .clickable(onClick = { onRecentSearchClicked(item) })
+                        )
+                    }
                 }
             }
-
         }
-
     }
 
-
 }
+

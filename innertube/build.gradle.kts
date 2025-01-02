@@ -18,10 +18,4 @@ kotlin {
 dependencies {
     api(libs.bundles.ktor)
     implementation(libs.dec)
-
-    // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
-
-    implementation("io.github.microutils:kotlin-logging:3.0.5")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
 }

@@ -63,4 +63,7 @@
         <item quantity="other">%d songs</item>
     </plurals>
     <string name="title_activity_test">TestActivity</string>
+    <string name="spike_width">Spike Width</string>
+    <string name="spike_padding">Spike Padding</string>
+    <string name="spike_radius">Spike Radius</string>
 </resources>

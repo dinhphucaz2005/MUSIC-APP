@@ -325,6 +325,7 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
                     contentDescription = null,
                     tint = color,
                 )
+
                 Text(
                     text = stringResource(screen.titleId), color = color,
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp)
