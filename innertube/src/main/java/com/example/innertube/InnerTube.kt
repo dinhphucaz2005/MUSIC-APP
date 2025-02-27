@@ -85,7 +85,7 @@ open class InnerTube {
         }
 
         defaultRequest {
-            url("https://music.youtube.com/youtubei/v1/")
+            url("https://music.youtube.com/youtubei/v1/") // ip:port
         }
     }
 

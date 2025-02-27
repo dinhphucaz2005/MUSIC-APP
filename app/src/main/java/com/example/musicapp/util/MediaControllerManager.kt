@@ -36,7 +36,7 @@ import kotlinx.coroutines.runBlocking
 @SuppressLint("UnsafeOptInUsageError")
 class MediaControllerManager(
     context: Context,
-    private val binder: MusicService.MusicBinder?,
+    val binder: MusicService.MusicBinder?,
     private val songRepository: SongRepository
 ) : Player.Listener {
 

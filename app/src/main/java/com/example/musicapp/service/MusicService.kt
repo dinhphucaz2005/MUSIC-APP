@@ -1,6 +1,8 @@
 package com.example.musicapp.service
 
+import android.content.Context
 import android.content.Intent
+import android.media.audiofx.Visualizer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
@@ -8,30 +10,28 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import com.example.musicapp.extension.withIOContext
 import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.helper.NotificationHelper
-import com.example.musicapp.other.domain.model.FirebaseSong
-import com.example.musicapp.other.domain.model.LocalSong
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.YoutubeSong
-import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.io.IOException
 import javax.inject.Inject
 
 @UnstableApi
@@ -72,18 +72,33 @@ class MusicService : MediaLibraryService() {
         }
     }
 
-    private val _currentSongFlow = MutableStateFlow(Song.unidentifiedSong())
-    val currentSongFlow: StateFlow<Song> = _currentSongFlow.asStateFlow()
+//    private val _currentSongFlow = MutableStateFlow(Song.unidentifiedSong())
+//    val currentSongFlow: StateFlow<Song> = _currentSongFlow.asStateFlow()
 
-    private fun updateCurrentSong(index: Int) {
-        serviceScope.launch {
-            val song = queueFlow.value?.songs?.getOrNull(index) ?: Song.unidentifiedSong()
-            _currentSongFlow.emit(song)
-        }
-    }
+//    private fun updateCurrentSong(index: Int) {
+//        serviceScope.launch {
+//            val song = queueFlow.value?.songs?.getOrNull(index) ?: Song.unidentifiedSong()
+//            _currentSongFlow.emit(song)
+//        }
+//    }
 
     @Inject
     lateinit var customMediaSourceFactory: CustomMediaSourceFactory
+
+    fun saveToFile(fileName: String, data: String) {
+        try {
+            this@MusicService.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
+                output.write(data.toByteArray())
+            }
+            Log.d("FileSave", "Lưu file thành công: $fileName")
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
+    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
+
 
     override fun onCreate() {
         super.onCreate()
@@ -92,6 +107,10 @@ class MusicService : MediaLibraryService() {
             .Builder(this)
             .setMediaSourceFactory(customMediaSourceFactory.getInstance())
             .build()
+
+        val sessionId = player.audioSessionId
+
+        if (sessionId != C.AUDIO_SESSION_ID_UNSET) _audioSessionId.value = sessionId
 
         player.apply {
             playWhenReady = true
@@ -116,20 +135,19 @@ class MusicService : MediaLibraryService() {
                     super.onMediaMetadataChanged(mediaMetadata)
                     updateNotification()
                     updateMusicWidget()
-                    updateCurrentSong(player.currentMediaItemIndex)
+//                    updateCurrentSong(player.currentMediaItemIndex)
                 }
             })
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
         }
 
-        session =
-            MediaLibrarySession.Builder(this, player, object : MediaLibrarySession.Callback {})
-                .build()
+        session = MediaLibrarySession
+            .Builder(this, player, object : MediaLibrarySession.Callback {})
+            .build()
 
         notificationManager = NotificationManagerCompat.from(this)
         notificationManager.createNotificationChannel(NotificationHelper.createNotificationChannel())
     }
-
 
 
     private fun updateMusicWidget() {

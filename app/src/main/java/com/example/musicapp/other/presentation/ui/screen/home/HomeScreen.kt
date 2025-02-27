@@ -10,7 +10,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -53,6 +52,7 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
+import com.example.musicapp.audio_spectrum.AudioWaveformVisualizer
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
@@ -79,9 +79,9 @@ fun Preview() {
     MyMusicAppTheme {
         Column {
             HomeContent(
+                modifier = Modifier.fillMaxSize(),
                 mediaControllerManager = FakeModule.provideMediaControllerManager(),
-                songs = List(20) { index -> Song.unidentifiedSong(index.toString()) },
-                modifier = Modifier.fillMaxSize()
+                songs = List(20) { index -> Song.unidentifiedSong(index.toString()) }
             )
         }
     }
@@ -222,50 +222,65 @@ fun HomeScreen(
                 }
             } else {
                 HomeContent(
+                    modifier = Modifier.padding(horizontal = 12.dp),
                     mediaControllerManager = mediaControllerManager,
-                    songs = songs,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    songs = songs
                 )
             }
         }
     }
 
 
-
 }
 
+@UnstableApi
 @Composable
-private fun ColumnScope.HomeContent(
+private fun HomeContent(
     modifier: Modifier = Modifier,
     mediaControllerManager: MediaControllerManager,
     songs: List<Song>,
 ) {
     val menuState = LocalMenuState.current
+    val audioSessionId by mediaControllerManager.binder?.service?.audioSessionId?.collectAsState()
+        ?: return
 
-    LazyColumnWithAnimation2(
-        modifier = modifier
-            .fillMaxWidth()
-            .weight(1f),
-        items = songs,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        key = { _, item -> item.id }
-    ) { itemModifier, index, song ->
-        SongItemContent(
-            modifier = itemModifier.pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    mediaControllerManager.playQueue(
-                        songs = songs,
-                        index = index,
-                        id = Queue.LOCAL_ID
-                    )
-                })
-            }, song = song
-        ) {
-            menuState.show {
-                if (song is LocalSong) {
-                    HomeScreenMoreChoiceContent(song, { menuState.dismiss() })
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        LazyColumnWithAnimation2(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            items = songs,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            key = { _, item -> item.id }
+        ) { itemModifier, index, song ->
+            SongItemContent(
+                modifier = itemModifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        mediaControllerManager.playQueue(
+                            songs = songs,
+                            index = index,
+                            id = Queue.LOCAL_ID
+                        )
+                    })
+                }, song = song
+            ) {
+                menuState.show {
+                    if (song is LocalSong) {
+                        HomeScreenMoreChoiceContent(song) { menuState.dismiss() }
+                    }
                 }
             }
+        }
+
+        audioSessionId?.let {
+            AudioWaveformVisualizer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                audioSessionId = it
+            )
         }
     }
 }

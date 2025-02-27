@@ -161,4 +161,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    implementation("com.github.wendykierp:JTransforms:3.1")
 }
