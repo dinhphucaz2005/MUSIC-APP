@@ -32,15 +32,12 @@ import com.example.musicapp.ui.theme.Black
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.ThumbnailSource
-import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 
 @Composable
 fun AlbumScreen(
     modifier: Modifier = Modifier, albumId: String, youtubeViewModel: YoutubeViewModel
 ) {
-
-    val mediaControllerManager = LocalMediaControllerManager.current ?: return
 
     LaunchedEffect(albumId) { youtubeViewModel.loadAlbum(albumId) }
 
@@ -55,7 +52,9 @@ fun AlbumScreen(
             CircularProgressIndicator()
         } else {
             albumPage?.let {
-                AlbumContent(albumPage = it, mediaControllerManager = mediaControllerManager)
+                AlbumContent(
+                    albumPage = it
+                )
             }
         }
     }
@@ -65,12 +64,12 @@ fun AlbumScreen(
 @Composable
 private fun ArtistContentPreview() {
     MyMusicAppTheme {
-        AlbumContent(FakeModule.provideAlbumPage(), FakeModule.provideMediaControllerManager())
+        AlbumContent(FakeModule.provideAlbumPage())
     }
 }
 
 @Composable
-private fun AlbumContent(albumPage: AlbumPage, mediaControllerManager: MediaControllerManager) {
+private fun AlbumContent(albumPage: AlbumPage) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)

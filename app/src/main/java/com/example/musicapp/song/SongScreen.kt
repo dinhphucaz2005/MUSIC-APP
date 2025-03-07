@@ -100,7 +100,7 @@ fun BottomSheetPlayer(
         modifier = modifier,
         backgroundColor = MaterialTheme.colorScheme.background,
         onDismiss = { },
-        collapsedContent = { MiniPlayer(state, mediaControllerManager, songViewModel) }
+        collapsedContent = { MiniPlayer(state, mediaControllerManager) }
     ) {
         SongScreenContent(
             state = state,
@@ -116,7 +116,7 @@ fun BottomSheetPlayer(
 @Composable
 private fun SongScreenContentPreview() {
 
-    val mediaControllerManager = FakeModule.provideMediaControllerManager()
+    val mediaControllerManager = FakeModule.mediaControllerManager
     val shouldShowNavigationBar = false
 
     val density = LocalDensity.current

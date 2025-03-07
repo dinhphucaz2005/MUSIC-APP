@@ -1,106 +1,243 @@
 package com.example.musicapp.di
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import com.example.innertube.models.AlbumItem
 import com.example.innertube.models.Artist
 import com.example.innertube.models.ArtistItem
 import com.example.innertube.models.SongItem
 import com.example.innertube.pages.AlbumPage
 import com.example.innertube.pages.ArtistPage
-import com.example.innertube.pages.ArtistSection
+import com.example.musicapp.other.domain.model.CurrentSong
+import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
+import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Playlist
+import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.model.ThumbnailSource
+import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.musicapp.other.viewmodels.CloudViewModel
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 import kotlin.random.Random
 
 object FakeModule {
 
-    private fun provideSongRepository(): SongRepository = object : SongRepository {
-
-        override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> = emptyList()
-
-        override suspend fun createPlayList(name: String) = Unit
-
-        override suspend fun updatePlaylist(playlistId: Int, name: String) = Unit
-
-        override suspend fun deletePlayList(id: Int) = Unit
-
-        override suspend fun addSongsToPlaylist(playListId: Int, localSongs: List<Song>) = Unit
-
-        override suspend fun deleteSongs(songIds: List<String>) = Unit
-
-        override suspend fun getLocalSong(): List<LocalSong> = emptyList()
-
-        override fun getPlayLists(): Flow<List<Playlist>> = flow { emit(emptyList()) }
-
-        override suspend fun likeSong(song: Song) = Unit
-
-        override suspend fun unlikeSong(song: Song) = Unit
-
-        override fun getLikedSongs(): Flow<List<Song>> = flow { emit(emptyList()) }
-
-    }
-
-
-    @Composable
-    fun providePlaylistViewModel() =
-        PlaylistViewModel(provideSongRepository())
-
-    @Composable
-    fun provideSongViewModel(): SongViewModel =
-        SongViewModel(provideSongRepository())
-
-    @Composable
-    fun provideHomeViewModel(): HomeViewModel =
-        HomeViewModel(provideSongRepository())
-
-    @Composable
-    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel()
-
-    @Composable
-    fun provideMediaControllerManager(): MediaControllerManager {
-        val context = LocalContext.current
-        return MediaControllerManager(context, null, provideSongRepository())
-    }
-
-    fun provideLocalSong(): LocalSong = LocalSong(
-        id = "1",
-        title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
-        artist = "Music Time",
-        uri = android.net.Uri.EMPTY,
-        thumbnailSource = ThumbnailSource.FromBitmap(null),
-        durationMillis = (4 * 60 + 38) * 1000
+    val artistPage: ArtistPage = ArtistPage(
+        artist = ArtistItem(
+            id = "TODO()",
+            title = "TODO()",
+            thumbnail = "TODO()",
+            shuffleEndpoint = null,
+            radioEndpoint = null
+        ),
+        sections = listOf(),
+        description = null
+    )
+    private val localSongs = listOf(
+        LocalSong(
+            id = "1",
+            title = "Song A",
+            artist = "Artist X",
+            uri = Uri.EMPTY,
+            thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
+            durationMillis = 180000
+        ),
+        LocalSong(
+            id = "2",
+            title = "Song B",
+            artist = "Artist Y",
+            uri = Uri.EMPTY,
+            thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
+            durationMillis = 200000
+        ),
+        LocalSong(
+            id = "3",
+            title = "Song C",
+            artist = "Artist Z",
+            uri = Uri.EMPTY,
+            thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
+            durationMillis = 240000
+        )
     )
 
-    fun provideArtistPage(): ArtistPage {
-        return ArtistPage(
-            artist = ArtistItem(UUID.randomUUID().toString(), "Music Time", "", null, null),
-            sections = listOf(
-                ArtistSection(
-                    "Music Time",
-                    items = listOf(provideSongItem()),
-                    moreEndpoint = null,
-                ),
-                ArtistSection(
-                    "Music Time",
-                    items = listOf(provideAlbumItem()),
-                    moreEndpoint = null,
-                )
+    private val playlists = MutableStateFlow(
+        listOf(
+            Playlist(
+                id = 1,
+                name = "My Favorite Songs",
+                songs = listOf(localSongs[0], localSongs[1])
             ),
-            description = "Music Time"
+            Playlist(
+                id = 2,
+                name = "Chill Vibes",
+                songs = listOf(localSongs[2])
+            )
         )
+    )
+
+    private val likedSongs = MutableStateFlow(listOf<Song>(localSongs[0]))
+
+    private val songRepository: SongRepository = object : SongRepository {
+
+        override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> {
+            return playlists.value.find { it.id == playlistId }?.songs ?: emptyList()
+        }
+
+        override suspend fun createPlayList(name: String) {
+            val newPlaylist = Playlist(
+                id = (playlists.value.maxOfOrNull { it.id } ?: 0) + 1,
+                name = name
+            )
+            playlists.value += newPlaylist
+        }
+
+        override suspend fun updatePlaylist(playlistId: Int, name: String) {
+            playlists.value = playlists.value.map {
+                if (it.id == playlistId) it.copy(name = name) else it
+            }
+        }
+
+        override suspend fun deletePlayList(id: Int) {
+            playlists.value = playlists.value.filterNot { it.id == id }
+        }
+
+        override suspend fun addSongsToPlaylist(playListId: Int, localSongs: List<Song>) {
+            playlists.value = playlists.value.map {
+                if (it.id == playListId) it.copy(songs = it.songs + localSongs) else it
+            }
+        }
+
+        override suspend fun deleteSongs(songIds: List<String>) {
+            playlists.value = playlists.value.map { playlist ->
+                playlist.copy(
+                    songs = playlist.songs.filterNot { it.id in songIds }
+                )
+            }
+        }
+
+        override suspend fun getLocalSong(): List<LocalSong> = localSongs
+
+        override fun getPlayLists(): Flow<List<Playlist>> = playlists
+
+        override suspend fun likeSong(song: Song) {
+            likedSongs.value += song
+        }
+
+        override suspend fun unlikeSong(song: Song) {
+            likedSongs.value = likedSongs.value.filterNot { it.id == song.id }
+        }
+
+        override fun getLikedSongs(): Flow<List<Song>> = likedSongs
     }
+
+    private val cloudRepository: CloudRepository = object : CloudRepository {
+
+        override suspend fun load(): List<FirebaseSong> {
+            return listOf(
+                FirebaseSong(
+                    id = "cloud_1",
+                    title = "Cloud Song 1",
+                    artist = "Cloud Artist 1",
+                    audioUrl = "https://example.com/audio1.mp3",
+                    thumbnailSource = ThumbnailSource.FromUrl("https://example.com/image1.jpg"),
+                    durationMillis = 210_000L
+                ),
+                FirebaseSong(
+                    id = "cloud_2",
+                    title = "Cloud Song 2",
+                    artist = "Cloud Artist 2",
+                    audioUrl = "https://example.com/audio2.mp3",
+                    thumbnailSource = ThumbnailSource.FromUrl("https://example.com/image2.jpg"),
+                    durationMillis = 185_000L
+                )
+            )
+        }
+
+        override fun upload(localSongs: List<LocalSong>) {
+            localSongs.forEach { song ->
+                println("Uploading song to cloud: ${song.title} by ${song.artist}")
+            }
+        }
+    }
+
+    fun providePlaylistViewModel() = PlaylistViewModel(songRepository)
+
+    fun provideSongViewModel(): SongViewModel = SongViewModel(songRepository)
+
+    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository)
+
+    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel()
+
+    val mediaControllerManager =
+        object : MediaControllerManager {
+            override val playBackState: StateFlow<PlayBackState>
+                get() = TODO("Not yet implemented")
+            override val currentSong: StateFlow<CurrentSong>
+                get() = TODO("Not yet implemented")
+            override val queue: StateFlow<Queue?>
+                get() = TODO("Not yet implemented")
+
+            override fun playQueue(songs: List<Song>, index: Int, id: String): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun computePlaybackFraction(): Float? {
+                TODO("Not yet implemented")
+            }
+
+            override fun getCurrentTrackPosition(): Long? {
+                TODO("Not yet implemented")
+            }
+
+            override fun downLoadCurrentSong() {
+                TODO("Not yet implemented")
+            }
+
+            override fun seekToSliderPosition(sliderPosition: Float) {
+                TODO("Not yet implemented")
+            }
+
+            override fun updatePlayListState(): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun playPreviousSong(): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun togglePlayPause(): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun playNextSong(): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun getCurrentMediaIndex(): Int? {
+                TODO("Not yet implemented")
+            }
+
+            override fun playAtIndex(index: Int): Unit? {
+                TODO("Not yet implemented")
+            }
+
+            override fun playYoutubeSong(songItem: SongItem) {
+                TODO("Not yet implemented")
+            }
+        }
 
     fun provideAlbumPage(): AlbumPage = AlbumPage(
         album = AlbumItem(
@@ -117,19 +254,6 @@ object FakeModule {
         otherVersions = emptyList()
     )
 
-    private fun provideAlbumItem(): AlbumItem {
-       return AlbumItem(
-            browseId = UUID.randomUUID().toString(),
-            playlistId = UUID.randomUUID().toString(),
-            id = UUID.randomUUID().toString(),
-            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix G",
-            artists = listOf(Artist("Music Time", null)),
-            year = null,
-            thumbnail = "",
-            explicit = false
-        )
-    }
-
     private fun provideSongItem(): SongItem {
         return SongItem(
             id = UUID.randomUUID().toString(),
@@ -143,11 +267,31 @@ object FakeModule {
         )
     }
 
-    fun providePlaylist(): Playlist {
-        return Playlist(
-            id = Random.nextInt(),
-            name = "Nhạc Mix Gây Nghiện 2019",
-            songs = List(20) { Song.unidentifiedSong() }
-        )
-    }
+    val playlist = Playlist(
+        id = Random.nextInt(),
+        name = "Nhạc Mix Gây Nghiện 2019",
+        songs = List(20) { Song.unidentifiedSong() }
+    )
+
+    val localSong = localSongs.random()
+
+    fun provideCloudViewModel(): CloudViewModel = CloudViewModel(
+        songRepository = songRepository,
+        cloudRepository = cloudRepository
+    )
+}
+
+@Composable
+inline fun <reified T : ViewModel> fakeViewModel(): T {
+    val isPreview = LocalInspectionMode.current
+    return if (isPreview) {
+        when (T::class) {
+            SongViewModel::class -> FakeModule.provideSongViewModel()
+            HomeViewModel::class -> FakeModule.provideHomeViewModel()
+            CloudViewModel::class -> FakeModule.provideCloudViewModel()
+            YoutubeViewModel::class -> FakeModule.provideYoutubeViewModel()
+            PlaylistViewModel::class -> FakeModule.providePlaylistViewModel()
+            else -> throw IllegalArgumentException("Unknown ViewModel class")
+        } as T
+    } else hiltViewModel<T>()
 }

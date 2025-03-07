@@ -52,7 +52,6 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
-import com.example.musicapp.audio_spectrum.AudioWaveformVisualizer
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
@@ -80,7 +79,7 @@ fun Preview() {
         Column {
             HomeContent(
                 modifier = Modifier.fillMaxSize(),
-                mediaControllerManager = FakeModule.provideMediaControllerManager(),
+                mediaControllerManager = FakeModule.mediaControllerManager,
                 songs = List(20) { index -> Song.unidentifiedSong(index.toString()) }
             )
         }
@@ -241,8 +240,8 @@ private fun HomeContent(
     songs: List<Song>,
 ) {
     val menuState = LocalMenuState.current
-    val audioSessionId by mediaControllerManager.binder?.service?.audioSessionId?.collectAsState()
-        ?: return
+//    val audioSessionId by mediaControllerManager.binder?.service?.audioSessionId?.collectAsState()
+//        ?: return
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -274,14 +273,14 @@ private fun HomeContent(
             }
         }
 
-        audioSessionId?.let {
-            AudioWaveformVisualizer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                audioSessionId = it
-            )
-        }
+//        audioSessionId?.let {
+//            AudioWaveformVisualizer(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(200.dp),
+//                audioSessionId = it
+//            )
+//        }
     }
 }
 
@@ -294,7 +293,7 @@ private fun HomeScreenMoreChoiceContentPreview() {
                 .fillMaxSize()
                 .background(Black)
         ) {
-            HomeScreenMoreChoiceContent(FakeModule.provideLocalSong()) {}
+            HomeScreenMoreChoiceContent(FakeModule.localSong) {}
         }
     }
 }

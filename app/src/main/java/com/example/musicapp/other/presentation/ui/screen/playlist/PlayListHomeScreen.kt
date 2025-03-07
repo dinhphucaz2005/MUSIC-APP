@@ -287,7 +287,7 @@ private fun MoreChoiceContentPreview() {
         ) {
             LikedPlaylistMoreChoiceContent(
                 playlistViewModel = FakeModule.providePlaylistViewModel(),
-                song = FakeModule.provideLocalSong()
+                song = FakeModule.localSong
             ) {}
         }
     }

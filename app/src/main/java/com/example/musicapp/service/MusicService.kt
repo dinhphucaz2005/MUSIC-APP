@@ -1,8 +1,6 @@
 package com.example.musicapp.service
 
-import android.content.Context
 import android.content.Intent
-import android.media.audiofx.Visualizer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
@@ -26,12 +24,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.io.IOException
 import javax.inject.Inject
 
 @UnstableApi
@@ -85,19 +81,10 @@ class MusicService : MediaLibraryService() {
     @Inject
     lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
-    fun saveToFile(fileName: String, data: String) {
-        try {
-            this@MusicService.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
-                output.write(data.toByteArray())
-            }
-            Log.d("FileSave", "Lưu file thành công: $fileName")
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
     private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
-    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
+
+//    @Deprecated("No longer used")
+//    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
 
 
     override fun onCreate() {

@@ -31,7 +31,7 @@ fun NavGraphBuilder.playlistNavigation(
                 navController.popBackStack()
                 return@composable
             }
-            PlayListDetail(playlistId, navController, playlistViewModel)
+            TODO("PlaylistDetailScreen")
         }
         composable(
             route = PlaylistRoute.EDIT + "/{$PLAYLIST_ID}",

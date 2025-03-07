@@ -22,6 +22,10 @@ firebaseStorage = "21.0.1"
 fontawesomecompose = "1.1.0"
 glanceAppwidget = "1.1.1"
 googleServices = "4.4.2"
+hiltAndroid = "2.51.1"
+hiltCompiler = "2.51.1"
+hiltNavigationComposeVersion = "1.2.0"
+jtransforms = "3.1"
 junit = "4.13.2"
 kotlin = "2.0.21"
 kotlinxSerializationJson = "1.7.3"
@@ -112,6 +116,10 @@ google-services = { module = "com.google.gms:google-services", version.ref = "go
 fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
 
 # JUnit
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
+jtransforms = { module = "com.github.wendykierp:JTransforms", version.ref = "jtransforms" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }

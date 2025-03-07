@@ -85,8 +85,8 @@ fun ArtistScreen(
 private fun ArtistContentPreview() {
     MyMusicAppTheme {
         ArtistContent(
-            artistPage = FakeModule.provideArtistPage(),
-            mediaControllerManager = FakeModule.provideMediaControllerManager(),
+            artistPage = FakeModule.artistPage,
+            mediaControllerManager = FakeModule.mediaControllerManager,
             navController = rememberNavController()
         )
     }

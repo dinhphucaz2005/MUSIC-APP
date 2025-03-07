@@ -77,7 +77,7 @@ import com.example.musicapp.ui.theme.DarkGray
 import com.example.musicapp.ui.theme.LightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
-import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.util.MediaControllerManagerImpl
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import com.example.musicapp.youtube.presentation.youtubeNavigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,18 +91,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var songRepository: SongRepository
 
-    private var mediaControllerManager by mutableStateOf<MediaControllerManager?>(null)
+    private var mediaControllerManagerImpl by mutableStateOf<MediaControllerManagerImpl?>(null)
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
-            mediaControllerManager =
-                MediaControllerManager(this@MainActivity, binder, songRepository)
+            mediaControllerManagerImpl =
+                MediaControllerManagerImpl(this@MainActivity, binder, songRepository)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            mediaControllerManager?.dispose()
-            mediaControllerManager = null
+            mediaControllerManagerImpl?.dispose()
+            mediaControllerManagerImpl = null
         }
     }
 
@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyMusicAppTheme {
                 CompositionLocalProvider(
-                    LocalMediaControllerManager provides mediaControllerManager,
+                    LocalMediaControllerManager provides mediaControllerManagerImpl,
                 ) {
                     App(hiltViewModel<HomeViewModel>(), hiltViewModel<YoutubeViewModel>())
                 }
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaControllerManager = null
+        mediaControllerManagerImpl = null
     }
 
 

@@ -7,16 +7,13 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MarqueeSpacing
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -51,18 +48,23 @@ import com.example.musicapp.ui.theme.White
 
 @Preview
 @Composable
-private fun HomeScreenMoreChoiceContentPreview() {
+private fun MiniSongItemContentPreview() {
     MyMusicAppTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .wrapContentHeight()
-                .background(Black)
-        ) {
-            MiniSongItemContent(FakeModule.provideLocalSong())
-        }
+        MiniSongItemContent(FakeModule.localSong)
     }
 }
+
+@Preview
+@Composable
+private fun SongItemContentPreview() {
+    MyMusicAppTheme {
+        SongItemContent(
+            song = FakeModule.localSong
+        ) { }
+    }
+}
+
+
 
 
 @Composable

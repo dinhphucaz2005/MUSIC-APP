@@ -18,3 +18,4 @@ README.pdf
 /app/src/main/assets/yt.json
 */build
 .kotlin
+app/google-services.json

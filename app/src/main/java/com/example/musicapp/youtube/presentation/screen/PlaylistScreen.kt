@@ -79,7 +79,7 @@ private fun PlaylistScreenPreview() {
                 )
             }, null, null),
             modifier = Modifier.fillMaxSize(),
-            mediaControllerManager = FakeModule.provideMediaControllerManager()
+            mediaControllerManager = FakeModule.mediaControllerManager
         )
     }
 }

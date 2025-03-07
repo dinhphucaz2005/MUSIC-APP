@@ -35,20 +35,18 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.ui.theme.DarkGray
 import com.example.musicapp.ui.theme.White
-import com.example.musicapp.other.viewmodels.SongViewModel
-import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.util.MediaControllerManagerImpl
 
 
 @Composable
 fun MiniPlayer(
     state: BottomSheetState,
-    mediaControllerManager: MediaControllerManager,
-    songViewModel: SongViewModel
+    mediaControllerManagerImpl: MediaControllerManagerImpl
 ) {
 
-    val currentSong by mediaControllerManager.currentSong.collectAsState()
+    val currentSong by mediaControllerManagerImpl.currentSong.collectAsState()
 
-    val playBackState by mediaControllerManager.playBackState.collectAsState()
+    val playBackState by mediaControllerManagerImpl.playBackState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -103,7 +101,7 @@ fun MiniPlayer(
             }
 
             IconButton(onClick = {
-                mediaControllerManager.toggleLikedCurrentSong()
+                mediaControllerManagerImpl.toggleLikedCurrentSong()
             }) {
                 Icon(
                     imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -119,11 +117,11 @@ fun MiniPlayer(
                     .fillMaxHeight()
                     .aspectRatio(1f)
                     .clickable {
-                        mediaControllerManager.togglePlayPause()
+                        mediaControllerManagerImpl.togglePlayPause()
                     }, tint = White
             )
 
-            IconButton(onClick = { mediaControllerManager.playNextSong() }) {
+            IconButton(onClick = { mediaControllerManagerImpl.playNextSong() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null, tint = White
