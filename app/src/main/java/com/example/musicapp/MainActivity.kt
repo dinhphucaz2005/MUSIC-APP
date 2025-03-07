@@ -56,6 +56,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.musicapp.audio_spectrum.AudioVisualizerScreen
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
 import com.example.musicapp.constants.Screens
@@ -170,9 +171,7 @@ private fun App(
 
     val queue by mediaControllerManager.queue.collectAsState()
 
-    val active by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val active by rememberSaveable { mutableStateOf(false) }
 
     val shouldShowNavigationBar = remember(navBackStackEntry, active) { true }
 
@@ -229,6 +228,11 @@ private fun App(
             composable(Screens.Setting.route) {
                 LoginScreen(navController = navController, reload = youtubeViewModel::reload)
             }
+
+            composable(Screens.AudioVisualizer.route) {
+                AudioVisualizerScreen()
+            }
+
 
         }
 

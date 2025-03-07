@@ -1,7 +1,6 @@
 package com.example.musicapp.audio_spectrum
 
 import android.media.audiofx.Visualizer
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -23,7 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -43,7 +48,6 @@ const val NUM_BARS = 60
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioWaveformVisualizer(audioSessionId: Int, modifier: Modifier = Modifier) {
-    var waveform by remember { mutableStateOf(FloatArray(NUM_BARS) { 0f }) }
     var targetWaveform by remember { mutableStateOf(FloatArray(NUM_BARS) { 0f }) }
     var isExpanded by remember { mutableStateOf(false) }
     var windowFunction by remember { mutableStateOf(WindowFunction.HANNING) }
@@ -70,7 +74,10 @@ fun AudioWaveformVisualizer(audioSessionId: Int, modifier: Modifier = Modifier) 
                     samplingRate: Int
                 ) {
                     waveformBytes?.let {
-                        val newWaveform = decodePCM16BitAndApplyWindowFunctionAndCreateWaveform(it, windowFunction)
+                        val newWaveform = decodePCM16BitAndApplyWindowFunctionAndCreateWaveform(
+                            it,
+                            windowFunction
+                        )
                         targetWaveform = newWaveform
                     }
                 }

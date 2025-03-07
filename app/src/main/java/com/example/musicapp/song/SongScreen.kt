@@ -71,6 +71,7 @@ import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.di.FakeModule
+import com.example.musicapp.di.fakeViewModel
 import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.Queue
@@ -136,7 +137,7 @@ private fun SongScreenContentPreview() {
             SongScreenContent(
                 playerBottomSheetState,
                 mediaControllerManager,
-                FakeModule.provideSongViewModel(),
+                fakeViewModel<SongViewModel>(),
                 navController = rememberNavController()
             )
         }
@@ -272,7 +273,8 @@ private fun SongScreenContent(
                 onValueChangeFinished = {
                     mediaControllerManager.seekToSliderPosition(sliderPosition)
                     pause = false
-                })
+                },
+            )
 
             Row(
                 modifier = Modifier
@@ -494,8 +496,8 @@ fun QueueView(
             SongItemContent(
                 song = song,
                 modifier = itemModifier.clickable(onClick = {
-                        mediaControllerManager.playAtIndex(index)
-                    })
+                    mediaControllerManager.playAtIndex(index)
+                })
             ) {
                 menu.show { Menu(song = song) }
             }

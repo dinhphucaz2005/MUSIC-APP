@@ -42,10 +42,11 @@ class MediaControllerManagerImpl(
 
     private val controllerFuture = binder?.service?.getSession()?.token?.let {
         MediaController
-        .Builder(context, it)
-        .buildAsync()
+            .Builder(context, it)
+            .buildAsync()
     }
 
+    override val audioSessionId: StateFlow<Int?> = binder?.service?.audioSessionId ?: MutableStateFlow(null)
 
     private var controller: MediaController? = null
 
@@ -108,10 +109,12 @@ class MediaControllerManagerImpl(
                 repeatMode = Player.REPEAT_MODE_ALL
             }
 
-            _playBackState.update { PlayBackState(
-                PlayerState.fromBoolean(isPlaying),
-                LoopMode.fromInt(repeatMode, shuffleModeEnabled)
-            ) }
+            _playBackState.update {
+                PlayBackState(
+                    PlayerState.fromBoolean(isPlaying),
+                    LoopMode.fromInt(repeatMode, shuffleModeEnabled)
+                )
+            }
         }
     }
 

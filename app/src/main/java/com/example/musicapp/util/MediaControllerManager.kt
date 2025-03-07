@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MediaControllerManager {
 
+    val audioSessionId: StateFlow<Int?>
     val playBackState: StateFlow<PlayBackState>
     val currentSong: StateFlow<CurrentSong>
     val queue: StateFlow<Queue?>

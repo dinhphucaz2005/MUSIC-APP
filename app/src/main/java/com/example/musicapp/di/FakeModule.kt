@@ -183,60 +183,43 @@ object FakeModule {
 
     val mediaControllerManager =
         object : MediaControllerManager {
+            override val audioSessionId: StateFlow<Int?>
+                get() = MutableStateFlow(0)
             override val playBackState: StateFlow<PlayBackState>
-                get() = TODO("Not yet implemented")
+                get() = MutableStateFlow(PlayBackState())
             override val currentSong: StateFlow<CurrentSong>
-                get() = TODO("Not yet implemented")
+                get() = MutableStateFlow(
+                    CurrentSong(
+                        data = localSongs.random(),
+                        isLiked = false
+                    )
+                )
             override val queue: StateFlow<Queue?>
-                get() = TODO("Not yet implemented")
+                get() = MutableStateFlow(null)
 
-            override fun playQueue(songs: List<Song>, index: Int, id: String): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun playQueue(songs: List<Song>, index: Int, id: String): Unit? = null
 
-            override fun computePlaybackFraction(): Float? {
-                TODO("Not yet implemented")
-            }
+            override fun computePlaybackFraction(): Float? = null
 
-            override fun getCurrentTrackPosition(): Long? {
-                TODO("Not yet implemented")
-            }
+            override fun getCurrentTrackPosition(): Long? = null
 
-            override fun downLoadCurrentSong() {
-                TODO("Not yet implemented")
-            }
+            override fun downLoadCurrentSong() {}
 
-            override fun seekToSliderPosition(sliderPosition: Float) {
-                TODO("Not yet implemented")
-            }
+            override fun seekToSliderPosition(sliderPosition: Float) {}
 
-            override fun updatePlayListState(): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun updatePlayListState(): Unit? = null
 
-            override fun playPreviousSong(): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun playPreviousSong(): Unit? = null
 
-            override fun togglePlayPause(): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun togglePlayPause(): Unit? = null
 
-            override fun playNextSong(): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun playNextSong(): Unit? = null
 
-            override fun getCurrentMediaIndex(): Int? {
-                TODO("Not yet implemented")
-            }
+            override fun getCurrentMediaIndex(): Int? = null
 
-            override fun playAtIndex(index: Int): Unit? {
-                TODO("Not yet implemented")
-            }
+            override fun playAtIndex(index: Int): Unit? = null
 
-            override fun playYoutubeSong(songItem: SongItem) {
-                TODO("Not yet implemented")
-            }
+            override fun playYoutubeSong(songItem: SongItem) {}
         }
 
     fun provideAlbumPage(): AlbumPage = AlbumPage(

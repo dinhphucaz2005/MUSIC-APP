@@ -82,9 +82,8 @@ class MusicService : MediaLibraryService() {
     lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
+    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
 
-//    @Deprecated("No longer used")
-//    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
 
 
     override fun onCreate() {
