@@ -12,6 +12,7 @@ import androidx.media3.session.MediaLibraryService
 import com.example.musicapp.MainActivity
 import com.example.musicapp.R
 
+@Deprecated("User NotificationHelper in player module")
 object NotificationHelper {
 
     private const val NAME = "Music"

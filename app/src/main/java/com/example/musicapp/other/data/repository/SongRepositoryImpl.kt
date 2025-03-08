@@ -2,17 +2,16 @@ package com.example.musicapp.other.data.repository
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.other.data.LocalDataSource
 import com.example.musicapp.other.data.RoomDataSource
 import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import com.example.musicapp.other.data.database.entity.SongEntity
 import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.Playlist
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.ThumbnailSource
-import com.example.musicapp.other.domain.model.YoutubeSong
 import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.player.model.Playlist
+import com.example.player.model.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -46,14 +45,14 @@ class SongRepositoryImpl @Inject constructor(
                     durationMillis = it.durationMillis,
                 )
 
-                SongEntity.YOUTUBE_SONG -> YoutubeSong(
-                    id = it.id.toString(),
-                    mediaId = it.audioSource,
-                    title = it.title ?: "Unknown",
-                    artists = it.artists ?: emptyList(),
-                    thumbnail = it.thumbnail ?: "",
-                    durationMillis = it.durationMillis,
-                )
+//                SongEntity.YOUTUBE_SONG -> YoutubeSong(
+//                    id = it.id.toString(),
+//                    mediaId = it.audioSource,
+//                    title = it.title ?: "Unknown",
+//                    artists = it.artists ?: emptyList(),
+//                    thumbnail = it.thumbnail ?: "",
+//                    durationMillis = it.durationMillis,
+//                )
 
                 else -> null
             }
@@ -88,14 +87,14 @@ class SongRepositoryImpl @Inject constructor(
                                     durationMillis = entity.durationMillis,
                                 )
 
-                                SongEntity.YOUTUBE_SONG -> YoutubeSong(
-                                    id = entity.id.toString(),
-                                    mediaId = entity.audioSource,
-                                    title = entity.title ?: "Unknown",
-                                    artists = entity.artists ?: emptyList(),
-                                    thumbnail = entity.thumbnail ?: "",
-                                    durationMillis = entity.durationMillis,
-                                )
+//                                SongEntity.YOUTUBE_SONG -> YoutubeSong(
+//                                    id = entity.id.toString(),
+//                                    mediaId = entity.audioSource,
+//                                    title = entity.title ?: "Unknown",
+//                                    artists = entity.artists ?: emptyList(),
+//                                    thumbnail = entity.thumbnail ?: "",
+//                                    durationMillis = entity.durationMillis,
+//                                )
 
                                 else -> null
                             }
@@ -147,7 +146,7 @@ class SongRepositoryImpl @Inject constructor(
         val audioSource = when (song) {
             is LocalSong -> song.uri.path
             is FirebaseSong -> song.audioUrl
-            is YoutubeSong -> song.mediaId
+//            is YoutubeSong -> song.mediaId
             else -> null
         } ?: return
         roomDataSource.deleteSongByAudioSource(audioSource, PlaylistEntity.LIKED_PLAYLIST_ID)

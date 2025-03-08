@@ -1,9 +1,9 @@
 package com.example.musicapp.other.presentation.ui.widget
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
+import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -33,20 +33,21 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.MainActivity
 import com.example.musicapp.R
 import com.example.musicapp.constants.IconSize
-import com.example.musicapp.service.MusicService
+import com.example.player.service.MusicService
 
 private val textColor = Color(0xFFf07fb4)
 private val backgroundColor = Color(0xFFffdbe8)
 private val iconTintColor = Color(0xFFf2dbea)
 private val iconBackgroundColor = Color(0xFFf07fb4)
 
+@OptIn(UnstableApi::class)
 @SuppressLint("RestrictedApi")
 @Composable
 fun MusicWidgetContent(
-    context: Context,
     title: String = "Title",
     isPlaying: Boolean,
     repeatMode: Int,

@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import coil3.compose.AsyncImage
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.R
-import com.example.musicapp.other.domain.model.ThumbnailSource
 
 @Composable
 fun Thumbnail(

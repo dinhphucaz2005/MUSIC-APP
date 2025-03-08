@@ -13,10 +13,10 @@ import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.LoadingScreen
 import com.example.musicapp.di.fakeViewModel
-import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.viewmodels.CloudViewModel
 import com.example.musicapp.song.SongItemContent
 import com.example.musicapp.ui.theme.MyMusicAppTheme
+import com.example.player.model.Queue
 
 @Composable
 fun CloudScreen(viewModel: CloudViewModel = fakeViewModel<CloudViewModel>()) {

@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
@@ -25,9 +26,8 @@ import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.other.domain.model.Playlist
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.song.SongItemContent
+import com.example.player.model.Playlist
 
 @SuppressLint("UnsafeOptInUsageError")
 @Preview

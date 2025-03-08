@@ -1,5 +1,6 @@
 package com.example.musicapp.other.domain.model
 
+@Deprecated("No longer used")
 data class UserSetting(
     var backgroundColor: Long? = null,
     val primaryColor: Long? = null,

@@ -1,5 +1,6 @@
 package com.example.musicapp.service
 
+//import io.ktor.client.engine.okhttp.OkHttp
 import android.app.DownloadManager
 import android.app.Service
 import android.content.Context
@@ -10,11 +11,6 @@ import android.os.IBinder
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.AndroidEntryPoint
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.request.head
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -42,26 +38,27 @@ class DownloadService : Service() {
     }
 
     private suspend fun getFileMetadata(url: String): FileMetadata {
-        val client = HttpClient(OkHttp)
+        throw NotImplementedError("Not implemented")
+//        val client = HttpClient(OkHttp)
 
-        try {
-            val response: HttpResponse = client.head(url)
-
-            val mimeType = response.headers[HttpHeaders.ContentType]?.split(";")?.get(0)
-            val acceptRange = response.headers[HttpHeaders.AcceptRanges]
-            val contentLength = response.headers[HttpHeaders.ContentLength]
-
-            return FileMetadata(
-                mimeType = mimeType,
-                acceptRange = acceptRange,
-                contentLength = contentLength?.toLong()
-            )
-        } catch (e: Exception) {
-            println("Error: ${e.message}")
-            return FileMetadata()
-        } finally {
-            client.close()
-        }
+//        try {
+//            val response: HttpResponse = client.head(url)
+//
+//            val mimeType = response.headers[HttpHeaders.ContentType]?.split(";")?.get(0)
+//            val acceptRange = response.headers[HttpHeaders.AcceptRanges]
+//            val contentLength = response.headers[HttpHeaders.ContentLength]
+//
+//            return FileMetadata(
+//                mimeType = mimeType,
+//                acceptRange = acceptRange,
+//                contentLength = contentLength?.toLong()
+//            )
+//        } catch (e: Exception) {
+//            println("Error: ${e.message}")
+//            return FileMetadata()
+//        } finally {
+//            client.close()
+//        }
     }
 
     private val contentTypesSupported =

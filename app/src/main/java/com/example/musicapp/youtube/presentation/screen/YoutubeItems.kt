@@ -25,7 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.innertube.models.SongItem
+import com.example.core.model.ThumbnailSource
+import com.example.core.util.toDurationString
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.MyListItem
@@ -33,8 +34,28 @@ import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.extension.toArtistString
-import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.other.domain.model.ThumbnailSource
+import com.example.player.model.Artist
+
+
+data class SongItem(
+    val id: String
+) {
+
+    val thumbnail: String = ""
+    val duration: Long = 0L
+    val artists: List<Artist> = emptyList()
+    val title: String = ""
+
+    init {
+        throw Exception("Stub!")
+    }
+
+    companion object {
+        fun unidentifiedSong(): SongItem {
+            TODO("Not yet implemented")
+        }
+    }
+}
 
 @Composable
 fun SongItemFromYoutube(modifier: Modifier = Modifier, song: SongItem, onClick: () -> Unit) {

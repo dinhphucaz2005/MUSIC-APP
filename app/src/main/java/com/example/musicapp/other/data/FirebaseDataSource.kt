@@ -3,11 +3,11 @@ package com.example.musicapp.other.data
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.core.net.toFile
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.extension.DEFAULT_COMPRESS_FORMAT
 import com.example.musicapp.extension.toByteArray
 import com.example.musicapp.helper.FileHelper
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.util.FirebaseKey
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference

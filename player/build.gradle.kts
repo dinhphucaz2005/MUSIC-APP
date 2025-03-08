@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.com.google.devtools.ksp)
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -40,4 +42,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.bundles.media3)
+    implementation(project(":core"))
+
+    //Dagger - Hilt
+    ksp(libs.hilt.compiler)
+    implementation(libs.bundles.hilt)
 }

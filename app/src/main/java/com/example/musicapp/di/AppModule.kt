@@ -14,7 +14,7 @@ import com.example.musicapp.other.data.repository.UserRepositoryImpl
 import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.domain.repository.UserRepository
-import com.example.musicapp.service.MusicService
+import com.example.player.service.MusicService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

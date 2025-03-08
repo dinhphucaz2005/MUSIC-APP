@@ -1,25 +1,19 @@
-package com.example.musicapp.service
+package com.example.player.service
 
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
-import androidx.glance.GlanceId
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.offline.DownloadService
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import com.example.musicapp.extension.withMainContext
-import com.example.musicapp.helper.NotificationHelper
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.presentation.ui.widget.MusicWidget
+import com.example.player.model.Queue
+import com.example.player.model.Song
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +38,6 @@ class MusicService : MediaLibraryService() {
         const val ACTION_PLAY_OR_PAUSE = "ACTION_PLAY"
         const val ACTION_NEXT = "ACTION_NEXT"
         const val ACTION_PREVIOUS = "ACTION_PREVIOUS"
-        private const val TAG = "MusicService"
     }
 
     private lateinit var player: ExoPlayer
@@ -83,7 +76,6 @@ class MusicService : MediaLibraryService() {
 
     private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
     val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
-
 
 
     override fun onCreate() {
@@ -136,45 +128,46 @@ class MusicService : MediaLibraryService() {
     }
 
 
+    @Deprecated("Not used anymore")
     private fun updateMusicWidget() {
-        serviceScope.launch {
-            val glanceAppWidgetManager = GlanceAppWidgetManager(this@MusicService)
-
-            val glanceIds: List<GlanceId> =
-                glanceAppWidgetManager.getGlanceIds(MusicWidget::class.java)
-
-            if (glanceIds.isNotEmpty()) {
-                val glanceId = glanceIds[0]
-
-                var title = ""
-                var isPlaying = false
-                var repeatMode = Player.REPEAT_MODE_OFF
-                var isShuffle = false
-                var bitmap: ByteArray = byteArrayOf()
-
-                val job = withMainContext {
-                    title = player.mediaMetadata.title.toString()
-                    isPlaying = player.isPlaying
-                    repeatMode = player.repeatMode
-                    isShuffle = player.shuffleModeEnabled
-                    bitmap = player.mediaMetadata.artworkData ?: bitmap
-                }
-
-                job.join()
-
-                updateAppWidgetState(this@MusicService, glanceId) { preferences ->
-                    preferences[MusicWidget.TITLE_KEY] = title
-                    preferences[MusicWidget.IS_PLAYING] = isPlaying
-                    preferences[MusicWidget.REPEAT_MODE] = repeatMode
-                    preferences[MusicWidget.SHUFFLE_MODE] = isShuffle
-                    preferences[MusicWidget.BITMAP_KEY] = bitmap
-                    Log.d(TAG, "Updated Title: ${preferences[MusicWidget.TITLE_KEY]}")
-                }
-
-                Log.d(TAG, "updateMusicWidget: $glanceId")
-                MusicWidget().update(this@MusicService, glanceId)
-            }
-        }
+//        serviceScope.launch {
+//            val glanceAppWidgetManager = GlanceAppWidgetManager(this@MusicService)
+//
+//            val glanceIds: List<GlanceId> =
+//                glanceAppWidgetManager.getGlanceIds(MusicWidget::class.java)
+//
+//            if (glanceIds.isNotEmpty()) {
+//                val glanceId = glanceIds[0]
+//
+//                var title = ""
+//                var isPlaying = false
+//                var repeatMode = Player.REPEAT_MODE_OFF
+//                var isShuffle = false
+//                var bitmap: ByteArray = byteArrayOf()
+//
+//                val job = withMainContext {
+//                    title = player.mediaMetadata.title.toString()
+//                    isPlaying = player.isPlaying
+//                    repeatMode = player.repeatMode
+//                    isShuffle = player.shuffleModeEnabled
+//                    bitmap = player.mediaMetadata.artworkData ?: bitmap
+//                }
+//
+//                job.join()
+//
+//                updateAppWidgetState(this@MusicService, glanceId) { preferences ->
+//                    preferences[MusicWidget.TITLE_KEY] = title
+//                    preferences[MusicWidget.IS_PLAYING] = isPlaying
+//                    preferences[MusicWidget.REPEAT_MODE] = repeatMode
+//                    preferences[MusicWidget.SHUFFLE_MODE] = isShuffle
+//                    preferences[MusicWidget.BITMAP_KEY] = bitmap
+//                    Log.d(TAG, "Updated Title: ${preferences[MusicWidget.TITLE_KEY]}")
+//                }
+//
+//                Log.d(TAG, "updateMusicWidget: $glanceId")
+//                MusicWidget().update(this@MusicService, glanceId)
+//            }
+//        }
     }
 
 
@@ -184,7 +177,6 @@ class MusicService : MediaLibraryService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand: ${intent?.action.toString()}")
         super.onStartCommand(intent, flags, startId)
         intent?.let {
             when (it.action) {
@@ -239,6 +231,7 @@ class MusicService : MediaLibraryService() {
         notificationManager.cancel(NotificationHelper.NOTIFICATION_ID)
     }
 
+    @Deprecated("Not used anymore")
     fun downloadCurrentSong() {
         val downloadService = Intent(this, DownloadService::class.java)
 //        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())

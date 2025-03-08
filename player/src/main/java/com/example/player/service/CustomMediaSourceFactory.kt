@@ -1,8 +1,9 @@
-package com.example.musicapp.service
+package com.example.player.service
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.core.net.toUri
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.ResolvingDataSource
@@ -16,14 +17,10 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.extractor.mp3.Mp3Extractor
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor
-import com.example.innertube.CustomYoutube
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class CustomMediaSourceFactory @Inject constructor(
@@ -31,6 +28,7 @@ class CustomMediaSourceFactory @Inject constructor(
 ) {
 
 
+    @OptIn(UnstableApi::class)
     @SuppressLint("UnsafeOptInUsageError")
     private fun createCacheDataSource(context: Context): CacheDataSource.Factory {
 
@@ -81,20 +79,21 @@ class CustomMediaSourceFactory @Inject constructor(
 //                }
 //            } else null
 
-            val url = if (youtubeMediaId != null) {
-                runBlocking(Dispatchers.IO) {
-                    return@runBlocking CustomYoutube.player(youtubeMediaId)
-                        .getOrNull()
-                        ?.streamingData
-                        ?.adaptiveFormats
-                        ?.filter { it.isAudio }
-                        ?.maxByOrNull {
-                            it.bitrate + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
-                        }?.url
-                }
-            } else null
+//            val url = if (youtubeMediaId != null) {
+//                runBlocking(Dispatchers.IO) {
+//                    return@runBlocking CustomYoutube.player(youtubeMediaId)
+//                        .getOrNull()
+//                        ?.streamingData
+//                        ?.adaptiveFormats
+//                        ?.filter { it.isAudio }
+//                        ?.maxByOrNull {
+//                            it.bitrate + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
+//                        }?.url
+//                }
+//            } else null
 
-            dataSpec.withUri(url?.toUri() ?: dataSpec.uri)
+            dataSpec
+//            dataSpec.withUri(url?.toUri() ?: dataSpec.uri)
         }
 
 

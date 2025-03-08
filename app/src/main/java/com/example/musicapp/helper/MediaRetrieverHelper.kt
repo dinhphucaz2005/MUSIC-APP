@@ -3,13 +3,13 @@ package com.example.musicapp.helper
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.core.net.toUri
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.extension.getAuthor
 import com.example.musicapp.extension.getDuration
 import com.example.musicapp.extension.getFileId
 import com.example.musicapp.extension.getImageBitmap
 import com.example.musicapp.extension.getTitle
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

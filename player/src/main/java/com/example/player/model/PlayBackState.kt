@@ -1,8 +1,9 @@
-package com.example.musicapp.other.domain.model
+package com.example.player.model
 
 import androidx.compose.runtime.Immutable
-import com.example.musicapp.constants.LoopMode
-import com.example.musicapp.constants.PlayerState
+
+
+
 
 @Immutable
 data class PlayBackState(

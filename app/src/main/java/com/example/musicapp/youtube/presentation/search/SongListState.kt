@@ -1,7 +1,7 @@
 package com.example.musicapp.youtube.presentation.search
 
 import androidx.compose.runtime.Immutable
-import com.example.innertube.models.SongItem
+import com.example.musicapp.youtube.presentation.screen.SongItem
 
 @Immutable
 data class SongListState(

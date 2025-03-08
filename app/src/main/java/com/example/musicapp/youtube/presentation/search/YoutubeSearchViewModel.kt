@@ -2,9 +2,6 @@ package com.example.musicapp.youtube.presentation.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.innertube.CustomYoutube
-import com.example.innertube.YouTube
-import com.example.innertube.models.SongItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,10 +22,11 @@ class YoutubeSearchViewModel @Inject constructor() : ViewModel() {
         _songListState.update { it.copy(searchQuery = searchQuery) }
 
     fun onSearch() = viewModelScope.launch {
-        CustomYoutube.search(_songListState.value.searchQuery, YouTube.SearchFilter.FILTER_VIDEO)
-            .onSuccess { searchResults ->
-                _songListState.update { it.copy(searchResults = searchResults.items.filterIsInstance<SongItem>()) }
-            }
+        TODO("Not yet implemented")
+//        CustomYoutube.search(_songListState.value.searchQuery, YouTube.SearchFilter.FILTER_VIDEO)
+//            .onSuccess { searchResults ->
+//                _songListState.update { it.copy(searchResults = searchResults.items.filterIsInstance<SongItem>()) }
+//            }
     }
 
 

@@ -3,9 +3,9 @@ package com.example.musicapp.other.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicapp.extension.withIOContext
-import com.example.musicapp.other.domain.model.Playlist
-import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.player.model.Playlist
+import com.example.player.model.Song
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

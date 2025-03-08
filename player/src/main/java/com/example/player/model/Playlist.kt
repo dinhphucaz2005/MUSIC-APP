@@ -1,4 +1,4 @@
-package com.example.musicapp.other.domain.model
+package com.example.player.model
 
 import androidx.compose.runtime.Immutable
 

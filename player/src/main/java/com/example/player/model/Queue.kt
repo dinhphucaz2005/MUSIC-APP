@@ -1,4 +1,4 @@
-package com.example.musicapp.other.domain.model
+package com.example.player.model
 
 data class Queue(
     val id: String = "",
@@ -14,11 +14,3 @@ data class Queue(
         const val LIKED_PLAYLIST_ID = "LIKED_PLAYLIST_ID"
     }
 }
-
-/*
-usage:
-    LOCAL_ID: Queue from local file
-    YOUTUBE_SONG_ID: Queue from song of youtube (example: YOUTUBE_SONG_ID + "/" + youtubeSongId)
-    YOUTUBE_PLAYLIST_ID: Queue from playlist of youtube(example: YOUTUBE_PLAYLIST_ID + "/" + playlistId)
-    SAVED_PLAYLIST_ID: Queue from playlist of app(example: SAVED_PLAYLIST_ID + "/" + playlistId)
- */

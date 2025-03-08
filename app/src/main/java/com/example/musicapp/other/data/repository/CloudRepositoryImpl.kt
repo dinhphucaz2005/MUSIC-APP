@@ -1,9 +1,9 @@
 package com.example.musicapp.other.data.repository
 
+import com.example.core.model.ThumbnailSource
 import com.example.musicapp.other.data.FirebaseDataSource
 import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.ThumbnailSource
 import com.example.musicapp.other.domain.repository.CloudRepository
 import javax.inject.Inject
 

@@ -1,10 +1,9 @@
 package com.example.musicapp.util
 
-import com.example.innertube.models.SongItem
-import com.example.musicapp.other.domain.model.CurrentSong
-import com.example.musicapp.other.domain.model.PlayBackState
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
+import com.example.player.model.CurrentSong
+import com.example.player.model.PlayBackState
+import com.example.player.model.Queue
+import com.example.player.model.Song
 import kotlinx.coroutines.flow.StateFlow
 
 interface MediaControllerManager {
@@ -36,9 +35,9 @@ interface MediaControllerManager {
 
     fun playAtIndex(index: Int): Unit?
 
-    fun playYoutubeSong(songItem: SongItem)
-
     fun addToNext(song: Song)
 
     fun addToQueue(song: Song)
+
+    fun toggleLikedCurrentSong()
 }

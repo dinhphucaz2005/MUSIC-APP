@@ -1,8 +1,8 @@
 package com.example.musicapp.other.domain.repository
 
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.Playlist
-import com.example.musicapp.other.domain.model.Song
+import com.example.player.model.Playlist
+import com.example.player.model.Song
 import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {

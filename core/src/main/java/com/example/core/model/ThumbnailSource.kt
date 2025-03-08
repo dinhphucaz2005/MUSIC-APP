@@ -1,4 +1,4 @@
-package com.example.musicapp.other.domain.model
+package com.example.core.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 

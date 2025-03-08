@@ -36,8 +36,7 @@ class MusicWidget : GlanceAppWidget() {
             val bitmap = preferences[BITMAP_KEY]?.toBitmap()
             Log.e(TAG, "provideGlance: $title")
             MusicWidgetContent(
-                context, title,
-                isPlaying = isPlaying,
+                title, isPlaying = isPlaying,
                 repeatMode = repeatMode,
                 shuffleMode = shuffleMode,
                 bitmap = bitmap

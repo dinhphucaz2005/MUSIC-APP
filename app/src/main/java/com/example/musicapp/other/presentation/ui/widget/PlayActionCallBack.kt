@@ -3,18 +3,22 @@ package com.example.musicapp.other.presentation.ui.widget
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.glance.GlanceId
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
-import com.example.musicapp.service.MusicService
+import androidx.media3.common.util.UnstableApi
+import com.example.player.service.MusicService
 
 object PlayActionCallBack : ActionCallback {
 
     const val TAG = "PlayActionCallBack"
     private const val KEY = "action"
+
+    @OptIn(UnstableApi::class)
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,

@@ -49,11 +49,11 @@ import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.ui.theme.Black
 import com.example.musicapp.ui.theme.LightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
+import com.example.player.model.Song
 
 @Preview
 @Composable

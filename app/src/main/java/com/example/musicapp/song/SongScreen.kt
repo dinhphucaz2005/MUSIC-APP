@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -52,14 +51,13 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.innertube.pages.RelatedPage
+import com.example.core.util.toDurationString
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
-import com.example.musicapp.constants.PlayerState
 import com.example.musicapp.constants.TopBarHeight
 import com.example.musicapp.core.presentation.components.BottomSheet
 import com.example.musicapp.core.presentation.components.BottomSheetState
@@ -72,18 +70,18 @@ import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.di.fakeViewModel
-import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.extension.withMainContext
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.ui.theme.LightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.Primary
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.util.resource
 import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.musicapp.youtube.presentation.screen.Songs
+import com.example.player.model.PlayerState
+import com.example.player.model.Queue
+import com.example.player.model.Song
 import kotlinx.coroutines.delay
 
 @Composable
@@ -164,12 +162,12 @@ private fun SongScreenContent(
     var current by remember { mutableStateOf("00:00") }
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
-    val relatedPage by songViewModel.relatedPage.collectAsState()
+//    val relatedPage by songViewModel.relatedPage.collectAsState()
 
     LaunchedEffect(pause) {
         if (!pause) while (true) {
             withMainContext {
-                sliderPosition = mediaControllerManager.computePlaybackFraction() ?: 0f
+                 sliderPosition = mediaControllerManager.computePlaybackFraction() ?: 0f
                 current = mediaControllerManager.getCurrentTrackPosition().toDurationString()
             }
             delay(100)
@@ -374,12 +372,13 @@ private fun SongScreenContent(
                     }
                 },
                 Pair(R.string.related) {
-                    menuState.show {
-                        Related(
-                            mediaControllerManager = mediaControllerManager,
-                            relatedPage = relatedPage
-                        )
-                    }
+                    TODO("Not yet implemented")
+//                    menuState.show {
+//                        Related(
+//                            mediaControllerManager = mediaControllerManager,
+//                            relatedPage = relatedPage
+//                        )
+//                    }
                 },
             )
 
@@ -422,40 +421,40 @@ private fun Lyrics(modifier: Modifier = Modifier) {
 
 }
 
-@Composable
-private fun Related(
-    modifier: Modifier = Modifier,
-    mediaControllerManager: MediaControllerManager,
-    relatedPage: RelatedPage? = null
-) {
-    Column(
-        modifier = modifier
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.related),
-            style = MaterialTheme.typography.titleMedium,
-            color = White,
-        )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            item {
-                relatedPage?.songs?.let { songs ->
-                    Songs(
-                        songs = songs,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = mediaControllerManager::playYoutubeSong
-                    )
-                }
-            }
-        }
-    }
-}
+//@Composable
+//private fun Related(
+//    modifier: Modifier = Modifier,
+//    mediaControllerManager: MediaControllerManager,
+//    relatedPage: RelatedPage? = null
+//) {
+//    Column(
+//        modifier = modifier
+//            .padding(12.dp),
+//        verticalArrangement = Arrangement.spacedBy(6.dp)
+//    ) {
+//        Text(
+//            text = stringResource(R.string.related),
+//            style = MaterialTheme.typography.titleMedium,
+//            color = White,
+//        )
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .weight(1f),
+//            verticalArrangement = Arrangement.spacedBy(6.dp)
+//        ) {
+//            item {
+//                relatedPage?.songs?.let { songs ->
+//                    Songs(
+//                        songs = songs,
+//                        modifier = Modifier.fillMaxWidth(),
+//                        onClick = mediaControllerManager::playYoutubeSong
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun QueueView(

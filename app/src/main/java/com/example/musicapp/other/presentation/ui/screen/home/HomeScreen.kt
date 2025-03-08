@@ -54,19 +54,21 @@ import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
+import com.example.musicapp.di.FakeModule
+import com.example.musicapp.other.domain.model.LocalSong
+import com.example.musicapp.other.viewmodels.HomeViewModel
+import com.example.musicapp.song.MiniSongItemContent
+import com.example.musicapp.song.SongItemContent2
 import com.example.musicapp.ui.theme.Black
 import com.example.musicapp.ui.theme.DarkGray
 import com.example.musicapp.ui.theme.LightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
-import com.example.musicapp.di.FakeModule
-import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.song.MiniSongItemContent
-import com.example.musicapp.song.SongItemContent2
 import com.example.musicapp.util.MediaControllerManager
+import com.example.musicapp.util.resource
+import com.example.player.model.Queue
+import com.example.player.model.Song
+
 
 @ExperimentalMaterial3Api
 @UnstableApi

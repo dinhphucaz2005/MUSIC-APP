@@ -5,8 +5,7 @@ import com.example.musicapp.other.data.database.entity.PlaylistEntity
 import com.example.musicapp.other.data.database.entity.SongEntity
 import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.YoutubeSong
+import com.example.player.model.Song
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,7 +24,7 @@ class RoomDataSource @Inject constructor(
             val audioSource = when (song) {
                 is LocalSong -> song.uri.path
                 is FirebaseSong -> song.audioUrl
-                is YoutubeSong -> song.id
+//                is YoutubeSong -> song.id
                 else -> null
             }
             val exists: Boolean = audioSource
@@ -33,8 +32,8 @@ class RoomDataSource @Inject constructor(
                 ?.let { it > 0 } == true
 
             if (exists) return
-
-            SongEntity.create(song = song, playlistId = playListId)?.let { dao.addSong(it) }
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//            SongEntity.create(song = song, playlistId = playListId)?.let { dao.addSong(it) }
         }
     }
 

@@ -113,7 +113,7 @@ firebase-database = { module = "com.google.firebase:firebase-database", version.
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 
 # FontAwesomeCompose
-fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
+font-awesome-compose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
 
 # JUnit
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
@@ -184,4 +184,26 @@ media3 = [
     "androidx-media3-exoplayer",
     "androidx-media3-exoplayer-dash",
     "androidx-media3-datasource-okhttp"
+]
+
+jetpack-compose = [
+    "androidx-compose-bom",
+    "androidx-ui",
+    "androidx-ui-graphics",
+    "androidx-ui-tooling-preview",
+    "androidx-material3",
+    "androidx-animation",
+    "androidx-constraintlayout-compose",
+    "font-awesome-compose"
+]
+
+core-ktx = [
+    "androidx-core-ktx",
+    "androidx-activity-compose",
+    "androidx-lifecycle-runtime-ktx"
+]
+hilt = [
+    "hilt-android",
+    "hilt-compiler",
+    "hilt-navigation-compose"
 ]

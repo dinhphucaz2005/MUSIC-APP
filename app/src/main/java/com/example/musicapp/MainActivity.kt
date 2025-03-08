@@ -71,7 +71,6 @@ import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
-import com.example.musicapp.service.MusicService
 import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.ui.theme.Black
 import com.example.musicapp.ui.theme.DarkGray
@@ -81,6 +80,7 @@ import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManagerImpl
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import com.example.musicapp.youtube.presentation.youtubeNavigation
+import com.example.player.service.MusicService
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
