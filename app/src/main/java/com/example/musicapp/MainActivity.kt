@@ -92,18 +92,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var songRepository: SongRepository
 
-    private var mediaControllerManagerImpl by mutableStateOf<MediaControllerManagerImpl?>(null)
+    private var mediaControllerManager by mutableStateOf<MediaControllerManagerImpl?>(null)
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
-            mediaControllerManagerImpl =
+            mediaControllerManager =
                 MediaControllerManagerImpl(this@MainActivity, binder, songRepository)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            mediaControllerManagerImpl?.dispose()
-            mediaControllerManagerImpl = null
+            mediaControllerManager?.dispose()
+            mediaControllerManager = null
         }
     }
 
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyMusicAppTheme {
                 CompositionLocalProvider(
-                    LocalMediaControllerManager provides mediaControllerManagerImpl,
+                    LocalMediaControllerManager provides mediaControllerManager,
                 ) {
                     App(hiltViewModel<HomeViewModel>(), hiltViewModel<YoutubeViewModel>())
                 }
@@ -139,7 +139,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaControllerManagerImpl = null
+        mediaControllerManager = null
     }
 
 

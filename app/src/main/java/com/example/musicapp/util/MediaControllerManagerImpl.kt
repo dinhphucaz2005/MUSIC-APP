@@ -212,6 +212,7 @@ class MediaControllerManagerImpl(
     }
 
 
+
     private fun playMediaItems(queue: List<MediaItem>, index: Int = 0) = withController {
         clearMediaItems()
         addMediaItems(queue)
@@ -246,11 +247,11 @@ class MediaControllerManagerImpl(
         }
     }
 
-    fun addToNext(song: Song) {
+    override fun addToNext(song: Song) {
         binder?.service?.addToNext(song)
     }
 
-    fun addToQueue(song: Song) {
+    override fun addToQueue(song: Song) {
         binder?.service?.addToQueue(song)
     }
 

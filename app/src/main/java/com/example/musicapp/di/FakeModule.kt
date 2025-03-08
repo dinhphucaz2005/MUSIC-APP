@@ -177,7 +177,10 @@ object FakeModule {
 
     fun provideSongViewModel(): SongViewModel = SongViewModel(songRepository)
 
-    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository)
+    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(
+        songRepository = songRepository,
+        cloudRepository = cloudRepository
+    )
 
     fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel()
 
@@ -220,6 +223,9 @@ object FakeModule {
             override fun playAtIndex(index: Int): Unit? = null
 
             override fun playYoutubeSong(songItem: SongItem) {}
+            override fun addToNext(song: Song) {}
+
+            override fun addToQueue(song: Song) {}
         }
 
     fun provideAlbumPage(): AlbumPage = AlbumPage(
@@ -258,10 +264,7 @@ object FakeModule {
 
     val localSong = localSongs.random()
 
-    fun provideCloudViewModel(): CloudViewModel = CloudViewModel(
-        songRepository = songRepository,
-        cloudRepository = cloudRepository
-    )
+    fun provideCloudViewModel(): CloudViewModel = CloudViewModel(cloudRepository = cloudRepository)
 }
 
 @Composable

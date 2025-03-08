@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
+
+group = "com.example"
+version = "1.0.0"
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -18,10 +22,10 @@ kotlin {
 dependencies {
     api(libs.bundles.ktor)
     implementation(libs.dec)
+}
 
-    // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
-
-    implementation("io.github.microutils:kotlin-logging:3.0.5")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
+tasks.register<Jar>("createJar") {
+    archiveBaseName.set("innertube")
+    archiveVersion.set("1.0.0")
+    from(sourceSets.main.get().output)
 }

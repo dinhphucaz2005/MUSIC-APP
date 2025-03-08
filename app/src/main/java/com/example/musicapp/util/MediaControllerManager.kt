@@ -37,4 +37,8 @@ interface MediaControllerManager {
     fun playAtIndex(index: Int): Unit?
 
     fun playYoutubeSong(songItem: SongItem)
+
+    fun addToNext(song: Song)
+
+    fun addToQueue(song: Song)
 }

@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,7 +65,7 @@ import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.HomeViewModel
 import com.example.musicapp.song.MiniSongItemContent
-import com.example.musicapp.song.SongItemContent
+import com.example.musicapp.song.SongItemContent2
 import com.example.musicapp.util.MediaControllerManager
 
 @ExperimentalMaterial3Api
@@ -121,11 +119,12 @@ fun HomeScreen(
     val songs by homeViewModel.songs.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         MyListItem(
             modifier = Modifier
-                .padding(top = 16.dp, start = 12.dp, end = 12.dp)
+                .padding(vertical = 12.dp)
                 .fillMaxWidth()
                 .height(120.dp),
             headlineContent = {
@@ -169,14 +168,16 @@ fun HomeScreen(
                 playBackState.loopMode.resource,
                 R.drawable.ic_skip_back,
                 playBackState.playerState.resource,
-                R.drawable.ic_skip_forward
+                R.drawable.ic_skip_forward,
+                R.drawable.ic_upload
             ).forEachIndexed { index, resId ->
                 IconButton(onClick = {
                     when (index) {
                         0 -> mediaControllerManager.updatePlayListState()
                         1 -> mediaControllerManager.playPreviousSong()
                         2 -> mediaControllerManager.togglePlayPause()
-                        else -> mediaControllerManager.playNextSong()
+                        3 -> mediaControllerManager.playNextSong()
+                        4 -> homeViewModel.uploadSongs()
                     }
                 }) {
                     Icon(
@@ -193,11 +194,12 @@ fun HomeScreen(
             thickness = 2.dp,
             color = White
         )
+
         if (!isReadMediaAudiosPermissionGranted) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             ) {
@@ -221,7 +223,7 @@ fun HomeScreen(
                 }
             } else {
                 HomeContent(
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.fillMaxSize(),
                     mediaControllerManager = mediaControllerManager,
                     songs = songs
                 )
@@ -240,8 +242,6 @@ private fun HomeContent(
     songs: List<Song>,
 ) {
     val menuState = LocalMenuState.current
-//    val audioSessionId by mediaControllerManager.binder?.service?.audioSessionId?.collectAsState()
-//        ?: return
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -254,33 +254,27 @@ private fun HomeContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             key = { _, item -> item.id }
         ) { itemModifier, index, song ->
-            SongItemContent(
-                modifier = itemModifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        mediaControllerManager.playQueue(
-                            songs = songs,
-                            index = index,
-                            id = Queue.LOCAL_ID
-                        )
-                    })
-                }, song = song
+            SongItemContent2(
+                modifier = itemModifier, song = song,
+                onSongClick = {
+                    mediaControllerManager.playQueue(
+                        songs = songs,
+                        index = index,
+                        id = Queue.LOCAL_ID
+                    )
+                }
             ) {
                 menuState.show {
                     if (song is LocalSong) {
-                        HomeScreenMoreChoiceContent(song) { menuState.dismiss() }
+                        HomeScreenMoreChoiceContent(
+                            song = song,
+                            dismiss = menuState::dismiss,
+                            mediaControllerManager = mediaControllerManager
+                        )
                     }
                 }
             }
         }
-
-//        audioSessionId?.let {
-//            AudioWaveformVisualizer(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(200.dp),
-//                audioSessionId = it
-//            )
-//        }
     }
 }
 
@@ -293,14 +287,22 @@ private fun HomeScreenMoreChoiceContentPreview() {
                 .fillMaxSize()
                 .background(Black)
         ) {
-            HomeScreenMoreChoiceContent(FakeModule.localSong) {}
+            HomeScreenMoreChoiceContent(
+                song = FakeModule.localSong,
+                dismiss = { },
+                mediaControllerManager = FakeModule.mediaControllerManager,
+            )
         }
     }
 }
 
 @Composable
-private fun HomeScreenMoreChoiceContent(song: LocalSong, dismiss: () -> Unit) {
-    val mediaControllerManager = LocalMediaControllerManager.current ?: return
+private fun HomeScreenMoreChoiceContent(
+    song: LocalSong,
+    dismiss: () -> Unit,
+    mediaControllerManager: MediaControllerManager
+) {
+
 
     val lists = listOf(
         Triple(R.drawable.ic_disc, R.string.add_to_playlist) { TODO() },

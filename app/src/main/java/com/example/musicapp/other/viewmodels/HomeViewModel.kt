@@ -3,6 +3,7 @@ package com.example.musicapp.other.viewmodels
 import androidx.lifecycle.ViewModel
 import com.example.musicapp.extension.load
 import com.example.musicapp.other.domain.model.LocalSong
+import com.example.musicapp.other.domain.repository.CloudRepository
 import com.example.musicapp.other.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SongRepository
+    private val songRepository: SongRepository,
+    private val cloudRepository: CloudRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -24,9 +26,10 @@ class HomeViewModel @Inject constructor(
 
 
     fun loadSongs() = load(_isLoading) {
-        _songs.update { repository.getLocalSong() }
+        _songs.update { songRepository.getLocalSong() }
     }
 
+    fun uploadSongs() = cloudRepository.upload(_songs.value)
 
 
 }
