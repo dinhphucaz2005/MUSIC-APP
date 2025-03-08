@@ -17,4 +17,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "My Music App"
 include(":app")
-include(":innertube")
+include(":core")
+include(":feature-youtube")
+include(":feature-firebase")
+include(":feature-local")
+include(":player")

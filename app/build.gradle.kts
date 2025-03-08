@@ -75,7 +75,6 @@ ksp {
 dependencies {
 
     // Inner Tube Module
-    implementation(project(":innertube"))
 
     // Media3
     implementation(libs.androidx.media)
