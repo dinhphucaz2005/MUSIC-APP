@@ -23,8 +23,6 @@ interface MediaControllerManager {
 
     fun seekToSliderPosition(sliderPosition: Float)
 
-    fun updatePlayListState(): Unit?
-
     fun playPreviousSong(): Unit?
 
     fun togglePlayPause(): Unit?
@@ -40,4 +38,8 @@ interface MediaControllerManager {
     fun addToQueue(song: Song)
 
     fun toggleLikedCurrentSong()
+
+    fun updateLoopMode()
+
+    fun updateShuffleMode()
 }

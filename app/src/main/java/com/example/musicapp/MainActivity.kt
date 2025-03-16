@@ -26,6 +26,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,14 +50,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.audio_spectrum.AudioVisualizerScreen
@@ -66,10 +66,8 @@ import com.example.musicapp.core.presentation.components.rememberBottomSheetStat
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.other.presentation.ui.screen.cloud.CloudScreen
 import com.example.musicapp.other.presentation.ui.screen.home.HomeScreen
-import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNavigation
 import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
 import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.other.viewmodels.PlaylistViewModel
 import com.example.musicapp.other.viewmodels.SongViewModel
 import com.example.musicapp.song.BottomSheetPlayer
 import com.example.musicapp.ui.theme.Black
@@ -79,9 +77,9 @@ import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManagerImpl
 import com.example.musicapp.youtube.presentation.YoutubeViewModel
-import com.example.musicapp.youtube.presentation.youtubeNavigation
 import com.example.player.service.MusicService
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -182,8 +180,10 @@ private fun App(
     )
 
 
-    val playListViewModel = hiltViewModel<PlaylistViewModel>()
+//    val playListViewModel = hiltViewModel<PlaylistViewModel>()
     val songViewModel = hiltViewModel<SongViewModel>()
+
+    homeViewModel.loadSongs()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -206,35 +206,65 @@ private fun App(
             }
         }
 
-        NavHost(
-            navController = navController,
-            startDestination = Screens.Home.route,
+        val horizontalPagerState = rememberPagerState(pageCount = navigationItems::size)
+
+        HorizontalPager(
+            state = horizontalPagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
                 )
                 .fillMaxSize()
-        ) {
-
-            composable(Screens.Home.route) { HomeScreen(homeViewModel) }
-
-            playlistNavigation(navController, playListViewModel, homeViewModel)
-
-            composable(Screens.Cloud.route) { CloudScreen() }
-
-            youtubeNavigation(navController, youtubeViewModel)
-
-            composable(Screens.Setting.route) {
-                LoginScreen(navController = navController, reload = youtubeViewModel::reload)
+        ) { page ->
+            when (page) {
+                0 -> HomeScreen(homeViewModel)
+                1 -> Column {
+                    Text(
+                        "Playlist",
+                        style = MaterialTheme.typography.titleLarge.copy(color = White)
+                    )
+                }
+//                1 -> playlistNavigation(navController, playListViewModel, homeViewModel)
+                2 -> CloudScreen()
+                3 -> Column {
+                    Text("Youtube", style = MaterialTheme.typography.titleLarge.copy(color = White))
+                }
+//                3 -> youtubeNavigation(navController, youtubeViewModel)
+                4 -> LoginScreen(navController = navController, reload = youtubeViewModel::reload)
+                5 -> AudioVisualizerScreen()
             }
-
-            composable(Screens.AudioVisualizer.route) {
-                AudioVisualizerScreen()
-            }
-
-
         }
+
+//        NavHost(
+//            navController = navController,
+//            startDestination = Screens.Home.route,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(
+//                    bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
+//                )
+//                .fillMaxSize()
+//        ) {
+//
+//            composable(Screens.Home.route) { HomeScreen(homeViewModel) }
+//
+//            playlistNavigation(navController, playListViewModel, homeViewModel)
+//
+//            composable(Screens.Cloud.route) { CloudScreen() }
+//
+//            youtubeNavigation(navController, youtubeViewModel)
+//
+//            composable(Screens.Setting.route) {
+//                LoginScreen(navController = navController, reload = youtubeViewModel::reload)
+//            }
+//
+//            composable(Screens.AudioVisualizer.route) {
+//                AudioVisualizerScreen()
+//            }
+//
+//
+//        }
 
         BottomSheetPlayer(
             state = playerBottomSheetState,
@@ -267,7 +297,8 @@ private fun App(
                 },
             navigationItems = navigationItems,
             navBackStackEntry = navBackStackEntry,
-            navController = navController
+//            navController = navController
+            state = horizontalPagerState
         )
 
 
@@ -286,8 +317,10 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
     navBackStackEntry: NavBackStackEntry? = null,
-    navController: NavHostController
+//    navController: NavHostController,
+    state: PagerState
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = modifier
             .background(DarkGray)
@@ -296,32 +329,36 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
             .height(NavigationBarHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        navigationItems.fastForEach { screen ->
+        navigationItems.fastForEachIndexed { index, screen ->
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .clickable(onClick = {
-                        if (navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true) {
-                            navBackStackEntry.savedStateHandle["scrollToTop"] = true
-                        } else {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
+                        coroutineScope.launch {
+                            state.animateScrollToPage(index)
                         }
+//                        if (navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true) {
+//                            navBackStackEntry.savedStateHandle["scrollToTop"] = true
+//                        } else {
+//                            navController.navigate(screen.route) {
+//                                popUpTo(navController.graph.startDestinationId) {
+//                                    saveState = true
+//                                }
+//                                launchSingleTop = true
+//                                restoreState = true
+//                            }
+//                        }
                     }),
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                val color = if (navBackStackEntry
-                        ?.destination
-                        ?.hierarchy
-                        ?.any { it.route == screen.route } == true
-                ) White else LightGray
+                val color = if (state.currentPage == index) White else LightGray
+//                val color = if (navBackStackEntry
+//                        ?.destination
+//                        ?.hierarchy
+//                        ?.any { it.route == screen.route } == true
+//                ) White else LightGray
 
                 Icon(
                     painter = painterResource(screen.iconId),

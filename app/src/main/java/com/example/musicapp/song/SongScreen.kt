@@ -77,9 +77,10 @@ import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.Primary
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.util.resource
+import com.example.musicapp.util.playPauseIcon
+import com.example.musicapp.util.repeatIcon
+import com.example.musicapp.util.shuffleIcon
 import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.player.model.PlayerState
 import com.example.player.model.Queue
 import com.example.player.model.Song
 import kotlinx.coroutines.delay
@@ -167,7 +168,7 @@ private fun SongScreenContent(
     LaunchedEffect(pause) {
         if (!pause) while (true) {
             withMainContext {
-                 sliderPosition = mediaControllerManager.computePlaybackFraction() ?: 0f
+                sliderPosition = mediaControllerManager.computePlaybackFraction() ?: 0f
                 current = mediaControllerManager.getCurrentTrackPosition().toDurationString()
             }
             delay(100)
@@ -304,8 +305,9 @@ private fun SongScreenContent(
 
                 CommonIcon(
                     modifier = iconModifier,
-                    icon = playBackState.loopMode.resource,
-                    onClick = mediaControllerManager::updatePlayListState
+                    icon = playBackState.repeatIcon.drawableRes,
+                    tint = playBackState.repeatIcon.iconTint,
+                    onClick = mediaControllerManager::updateLoopMode
                 )
 
                 CommonIcon(
@@ -316,7 +318,7 @@ private fun SongScreenContent(
                 )
 
                 val cornerSize by animateIntAsState(
-                    targetValue = if (playBackState.playerState == PlayerState.PLAY) 50 else 12,
+                    targetValue = if (playBackState.isPlaying) 50 else 12,
                     animationSpec = tween(durationMillis = 100), label = ""
                 )
 
@@ -330,7 +332,7 @@ private fun SongScreenContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(playBackState.playerState.resource),
+                        painter = painterResource(playBackState.playPauseIcon.drawableRes),
                         contentDescription = null
                     )
                 }
@@ -346,8 +348,9 @@ private fun SongScreenContent(
                 CommonIcon(
                     modifier = iconModifier,
                     size = 32.dp,
-                    icon = R.drawable.ic_upload,
-                    enabled = false
+                    icon = playBackState.shuffleIcon.drawableRes,
+                    tint = playBackState.shuffleIcon.iconTint,
+                    onClick = mediaControllerManager::updateShuffleMode
                 )
 
             }

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,7 +37,7 @@ import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.ui.theme.DarkGray
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.util.resource
+import com.example.musicapp.util.playPauseIcon
 
 
 @Composable
@@ -62,7 +63,7 @@ fun MiniPlayer(
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(8.dp)
-                .clickable(enabled = true, onClick = state::expandSoft),
+                .clickable(onClick = state::expandSoft),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -101,9 +102,7 @@ fun MiniPlayer(
                 )
             }
 
-            IconButton(onClick = {
-                mediaControllerManager.toggleLikedCurrentSong()
-            }) {
+            IconButton(onClick = mediaControllerManager::toggleLikedCurrentSong) {
                 Icon(
                     imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = null, tint = White
@@ -111,7 +110,7 @@ fun MiniPlayer(
             }
 
             Icon(
-                painter = painterResource(playBackState.playerState.resource),
+                painter = painterResource(playBackState.playPauseIcon.drawableRes),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(8.dp)
@@ -119,10 +118,10 @@ fun MiniPlayer(
                     .aspectRatio(1f)
                     .clickable {
                         mediaControllerManager.togglePlayPause()
-                    }, tint = White
+                    }, tint = MaterialTheme.colorScheme.primary
             )
 
-            IconButton(onClick = { mediaControllerManager.playNextSong() }) {
+            IconButton(onClick = mediaControllerManager::playNextSong) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null, tint = White

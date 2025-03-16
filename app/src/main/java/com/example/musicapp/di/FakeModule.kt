@@ -173,7 +173,7 @@ object FakeModule {
             override val audioSessionId: StateFlow<Int?>
                 get() = MutableStateFlow(0)
             override val playBackState: StateFlow<PlayBackState>
-                get() = MutableStateFlow(PlayBackState())
+                get() = MutableStateFlow(PlayBackState.initial())
             override val currentSong: StateFlow<CurrentSong>
                 get() = MutableStateFlow(
                     CurrentSong(

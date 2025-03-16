@@ -1,9 +1,7 @@
 package com.example.musicapp.other.presentation.ui.screen.home
 
-import android.Manifest
+
 import android.annotation.SuppressLint
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,30 +26,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
-import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.di.FakeModule
@@ -65,9 +56,11 @@ import com.example.musicapp.ui.theme.LightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.White
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.util.resource
+import com.example.musicapp.util.PlayerIcon
+import com.example.musicapp.util.playPauseIcon
+import com.example.musicapp.util.repeatIcon
+import com.example.musicapp.util.shuffleIcon
 import com.example.player.model.Queue
-import com.example.player.model.Song
 
 
 @ExperimentalMaterial3Api
@@ -80,7 +73,7 @@ fun Preview() {
             HomeContent(
                 modifier = Modifier.fillMaxSize(),
                 mediaControllerManager = FakeModule.mediaControllerManager,
-                songs = List(20) { index -> Song.unidentifiedSong(index.toString()) }
+                songs = List(20) { index -> FakeModule.localSong.copy(id = "$index") }
             )
         }
     }
@@ -93,28 +86,8 @@ fun Preview() {
 fun HomeScreen(
     homeViewModel: HomeViewModel
 ) {
-    var isReadMediaAudiosPermissionGranted by remember { mutableStateOf(false) }
-
-    val readMediaAudiosPermissionResultLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted -> isReadMediaAudiosPermissionGranted = isGranted }
-    )
-
-    val requestReadMediaAudiosPermission = {
-        readMediaAudiosPermissionResultLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
-    }
-
-    LaunchedEffect(isReadMediaAudiosPermissionGranted) {
-        if (!isReadMediaAudiosPermissionGranted) {
-            requestReadMediaAudiosPermission()
-        } else {
-            homeViewModel.loadSongs()
-        }
-    }
 
     val mediaControllerManager = LocalMediaControllerManager.current ?: return
-
-    val isLoading by homeViewModel.isLoading.collectAsStateWithLifecycle()
 
     val playBackState by mediaControllerManager.playBackState.collectAsState()
     val currentSong by mediaControllerManager.currentSong.collectAsState()
@@ -167,26 +140,26 @@ fun HomeScreen(
                 .padding(8.dp)
 
             listOf(
-                playBackState.loopMode.resource,
-                R.drawable.ic_skip_back,
-                playBackState.playerState.resource,
-                R.drawable.ic_skip_forward,
-                R.drawable.ic_upload
-            ).forEachIndexed { index, resId ->
+                playBackState.repeatIcon,
+                PlayerIcon(R.drawable.ic_skip_back),
+                playBackState.playPauseIcon,
+                PlayerIcon(R.drawable.ic_skip_forward),
+                playBackState.shuffleIcon
+            ).forEachIndexed { index, icon ->
                 IconButton(onClick = {
                     when (index) {
-                        0 -> mediaControllerManager.updatePlayListState()
+                        0 -> mediaControllerManager.updateLoopMode()
                         1 -> mediaControllerManager.playPreviousSong()
                         2 -> mediaControllerManager.togglePlayPause()
                         3 -> mediaControllerManager.playNextSong()
-                        4 -> homeViewModel.uploadSongs()
+                        4 -> mediaControllerManager.updateShuffleMode()
                     }
                 }) {
                     Icon(
-                        painter = painterResource(id = resId),
+                        painter = painterResource(id = icon.drawableRes),
                         contentDescription = null,
                         modifier = iconModifier,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = icon.iconTint ?: MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -197,40 +170,11 @@ fun HomeScreen(
             color = White
         )
 
-        if (!isReadMediaAudiosPermissionGranted) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-            ) {
-                Text(
-                    text = "Please grant the permission to read media audios",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = White
-                )
-                Button(onClick = { requestReadMediaAudiosPermission() }) {
-                    Text(text = "Grant Permission")
-                }
-            }
-        } else {
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                HomeContent(
-                    modifier = Modifier.fillMaxSize(),
-                    mediaControllerManager = mediaControllerManager,
-                    songs = songs
-                )
-            }
-        }
+        HomeContent(
+            modifier = Modifier.fillMaxSize(),
+            mediaControllerManager = mediaControllerManager,
+            songs = songs
+        )
     }
 
 
@@ -241,33 +185,31 @@ fun HomeScreen(
 private fun HomeContent(
     modifier: Modifier = Modifier,
     mediaControllerManager: MediaControllerManager,
-    songs: List<Song>,
+    songs: List<LocalSong>,
 ) {
     val menuState = LocalMenuState.current
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        LazyColumnWithAnimation2(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            items = songs,
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            key = { _, item -> item.id }
-        ) { itemModifier, index, song ->
-            SongItemContent2(
-                modifier = itemModifier, song = song,
-                onSongClick = {
-                    mediaControllerManager.playQueue(
-                        songs = songs,
-                        index = index,
-                        id = Queue.LOCAL_ID
-                    )
-                }
-            ) {
-                menuState.show {
-                    if (song is LocalSong) {
+        ) {
+            itemsIndexed(items = songs) { index, song ->
+                SongItemContent2(
+                    modifier = Modifier, song = song,
+                    onSongClick = {
+                        mediaControllerManager.playQueue(
+                            songs = songs,
+                            index = index,
+                            id = Queue.LOCAL_ID
+                        )
+                    }
+                ) {
+                    menuState.show {
                         HomeScreenMoreChoiceContent(
                             song = song,
                             dismiss = menuState::dismiss,
@@ -277,6 +219,36 @@ private fun HomeContent(
                 }
             }
         }
+
+//        LazyColumnWithAnimation2(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .weight(1f),
+//            items = songs,
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//            key = { _, item -> item.id }
+//        ) { itemModifier, index, song ->
+//            SongItemContent2(
+//                modifier = itemModifier, song = song,
+//                onSongClick = {
+//                    mediaControllerManager.playQueue(
+//                        songs = songs,
+//                        index = index,
+//                        id = Queue.LOCAL_ID
+//                    )
+//                }
+//            ) {
+//                menuState.show {
+//                    if (song is LocalSong) {
+//                        HomeScreenMoreChoiceContent(
+//                            song = song,
+//                            dismiss = menuState::dismiss,
+//                            mediaControllerManager = mediaControllerManager
+//                        )
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

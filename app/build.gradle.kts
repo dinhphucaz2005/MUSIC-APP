@@ -79,9 +79,7 @@ dependencies {
     implementation(project(":player"))
 
     // Media3
-    implementation(libs.androidx.media)
     implementation(libs.bundles.media3)
-
 
     // Jetpack Compose
     implementation(platform(libs.androidx.compose.bom))

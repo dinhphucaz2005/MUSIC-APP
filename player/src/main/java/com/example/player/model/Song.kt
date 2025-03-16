@@ -6,8 +6,7 @@ import androidx.media3.common.MediaMetadata
 import com.example.core.model.ThumbnailSource
 import java.util.UUID
 
-abstract class Song(
-) {
+abstract class Song {
 
     abstract val id: String
 
@@ -22,6 +21,8 @@ abstract class Song(
     abstract fun toMediaItem(): MediaItem
 
     abstract fun getArtistId(): String?
+
+    abstract fun getAudio(): Uri
 
     companion object {
 
@@ -60,6 +61,4 @@ abstract class Song(
             }
         }
     }
-
-    abstract fun getAudio(): Uri
 }

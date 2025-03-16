@@ -49,4 +49,7 @@ dependencies {
     //Dagger - Hilt
     ksp(libs.hilt.compiler)
     implementation(libs.bundles.hilt)
+
+    //Media
+    implementation(libs.androidx.media)
 }

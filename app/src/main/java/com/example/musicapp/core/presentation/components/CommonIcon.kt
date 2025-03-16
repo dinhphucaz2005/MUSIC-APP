@@ -17,7 +17,7 @@ fun CommonIcon(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     size: Dp = IconSize,
-    tint: Color = White,
+    tint: Color? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
@@ -27,6 +27,6 @@ fun CommonIcon(
             .clickable(enabled = enabled, onClick = { onClick?.invoke() })
             .size(size),
         contentDescription = null,
-        tint = tint
+        tint = tint ?: White
     )
 }

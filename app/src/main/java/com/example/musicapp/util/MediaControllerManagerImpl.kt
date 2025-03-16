@@ -12,9 +12,7 @@ import androidx.media3.session.MediaController
 import com.example.musicapp.extension.withIOContext
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.player.model.CurrentSong
-import com.example.player.model.LoopMode
 import com.example.player.model.PlayBackState
-import com.example.player.model.PlayerState
 import com.example.player.model.Queue
 import com.example.player.model.Song
 import com.example.player.service.MusicService
@@ -48,7 +46,7 @@ class MediaControllerManagerImpl(
         get() = binder?.service?.queueFlow ?: MutableStateFlow(null)
 
 
-    private val _playBackState = MutableStateFlow(PlayBackState())
+    private val _playBackState = MutableStateFlow(PlayBackState.initial())
     override val playBackState = _playBackState.asStateFlow()
 
     private val _currentSong = MutableStateFlow(CurrentSong.unidentifiedSong())
@@ -92,7 +90,6 @@ class MediaControllerManagerImpl(
                     playWhenReady = true
                     addListener(this@MediaControllerManagerImpl)
                 }
-                updatePlayListState()
             } catch (e: Exception) {
                 Log.e(TAG, "Error creating MediaController", e)
             }
@@ -103,12 +100,11 @@ class MediaControllerManagerImpl(
                 repeatMode = Player.REPEAT_MODE_ALL
             }
 
-            _playBackState.update {
-                PlayBackState(
-                    PlayerState.fromBoolean(isPlaying),
-                    LoopMode.fromInt(repeatMode, shuffleModeEnabled)
-                )
-            }
+            _playBackState.value = PlayBackState.fromController(
+                isPlaying,
+                repeatMode,
+                shuffleModeEnabled
+            )
         }
     }
 
@@ -117,7 +113,7 @@ class MediaControllerManagerImpl(
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
-        _playBackState.update { it.updatePlayerState(isPlaying) }
+        _playBackState.value = _playBackState.value.updatePlayerState(isPlaying)
     }
 
     @MainThread
@@ -130,28 +126,6 @@ class MediaControllerManagerImpl(
         return controller?.run {
             action(this)
             play()
-        }
-    }
-
-
-    override fun updatePlayListState() = withController {
-        _playBackState.value = _playBackState.value.updateLoopMode()
-//         Update controller with new loop mode
-        when (_playBackState.value.loopMode) {
-            LoopMode.SHUFFLE -> {
-                shuffleModeEnabled = true
-                repeatMode = Player.REPEAT_MODE_ALL
-            }
-
-            LoopMode.REPEAT_ALL -> {
-                shuffleModeEnabled = false
-                repeatMode = Player.REPEAT_MODE_ALL
-            }
-
-            LoopMode.REPEAT_ONE -> {
-                shuffleModeEnabled = false
-                repeatMode = Player.REPEAT_MODE_ONE
-            }
         }
     }
 
@@ -240,6 +214,25 @@ class MediaControllerManagerImpl(
         }
     }
 
+    override fun updateLoopMode() {
+        withController {
+            repeatMode = when (repeatMode) {
+                Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+                Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+                Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_OFF
+                else -> Player.REPEAT_MODE_OFF
+            }
+            updatePlayBackState()
+        }
+    }
+
+    override fun updateShuffleMode() {
+        withController {
+            shuffleModeEnabled = !shuffleModeEnabled
+            updatePlayBackState()
+        }
+    }
+
     override fun addToNext(song: Song) {
         binder?.service?.addToNext(song)
     }
@@ -250,4 +243,13 @@ class MediaControllerManagerImpl(
 
     override fun getCurrentMediaIndex(): Int? = withController { currentMediaItemIndex }
 
+    private fun updatePlayBackState() {
+        withController {
+            _playBackState.value = PlayBackState.fromController(
+                isPlaying,
+                repeatMode,
+                shuffleModeEnabled
+            )
+        }
+    }
 }
