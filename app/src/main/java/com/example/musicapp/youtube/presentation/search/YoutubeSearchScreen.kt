@@ -16,7 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.core.presentation.components.DefaultSearchBar
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
-import com.example.musicapp.youtube.presentation.screen.SongItemFromYoutube
+//import com.example.musicapp.youtube.presentation.screen.SongItemFromYoutube
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,17 +52,17 @@ fun YoutubeSearchScreen(
                 .fillMaxWidth()
                 .wrapContentHeight()
         )
-        LazyColumnWithAnimation2(
-            state = state,
-            items = songListState.searchResults,
-        ) { itemModifier, _, item ->
-            SongItemFromYoutube(
-                modifier = itemModifier,
-                song = item,
-                onClick = {
-                    mediaControllerManager.playYoutubeSong(item)
-                }
-            )
-        }
+//        LazyColumnWithAnimation2(
+//            state = state,
+//            items = songListState.searchResults,
+//        ) { itemModifier, _, item ->
+//            SongItemFromYoutube(
+//                modifier = itemModifier,
+//                song = item,
+//                onClick = {
+//                    mediaControllerManager.playYoutubeSong(item)
+//                }
+//            )
+//        }
     }
 }

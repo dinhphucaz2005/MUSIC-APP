@@ -9,28 +9,21 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import com.example.innertube.CustomYoutube
-import com.example.innertube.models.SongItem
-import com.example.innertube.models.WatchEndpoint
 import com.example.musicapp.constants.LoopMode
 import com.example.musicapp.constants.PlayerState
 import com.example.musicapp.extension.withIOContext
-import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.YoutubeSong
 import com.example.musicapp.other.domain.repository.SongRepository
 import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @SuppressLint("UnsafeOptInUsageError")
@@ -46,7 +39,8 @@ class MediaControllerManagerImpl(
             .buildAsync()
     }
 
-    override val audioSessionId: StateFlow<Int?> = binder?.service?.audioSessionId ?: MutableStateFlow(null)
+    override val audioSessionId: StateFlow<Int?> =
+        binder?.service?.audioSessionId ?: MutableStateFlow(null)
 
     private var controller: MediaController? = null
 
@@ -191,27 +185,6 @@ class MediaControllerManagerImpl(
         }
     }
 
-    override fun playYoutubeSong(songItem: SongItem) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = runBlocking(Dispatchers.IO) {
-                CustomYoutube.next(WatchEndpoint(songItem.id))
-            }
-
-            val songs = response
-                .getOrNull()
-                ?.items ?: emptyList()
-
-            withMainContext {
-                playQueue(
-                    songs = songs.map { YoutubeSong(it) },
-                    index = 0,
-                    Queue.YOUTUBE_SONG_ID + "/" + songItem.id
-                )
-            }
-        }
-    }
-
-
 
     private fun playMediaItems(queue: List<MediaItem>, index: Int = 0) = withController {
         clearMediaItems()
@@ -234,7 +207,7 @@ class MediaControllerManagerImpl(
         binder?.service?.downloadCurrentSong()
     }
 
-    fun toggleLikedCurrentSong() {
+    override fun toggleLikedCurrentSong() {
         withIOContext {
             val song = currentSong.value
             if (song.isLiked) {
@@ -256,5 +229,9 @@ class MediaControllerManagerImpl(
     }
 
     override fun getCurrentMediaIndex(): Int? = withController { currentMediaItemIndex }
+
+    fun updateLoopMode() {}
+
+    fun updateShuffleMode() {}
 
 }

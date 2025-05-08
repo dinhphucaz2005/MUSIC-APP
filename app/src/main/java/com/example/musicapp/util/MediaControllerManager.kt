@@ -1,6 +1,5 @@
 package com.example.musicapp.util
 
-import com.example.innertube.models.SongItem
 import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.PlayBackState
 import com.example.musicapp.other.domain.model.Queue
@@ -36,7 +35,7 @@ interface MediaControllerManager {
 
     fun playAtIndex(index: Int): Unit?
 
-    fun playYoutubeSong(songItem: SongItem)
+    fun toggleLikedCurrentSong()
 
     fun addToNext(song: Song)
 

@@ -25,102 +25,102 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.innertube.models.SongItem
+//import com.example.innertube.models.SongItem
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.SongItemHeight
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.White
+import com.example.musicapp.ui.theme.white
 import com.example.musicapp.extension.toArtistString
 import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.other.domain.model.ThumbnailSource
 
-@Composable
-fun SongItemFromYoutube(modifier: Modifier = Modifier, song: SongItem, onClick: () -> Unit) {
-    MyListItem(
-        headlineContent = {
-            Text(
-                text = song.title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = White,
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp)
-            )
-        },
-        leadingContent = {
-            val imageModifier = Modifier
-                .clip(RoundedCornerShape(DefaultCornerSize))
-                .fillMaxHeight()
-                .aspectRatio(1f)
-            Thumbnail(
-                modifier = imageModifier,
-                thumbnailSource = ThumbnailSource.FromUrl(song.thumbnail)
-            )
-        },
-        supportingContent = {
-            Text(
-                text = "${song.artists.toArtistString()} \u00B7 ${song.duration.toDurationString()}",
-                color = White,
-            )
-        },
-        trailingContent = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert, contentDescription = null,
-                    tint = White
-                )
-            }
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .height(SongItemHeight)
-    )
-}
+//@Composable
+//fun SongItemFromYoutube(modifier: Modifier = Modifier, song: SongItem, onClick: () -> Unit) {
+//    MyListItem(
+//        headlineContent = {
+//            Text(
+//                text = song.title,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis,
+//                color = white,
+//                style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp)
+//            )
+//        },
+//        leadingContent = {
+//            val imageModifier = Modifier
+//                .clip(RoundedCornerShape(DefaultCornerSize))
+//                .fillMaxHeight()
+//                .aspectRatio(1f)
+//            Thumbnail(
+//                modifier = imageModifier,
+//                thumbnailSource = ThumbnailSource.FromUrl(song.thumbnail)
+//            )
+//        },
+//        supportingContent = {
+//            Text(
+//                text = "${song.artists.toArtistString()} \u00B7 ${song.duration.toDurationString()}",
+//                color = white,
+//            )
+//        },
+//        trailingContent = {
+//            IconButton(onClick = { /*TODO*/ }) {
+//                Icon(
+//                    imageVector = Icons.Default.MoreVert, contentDescription = null,
+//                    tint = white
+//                )
+//            }
+//        },
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .clickable(onClick = onClick)
+//            .height(SongItemHeight)
+//    )
+//}
 
-@Preview
-@Composable
-private fun SongsPreview() {
-    MyMusicAppTheme {
-        Column {
-            Songs(songs = List(20) {
-                SongItem.unidentifiedSong().copy(id = it.toString())
-            }) {
-                // do nothing
-            }
-        }
-    }
-}
+//@Preview
+//@Composable
+//private fun SongsPreview() {
+//    MyMusicAppTheme {
+//        Column {
+//            Songs(songs = List(20) {
+//                SongItem.unidentifiedSong().copy(id = it.toString())
+//            }) {
+//                // do nothing
+//            }
+//        }
+//    }
+//}
 
-@Composable
-fun Songs(
-    modifier: Modifier = Modifier,
-    songs: List<SongItem>,
-    onClick: (SongItem) -> Unit
-) {
-    val maxRow = 4
-    val state = rememberPagerState { songs.size / maxRow }
-    HorizontalPager(state = state) { index ->
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(end = 12.dp)
-                .wrapContentHeight(),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            for (i in index * maxRow until (index + 1) * maxRow) {
-                if (i < songs.size) {
-                    val song = songs[i]
-                    SongItemFromYoutube(
-                        song = song, modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 12.dp)
-                    ) {
-                        onClick(song)
-                    }
-                }
-            }
-        }
-    }
-}
+//@Composable
+//fun Songs(
+//    modifier: Modifier = Modifier,
+//    songs: List<SongItem>,
+//    onClick: (SongItem) -> Unit
+//) {
+//    val maxRow = 4
+//    val state = rememberPagerState { songs.size / maxRow }
+//    HorizontalPager(state = state) { index ->
+//        Column(
+//            modifier = modifier
+//                .fillMaxWidth()
+//                .padding(end = 12.dp)
+//                .wrapContentHeight(),
+//            verticalArrangement = Arrangement.spacedBy(6.dp)
+//        ) {
+//            for (i in index * maxRow until (index + 1) * maxRow) {
+//                if (i < songs.size) {
+//                    val song = songs[i]
+//                    SongItemFromYoutube(
+//                        song = song, modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(end = 12.dp)
+//                    ) {
+//                        onClick(song)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}

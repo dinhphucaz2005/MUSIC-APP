@@ -13,9 +13,8 @@ import com.example.musicapp.constants.Screens
 import com.example.musicapp.youtube.presentation.YoutubeRoute.ALBUM_ID
 import com.example.musicapp.youtube.presentation.YoutubeRoute.ARTIST_ID
 import com.example.musicapp.youtube.presentation.YoutubeRoute.PLAYLIST_ID
-import com.example.musicapp.youtube.presentation.screen.AlbumScreen
 import com.example.musicapp.youtube.presentation.screen.ArtistScreen
-import com.example.musicapp.youtube.presentation.screen.PlaylistScreen
+//import com.example.musicapp.youtube.presentation.screen.PlaylistScreen
 import com.example.musicapp.youtube.presentation.screen.YoutubeScreen
 import com.example.musicapp.youtube.presentation.search.YoutubeSearchScreen
 import com.example.musicapp.youtube.presentation.search.YoutubeSearchViewModel
@@ -39,11 +38,11 @@ fun NavGraphBuilder.youtubeNavigation(
         ) { navBackStackEntry ->
             val playlistId =
                 navBackStackEntry.arguments?.getString(PLAYLIST_ID) ?: return@composable
-            PlaylistScreen(
-                playlistId = playlistId,
-                navController = navController,
-                youtubeViewModel = youtubeViewModel
-            )
+//            PlaylistScreen(
+//                playlistId = playlistId,
+//                navController = navController,
+//                youtubeViewModel = youtubeViewModel
+//            )
         }
 
         composable(YoutubeRoute.SEARCH) {
@@ -75,11 +74,11 @@ fun NavGraphBuilder.youtubeNavigation(
             })
         ) { navBackStackEntry ->
             val albumId = navBackStackEntry.arguments?.getString(ALBUM_ID) ?: return@composable
-            AlbumScreen(
-                modifier = Modifier.fillMaxSize(),
-                albumId = albumId,
-                youtubeViewModel = youtubeViewModel
-            )
+//            AlbumScreen(
+//                modifier = Modifier.fillMaxSize(),
+//                albumId = albumId,
+//                youtubeViewModel = youtubeViewModel
+//            )
         }
 
     }

@@ -32,7 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.musicapp.R
 import com.example.musicapp.ui.theme.OnSecondary
 import com.example.musicapp.ui.theme.SearchBarBackground
-import com.example.musicapp.ui.theme.White
+import com.example.musicapp.ui.theme.white
 
 @Composable
 fun DefaultSearchBar(
@@ -43,8 +43,8 @@ fun DefaultSearchBar(
 ) {
     CompositionLocalProvider(
         LocalTextSelectionColors provides TextSelectionColors(
-            handleColor = White,
-            backgroundColor = White
+            handleColor = white,
+            backgroundColor = white
         )
     ) {
         Column(

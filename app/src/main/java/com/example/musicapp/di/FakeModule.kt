@@ -5,12 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import com.example.innertube.models.AlbumItem
-import com.example.innertube.models.Artist
-import com.example.innertube.models.ArtistItem
-import com.example.innertube.models.SongItem
-import com.example.innertube.pages.AlbumPage
-import com.example.innertube.pages.ArtistPage
 import com.example.musicapp.other.domain.model.CurrentSong
 import com.example.musicapp.other.domain.model.FirebaseSong
 import com.example.musicapp.other.domain.model.LocalSong
@@ -30,22 +24,21 @@ import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.UUID
 import kotlin.random.Random
 
 object FakeModule {
 
-    val artistPage: ArtistPage = ArtistPage(
-        artist = ArtistItem(
-            id = "TODO()",
-            title = "TODO()",
-            thumbnail = "TODO()",
-            shuffleEndpoint = null,
-            radioEndpoint = null
-        ),
-        sections = listOf(),
-        description = null
-    )
+//    val artistPage: ArtistPage = ArtistPage(
+//        artist = ArtistItem(
+//            id = "TODO()",
+//            title = "TODO()",
+//            thumbnail = "TODO()",
+//            shuffleEndpoint = null,
+//            radioEndpoint = null
+//        ),
+//        description = null
+//    )
+
     private val localSongs = listOf(
         LocalSong(
             id = "1",
@@ -210,7 +203,7 @@ object FakeModule {
 
             override fun seekToSliderPosition(sliderPosition: Float) {}
 
-            override fun updatePlayListState(): Unit? = null
+            override fun updatePlayListState() {}
 
             override fun playPreviousSong(): Unit? = null
 
@@ -222,39 +215,41 @@ object FakeModule {
 
             override fun playAtIndex(index: Int): Unit? = null
 
-            override fun playYoutubeSong(songItem: SongItem) {}
             override fun addToNext(song: Song) {}
 
             override fun addToQueue(song: Song) {}
+
+            override fun toggleLikedCurrentSong() {}
+
         }
 
-    fun provideAlbumPage(): AlbumPage = AlbumPage(
-        album = AlbumItem(
-            browseId = UUID.randomUUID().toString(),
-            playlistId = UUID.randomUUID().toString(),
-            id = UUID.randomUUID().toString(),
-            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
-            artists = listOf(Artist("Music Time", null)),
-            year = null,
-            thumbnail = "",
-            explicit = false
-        ),
-        songs = List(20) { provideSongItem() },
-        otherVersions = emptyList()
-    )
+//    fun provideAlbumPage(): AlbumPage = AlbumPage(
+//        album = AlbumItem(
+//            browseId = UUID.randomUUID().toString(),
+//            playlistId = UUID.randomUUID().toString(),
+//            id = UUID.randomUUID().toString(),
+//            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
+//            artists = listOf(Artist("Music Time", null)),
+//            year = null,
+//            thumbnail = "",
+//            explicit = false
+//        ),
+//        songs = List(20) { provideSongItem() },
+//        otherVersions = emptyList()
+//    )
 
-    private fun provideSongItem(): SongItem {
-        return SongItem(
-            id = UUID.randomUUID().toString(),
-            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
-            artists = listOf(Artist("Music Time", null)),
-            album = null,
-            duration = null,
-            thumbnail = "",
-            explicit = false,
-            endpoint = null,
-        )
-    }
+//    private fun provideSongItem(): SongItem {
+//        return SongItem(
+//            id = UUID.randomUUID().toString(),
+//            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
+//            artists = listOf(Artist("Music Time", null)),
+//            album = null,
+//            duration = null,
+//            thumbnail = "",
+//            explicit = false,
+//            endpoint = null,
+//        )
+//    }
 
     val playlist = Playlist(
         id = Random.nextInt(),

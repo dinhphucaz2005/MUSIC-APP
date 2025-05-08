@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,100 +34,92 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.constants.MiniPlayerHeight
-import com.example.musicapp.ui.theme.DarkGray
-import com.example.musicapp.ui.theme.White
-import com.example.musicapp.util.MediaControllerManagerImpl
+import com.example.musicapp.ui.theme.LocalAppBrushes
+import com.example.musicapp.ui.theme.white
+import com.example.musicapp.util.MediaControllerManager
 
 
 @Composable
 fun MiniPlayer(
     state: BottomSheetState,
-    mediaControllerManagerImpl: MediaControllerManagerImpl
+    mediaControllerManager: MediaControllerManager
 ) {
 
-    val currentSong by mediaControllerManagerImpl.currentSong.collectAsState()
+    val currentSong by mediaControllerManager.currentSong.collectAsState()
 
-    val playBackState by mediaControllerManagerImpl.playBackState.collectAsState()
+    val playBackState by mediaControllerManager.playBackState.collectAsState()
 
-    Column(
+
+    Row(
         modifier = Modifier
             .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-            .fillMaxWidth()
-            .background(DarkGray)
             .height(MiniPlayerHeight)
+            .fillMaxWidth()
+            .background(LocalAppBrushes.current.playerGradient)
+            .padding(8.dp)
+            .clickable(onClick = state::expandSoft),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+
+        Thumbnail(
+            Modifier
+                .clip(RoundedCornerShape(DefaultCornerSize))
+                .fillMaxHeight()
+                .aspectRatio(1f),
+            thumbnailSource = currentSong.data.getThumbnail()
+        )
+
+        Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                .fillMaxWidth()
                 .weight(1f)
-                .padding(8.dp)
-                .clickable(enabled = true, onClick = state::expandSoft),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-
-            Thumbnail(
-                Modifier
-                    .clip(RoundedCornerShape(DefaultCornerSize))
-                    .fillMaxHeight()
-                    .aspectRatio(1f),
-                thumbnailSource = currentSong.data.getThumbnail()
-            )
-
-            Column(
+            Text(
+                text = currentSong.data.getSongTitle(),
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text(
-                    text = currentSong.data.getSongTitle(),
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .basicMarquee(
-                            iterations = Int.MAX_VALUE,
-                            spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
-                        ),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp, color = White
-                )
-                Text(
-                    text = currentSong.data.getSongArtist(),
-                    modifier = Modifier.padding(start = 8.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp, color = White,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
-                )
-            }
+                    .padding(start = 8.dp)
+                    .basicMarquee(
+                        iterations = Int.MAX_VALUE,
+                        spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
+                    ),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp, color = white
+            )
+            Text(
+                text = currentSong.data.getSongArtist(),
+                modifier = Modifier.padding(start = 8.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp, color = white,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        }
 
-            IconButton(onClick = {
-                mediaControllerManagerImpl.toggleLikedCurrentSong()
-            }) {
-                Icon(
-                    imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = null, tint = White
-                )
-            }
-
+        IconButton(onClick = mediaControllerManager::toggleLikedCurrentSong) {
             Icon(
-                painter = painterResource(playBackState.playerState.resource),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-                    .clickable {
-                        mediaControllerManagerImpl.togglePlayPause()
-                    }, tint = White
+                imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = null, tint = white
             )
+        }
 
-            IconButton(onClick = { mediaControllerManagerImpl.playNextSong() }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null, tint = White
-                )
-            }
+        Icon(
+            painter = painterResource(playBackState.playerState.resource),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .clickable {
+                    mediaControllerManager.togglePlayPause()
+                }, tint = MaterialTheme.colorScheme.primary
+        )
+
+        IconButton(onClick = mediaControllerManager::playNextSong) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null, tint = white
+            )
         }
     }
 }

@@ -23,7 +23,7 @@ import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation
 import com.example.musicapp.core.presentation.components.MyListItem
 import com.example.musicapp.core.presentation.components.Thumbnail
 import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.White
+import com.example.musicapp.ui.theme.white
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.other.domain.model.Playlist
 import com.example.musicapp.other.domain.model.ThumbnailSource
@@ -66,14 +66,14 @@ private fun PlaylistDetailContent(
                 Text(
                     text = playlist.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = White
+                    color = white
                 )
             },
             supportingContent = {
                 Text(
                     text = "${playlist.songs.size} songs",
                     style = MaterialTheme.typography.titleSmall,
-                    color = White
+                    color = white
                 )
             },
             modifier = Modifier
@@ -90,9 +90,9 @@ private fun PlaylistDetailContent(
             SongItemContent(
                 song = song,
                 modifier = itemModifier,
-            ) {
-                TODO("Not yet implemented")
-            }
+                onSongClick = {},
+                onMoreChoice = {}
+            )
         }
 
     }

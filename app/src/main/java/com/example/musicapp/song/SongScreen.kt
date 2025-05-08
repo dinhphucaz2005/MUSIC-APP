@@ -1,5 +1,6 @@
 package com.example.musicapp.song
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -52,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.innertube.pages.RelatedPage
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
@@ -77,13 +77,12 @@ import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.other.domain.model.Queue
 import com.example.musicapp.other.domain.model.Song
 import com.example.musicapp.other.viewmodels.SongViewModel
-import com.example.musicapp.ui.theme.LightGray
+import com.example.musicapp.ui.theme.lightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.Primary
-import com.example.musicapp.ui.theme.White
+import com.example.musicapp.ui.theme.primary
+import com.example.musicapp.ui.theme.white
 import com.example.musicapp.util.MediaControllerManager
 import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.musicapp.youtube.presentation.screen.Songs
 import kotlinx.coroutines.delay
 
 @Composable
@@ -112,6 +111,7 @@ fun BottomSheetPlayer(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @UnstableApi
 @Preview
 @Composable
@@ -164,7 +164,7 @@ private fun SongScreenContent(
     var current by remember { mutableStateOf("00:00") }
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
-    val relatedPage by songViewModel.relatedPage.collectAsState()
+//    val relatedPage by songViewModel.relatedPage.collectAsState()
 
     LaunchedEffect(pause) {
         if (!pause) while (true) {
@@ -223,7 +223,7 @@ private fun SongScreenContent(
 
             Text(
                 text = currentSong.data.getSongTitle(),
-                color = White,
+                color = white,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.basicMarquee(
@@ -235,7 +235,7 @@ private fun SongScreenContent(
 
             Text(
                 text = currentSong.data.getSongArtist(),
-                color = White,
+                color = white,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.clickable {
                     currentSong.data.getArtistId()?.let {
@@ -326,7 +326,7 @@ private fun SongScreenContent(
                     modifier = Modifier
                         .clickable(onClick = mediaControllerManager::togglePlayPause)
                         .clip(RoundedCornerShape(cornerSize))
-                        .background(Primary)
+                        .background(primary)
                         .fillMaxHeight()
                         .aspectRatio(1f),
                     contentAlignment = Alignment.Center
@@ -375,10 +375,10 @@ private fun SongScreenContent(
                 },
                 Pair(R.string.related) {
                     menuState.show {
-                        Related(
-                            mediaControllerManager = mediaControllerManager,
-                            relatedPage = relatedPage
-                        )
+//                        Related(
+//                            mediaControllerManager = mediaControllerManager,
+//                            relatedPage = relatedPage
+//                        )
                     }
                 },
             )
@@ -392,7 +392,7 @@ private fun SongScreenContent(
                 list.forEach {
                     Text(
                         text = stringResource(it.first),
-                        color = White,
+                        color = white,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
@@ -416,46 +416,46 @@ private fun Lyrics(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.lyrics),
             style = MaterialTheme.typography.titleMedium,
-            color = White,
+            color = white,
         )
     }
 
 }
 
-@Composable
-private fun Related(
-    modifier: Modifier = Modifier,
-    mediaControllerManager: MediaControllerManager,
-    relatedPage: RelatedPage? = null
-) {
-    Column(
-        modifier = modifier
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.related),
-            style = MaterialTheme.typography.titleMedium,
-            color = White,
-        )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            item {
-                relatedPage?.songs?.let { songs ->
-                    Songs(
-                        songs = songs,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = mediaControllerManager::playYoutubeSong
-                    )
-                }
-            }
-        }
-    }
-}
+//@Composable
+//private fun Related(
+//    modifier: Modifier = Modifier,
+//    mediaControllerManager: MediaControllerManager,
+//    relatedPage: RelatedPage? = null
+//) {
+//    Column(
+//        modifier = modifier
+//            .padding(12.dp),
+//        verticalArrangement = Arrangement.spacedBy(6.dp)
+//    ) {
+//        Text(
+//            text = stringResource(R.string.related),
+//            style = MaterialTheme.typography.titleMedium,
+//            color = white,
+//        )
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .weight(1f),
+//            verticalArrangement = Arrangement.spacedBy(6.dp)
+//        ) {
+//            item {
+//                relatedPage?.songs?.let { songs ->
+//                    Songs(
+//                        songs = songs,
+//                        modifier = Modifier.fillMaxWidth(),
+//                        onClick = mediaControllerManager::playYoutubeSong
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun QueueView(
@@ -481,7 +481,7 @@ fun QueueView(
         Text(
             text = "Queue",
             style = MaterialTheme.typography.titleMedium,
-            color = White,
+            color = white,
         )
 
         LazyColumnWithAnimation2(
@@ -495,12 +495,10 @@ fun QueueView(
         ) { itemModifier, index, song ->
             SongItemContent(
                 song = song,
-                modifier = itemModifier.clickable(onClick = {
-                    mediaControllerManager.playAtIndex(index)
-                })
-            ) {
-                menu.show { Menu(song = song) }
-            }
+                modifier = itemModifier,
+                onSongClick = { mediaControllerManager.playAtIndex(index) },
+                onMoreChoice = { menu.show { Menu(song = song) } }
+            )
         }
 
     }
@@ -526,7 +524,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = White
+                    color = white
                 )
             },
             leadingContent = {
@@ -543,7 +541,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                 Text(
                     text = song.getSongArtist() + " \u2022 " + song.getDuration(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = LightGray,
+                    color = lightGray,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             },
@@ -568,7 +566,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                     Text(
                         text = stringResource(it.second),
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = White
+                        color = white
                     )
                 },
                 leadingContent = {

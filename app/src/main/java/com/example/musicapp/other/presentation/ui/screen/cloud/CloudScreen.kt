@@ -44,9 +44,9 @@ fun CloudScreen(viewModel: CloudViewModel = fakeViewModel<CloudViewModel>()) {
                     )
                 }),
                 song = item,
-            ) {
-
-            }
+                onSongClick = {},
+                onMoreChoice = {}
+            )
         }
     }
 }

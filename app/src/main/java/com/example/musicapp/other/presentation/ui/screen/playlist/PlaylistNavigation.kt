@@ -18,7 +18,7 @@ fun NavGraphBuilder.playlistNavigation(
 ) {
     navigation(startDestination = PlaylistRoute.HOME, route = Screens.Playlists.route) {
         composable(route = PlaylistRoute.HOME) {
-            PlayListHome(navController, playlistViewModel)
+            PlayListHome(playlistViewModel = playlistViewModel)
         }
         composable(
             route = PlaylistRoute.DETAIL + "/{$PLAYLIST_ID}",
