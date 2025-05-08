@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.audio_spectrum.AudioVisualizerScreen
@@ -61,20 +63,19 @@ import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
-import com.example.musicapp.other.domain.repository.SongRepository
-import com.example.musicapp.other.presentation.ui.screen.cloud.CloudScreen
-import com.example.musicapp.other.presentation.ui.screen.home.HomeScreen
-import com.example.musicapp.other.presentation.ui.screen.setting.LoginScreen
-import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.other.viewmodels.SongViewModel
+import com.example.musicapp.music.domain.repository.SongRepository
+import com.example.musicapp.music.presentation.ui.screen.home.HomeScreen
+import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
 import com.example.musicapp.service.MusicService
-import com.example.musicapp.song.BottomSheetPlayer
+import com.example.musicapp.core.presentation.components.BottomSheetPlayer
+import com.example.musicapp.music.presentation.navigation.Routes
+import com.example.musicapp.music.presentation.ui.screen.local.LocalSongsScreen
+import com.example.musicapp.music.presentation.ui.screen.local.LocalViewModel
 import com.example.musicapp.ui.theme.darkGray
 import com.example.musicapp.ui.theme.lightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.ui.theme.white
 import com.example.musicapp.util.MediaControllerManagerImpl
-import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -110,7 +111,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {
-                    App(hiltViewModel<HomeViewModel>(), hiltViewModel<YoutubeViewModel>())
+                    App()
                 }
             }
         }
@@ -147,10 +148,7 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-private fun App(
-    homeViewModel: HomeViewModel,
-    youtubeViewModel: YoutubeViewModel
-) {
+private fun App() {
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -176,136 +174,127 @@ private fun App(
         label = ""
     )
 
-
-//    val playListViewModel = hiltViewModel<PlaylistViewModel>()
-    val songViewModel = hiltViewModel<SongViewModel>()
-
-    homeViewModel.loadSongs()
-
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        val playerBottomSheetState = rememberBottomSheetState(
-            dismissedBound = 0.dp,
-            collapsedBound = bottomInset + (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
-            expandedBound = maxHeight,
-        )
-
-        LaunchedEffect(navBackStackEntry) {
-            playerBottomSheetState.collapseSoft()
-        }
-
-        LaunchedEffect(queue) {
-            if (queue != null && playerBottomSheetState.isDismissed) {
-                playerBottomSheetState.collapseSoft()
-            }
-        }
-
-        val horizontalPagerState = rememberPagerState(pageCount = navigationItems::size)
-
-        HorizontalPager(
-            state = horizontalPagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
+    NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
+        composable(route = Routes.HOME_SCREEN) {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                val playerBottomSheetState = rememberBottomSheetState(
+                    dismissedBound = 0.dp,
+                    collapsedBound = bottomInset + (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
+                    expandedBound = maxHeight,
                 )
-                .fillMaxSize()
-        ) { page ->
-            when (page) {
-                0 -> HomeScreen(homeViewModel)
-                1 -> Column {
-                    Text(
-                        "Playlist",
-                        style = MaterialTheme.typography.titleLarge.copy(color = white)
-                    )
+
+                LaunchedEffect(navBackStackEntry) {
+                    playerBottomSheetState.collapseSoft()
                 }
+
+                LaunchedEffect(queue) {
+                    if (queue != null && playerBottomSheetState.isDismissed) {
+                        playerBottomSheetState.collapseSoft()
+                    }
+                }
+
+                val horizontalPagerState = rememberPagerState(pageCount = navigationItems::size)
+
+                HorizontalPager(
+                    state = horizontalPagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
+                        )
+                        .fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> HomeScreen(
+                            homeViewModel = hiltViewModel<HomeViewModel>(),
+                            onNavigateToAllLocalSongScreen = { navController.navigate(Routes.LOCAL_SONGS) }
+                        )
+
+                        1 -> Column {
+                            Text(
+                                "Playlist",
+                                style = MaterialTheme.typography.titleLarge.copy(color = white)
+                            )
+                        }
 //                1 -> playlistNavigation(navController, playListViewModel, homeViewModel)
-                2 -> CloudScreen()
-                3 -> Column {
-                    Text("Youtube", style = MaterialTheme.typography.titleLarge.copy(color = white))
+                        2 -> Column {
+                            Text(
+                                "Cloud",
+                                style = MaterialTheme.typography.titleLarge.copy(color = white)
+                            )
+                        }
+
+                        3 -> Column {
+                            Text(
+                                "Youtube",
+                                style = MaterialTheme.typography.titleLarge.copy(color = white)
+                            )
+                        }
+
+                        4 -> Column {
+                            Text(
+                                "Login",
+                                style = MaterialTheme.typography.titleLarge.copy(color = white)
+                            )
+                        }
+
+                        5 -> AudioVisualizerScreen()
+                    }
                 }
-//                3 -> youtubeNavigation(navController, youtubeViewModel)
-                4 -> LoginScreen(navController = navController, reload = youtubeViewModel::reload)
-                5 -> AudioVisualizerScreen()
+
+                BottomSheetPlayer(
+                    state = playerBottomSheetState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .wrapContentHeight(),
+                    navController = navController,
+                )
+
+                MainNavigationBar(
+                    modifier = Modifier
+                        .offset {
+                            if (navigationBarHeight == 0.dp) {
+                                IntOffset(
+                                    x = 0, y = (bottomInset + NavigationBarHeight).roundToPx()
+                                )
+                            } else {
+                                val slideOffset =
+                                    (bottomInset + NavigationBarHeight) * playerBottomSheetState.progress.coerceIn(
+                                        0f, 1f
+                                    )
+                                val hideOffset =
+                                    (bottomInset + NavigationBarHeight) * (1 - navigationBarHeight / NavigationBarHeight)
+                                IntOffset(
+                                    x = 0, y = (slideOffset + hideOffset).roundToPx()
+                                )
+                            }
+                        },
+                    navigationItems = navigationItems,
+                    //            navController = navController
+                    state = horizontalPagerState
+                )
+
+
+                val menuState = LocalMenuState.current
+                BottomSheetMenu(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter),
+                    state = menuState,
+                    background = darkGray,
+                )
             }
         }
 
-//        NavHost(
-//            navController = navController,
-//            startDestination = Screens.Home.route,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(
-//                    bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
-//                )
-//                .fillMaxSize()
-//        ) {
-//
-//            composable(Screens.Home.route) { HomeScreen(homeViewModel) }
-//
-//            playlistNavigation(navController, playListViewModel, homeViewModel)
-//
-//            composable(Screens.Cloud.route) { CloudScreen() }
-//
-//            youtubeNavigation(navController, youtubeViewModel)
-//
-//            composable(Screens.Setting.route) {
-//                LoginScreen(navController = navController, reload = youtubeViewModel::reload)
-//            }
-//
-//            composable(Screens.AudioVisualizer.route) {
-//                AudioVisualizerScreen()
-//            }
-//
-//
-//        }
-
-        BottomSheetPlayer(
-            state = playerBottomSheetState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .wrapContentHeight(),
-            navController = navController,
-            songViewModel = songViewModel
-        )
-
-        MainNavigationBar(
-            modifier = Modifier
-                .offset {
-                    if (navigationBarHeight == 0.dp) {
-                        IntOffset(
-                            x = 0, y = (bottomInset + NavigationBarHeight).roundToPx()
-                        )
-                    } else {
-                        val slideOffset =
-                            (bottomInset + NavigationBarHeight) * playerBottomSheetState.progress.coerceIn(
-                                0f, 1f
-                            )
-                        val hideOffset =
-                            (bottomInset + NavigationBarHeight) * (1 - navigationBarHeight / NavigationBarHeight)
-                        IntOffset(
-                            x = 0, y = (slideOffset + hideOffset).roundToPx()
-                        )
-                    }
-                },
-            navigationItems = navigationItems,
-            //            navController = navController
-            state = horizontalPagerState
-        )
-
-
-        val menuState = LocalMenuState.current
-        BottomSheetMenu(
-            modifier = Modifier
-                .align(Alignment.BottomCenter),
-            state = menuState,
-            background = darkGray,
-        )
+        composable(route = Routes.LOCAL_SONGS) {
+            LocalSongsScreen(localViewModel = hiltViewModel<LocalViewModel>())
+        }
     }
+
 }
 
 @Composable

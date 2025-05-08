@@ -5,22 +5,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
-import com.example.musicapp.other.domain.model.CurrentSong
-import com.example.musicapp.other.domain.model.FirebaseSong
-import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.PlayBackState
-import com.example.musicapp.other.domain.model.Playlist
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.model.ThumbnailSource
-import com.example.musicapp.other.domain.repository.CloudRepository
-import com.example.musicapp.other.domain.repository.SongRepository
-import com.example.musicapp.other.viewmodels.CloudViewModel
-import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import com.example.musicapp.other.viewmodels.SongViewModel
+import com.example.musicapp.music.domain.model.CurrentSong
+import com.example.musicapp.music.domain.model.FirebaseSong
+import com.example.musicapp.music.domain.model.LocalSong
+import com.example.musicapp.music.domain.model.PlayBackState
+import com.example.musicapp.music.domain.model.Playlist
+import com.example.musicapp.music.domain.model.Queue
+import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.domain.model.ThumbnailSource
+import com.example.musicapp.music.domain.repository.CloudRepository
+import com.example.musicapp.music.domain.repository.SongRepository
+import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
 import com.example.musicapp.util.MediaControllerManager
-import com.example.musicapp.youtube.presentation.YoutubeViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -166,16 +162,7 @@ object FakeModule {
         }
     }
 
-    fun providePlaylistViewModel() = PlaylistViewModel(songRepository)
-
-    fun provideSongViewModel(): SongViewModel = SongViewModel(songRepository)
-
-    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(
-        songRepository = songRepository,
-        cloudRepository = cloudRepository
-    )
-
-    fun provideYoutubeViewModel(): YoutubeViewModel = YoutubeViewModel()
+    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository = songRepository)
 
     val mediaControllerManager =
         object : MediaControllerManager {
@@ -223,34 +210,6 @@ object FakeModule {
 
         }
 
-//    fun provideAlbumPage(): AlbumPage = AlbumPage(
-//        album = AlbumItem(
-//            browseId = UUID.randomUUID().toString(),
-//            playlistId = UUID.randomUUID().toString(),
-//            id = UUID.randomUUID().toString(),
-//            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
-//            artists = listOf(Artist("Music Time", null)),
-//            year = null,
-//            thumbnail = "",
-//            explicit = false
-//        ),
-//        songs = List(20) { provideSongItem() },
-//        otherVersions = emptyList()
-//    )
-
-//    private fun provideSongItem(): SongItem {
-//        return SongItem(
-//            id = UUID.randomUUID().toString(),
-//            title = "Đã Từng Hạnh Phúc Remix | Nhạc Mix Gây Nghiện 2019 | Music Time",
-//            artists = listOf(Artist("Music Time", null)),
-//            album = null,
-//            duration = null,
-//            thumbnail = "",
-//            explicit = false,
-//            endpoint = null,
-//        )
-//    }
-
     val playlist = Playlist(
         id = Random.nextInt(),
         name = "Nhạc Mix Gây Nghiện 2019",
@@ -259,7 +218,6 @@ object FakeModule {
 
     val localSong = localSongs.random()
 
-    fun provideCloudViewModel(): CloudViewModel = CloudViewModel(cloudRepository = cloudRepository)
 }
 
 @Composable
@@ -267,11 +225,7 @@ inline fun <reified T : ViewModel> fakeViewModel(): T {
     val isPreview = LocalInspectionMode.current
     return if (isPreview) {
         when (T::class) {
-            SongViewModel::class -> FakeModule.provideSongViewModel()
             HomeViewModel::class -> FakeModule.provideHomeViewModel()
-            CloudViewModel::class -> FakeModule.provideCloudViewModel()
-            YoutubeViewModel::class -> FakeModule.provideYoutubeViewModel()
-            PlaylistViewModel::class -> FakeModule.providePlaylistViewModel()
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as T
     } else hiltViewModel<T>()

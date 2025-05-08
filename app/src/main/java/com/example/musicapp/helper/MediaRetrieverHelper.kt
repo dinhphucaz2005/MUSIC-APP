@@ -8,8 +8,8 @@ import com.example.musicapp.extension.getDuration
 import com.example.musicapp.extension.getFileId
 import com.example.musicapp.extension.getImageBitmap
 import com.example.musicapp.extension.getTitle
-import com.example.musicapp.other.domain.model.LocalSong
-import com.example.musicapp.other.domain.model.ThumbnailSource
+import com.example.musicapp.music.domain.model.LocalSong
+import com.example.musicapp.music.domain.model.ThumbnailSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

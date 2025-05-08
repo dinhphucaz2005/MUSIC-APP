@@ -48,7 +48,7 @@
         <service android:name=".service.DownloadService" />
 
         <receiver
-            android:name=".other.presentation.ui.widget.MusicWidgetReceiver"
+            android:name=".music.presentation.ui.widget.MusicWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

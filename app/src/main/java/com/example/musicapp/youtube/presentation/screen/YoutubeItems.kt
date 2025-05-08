@@ -1,41 +1,41 @@
 package com.example.musicapp.youtube.presentation.screen
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+//import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.layout.Arrangement
+//import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.aspectRatio
+//import androidx.compose.foundation.layout.fillMaxHeight
+//import androidx.compose.foundation.layout.fillMaxWidth
+//import androidx.compose.foundation.layout.height
+//import androidx.compose.foundation.layout.padding
+//import androidx.compose.foundation.layout.wrapContentHeight
+//import androidx.compose.foundation.pager.HorizontalPager
+//import androidx.compose.foundation.pager.rememberPagerState
+//import androidx.compose.foundation.shape.RoundedCornerShape
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.MoreVert
+//import androidx.compose.material3.Icon
+//import androidx.compose.material3.IconButton
+//import androidx.compose.material3.MaterialTheme
+//import androidx.compose.material3.Text
+//import androidx.compose.runtime.Composable
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.text.style.TextOverflow
+//import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.unit.sp
 //import com.example.innertube.models.SongItem
-import com.example.musicapp.constants.DefaultCornerSize
-import com.example.musicapp.constants.SongItemHeight
-import com.example.musicapp.core.presentation.components.MyListItem
-import com.example.musicapp.core.presentation.components.Thumbnail
-import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.white
-import com.example.musicapp.extension.toArtistString
-import com.example.musicapp.extension.toDurationString
-import com.example.musicapp.other.domain.model.ThumbnailSource
-
+//import com.example.musicapp.constants.DefaultCornerSize
+//import com.example.musicapp.constants.SongItemHeight
+//import com.example.musicapp.core.presentation.components.MyListItem
+//import com.example.musicapp.core.presentation.components.Thumbnail
+//import com.example.musicapp.ui.theme.MyMusicAppTheme
+//import com.example.musicapp.ui.theme.white
+//import com.example.musicapp.extension.toArtistString
+//import com.example.musicapp.extension.toDurationString
+//import com.example.musicapp.other.domain.model.ThumbnailSource
+//
 //@Composable
 //fun SongItemFromYoutube(modifier: Modifier = Modifier, song: SongItem, onClick: () -> Unit) {
 //    MyListItem(
@@ -78,7 +78,7 @@ import com.example.musicapp.other.domain.model.ThumbnailSource
 //            .height(SongItemHeight)
 //    )
 //}
-
+//
 //@Preview
 //@Composable
 //private fun SongsPreview() {
@@ -87,12 +87,12 @@ import com.example.musicapp.other.domain.model.ThumbnailSource
 //            Songs(songs = List(20) {
 //                SongItem.unidentifiedSong().copy(id = it.toString())
 //            }) {
-//                // do nothing
+//                 do nothing
 //            }
 //        }
 //    }
 //}
-
+//
 //@Composable
 //fun Songs(
 //    modifier: Modifier = Modifier,

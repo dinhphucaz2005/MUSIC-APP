@@ -3,10 +3,8 @@ package com.example.musicapp.di
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.musicapp.other.data.database.AppDAO
-import com.example.musicapp.other.data.database.AppDatabase
-import com.example.musicapp.other.data.database.entity.PlaylistEntity
+import com.example.musicapp.music.data.database.AppDAO
+import com.example.musicapp.music.data.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

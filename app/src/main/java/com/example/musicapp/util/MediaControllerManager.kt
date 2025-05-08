@@ -1,9 +1,9 @@
 package com.example.musicapp.util
 
-import com.example.musicapp.other.domain.model.CurrentSong
-import com.example.musicapp.other.domain.model.PlayBackState
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
+import com.example.musicapp.music.domain.model.CurrentSong
+import com.example.musicapp.music.domain.model.PlayBackState
+import com.example.musicapp.music.domain.model.Queue
+import com.example.musicapp.music.domain.model.Song
 import kotlinx.coroutines.flow.StateFlow
 
 interface MediaControllerManager {

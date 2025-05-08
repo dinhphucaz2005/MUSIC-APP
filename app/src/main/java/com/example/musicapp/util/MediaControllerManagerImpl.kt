@@ -12,11 +12,11 @@ import androidx.media3.session.MediaController
 import com.example.musicapp.constants.LoopMode
 import com.example.musicapp.constants.PlayerState
 import com.example.musicapp.extension.withIOContext
-import com.example.musicapp.other.domain.model.CurrentSong
-import com.example.musicapp.other.domain.model.PlayBackState
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.domain.repository.SongRepository
+import com.example.musicapp.music.domain.model.CurrentSong
+import com.example.musicapp.music.domain.model.PlayBackState
+import com.example.musicapp.music.domain.model.Queue
+import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.domain.repository.SongRepository
 import com.example.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.Dispatchers

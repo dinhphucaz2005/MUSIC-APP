@@ -17,9 +17,9 @@ import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.helper.NotificationHelper
-import com.example.musicapp.other.domain.model.Queue
-import com.example.musicapp.other.domain.model.Song
-import com.example.musicapp.other.presentation.ui.widget.MusicWidget
+import com.example.musicapp.music.domain.model.Queue
+import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

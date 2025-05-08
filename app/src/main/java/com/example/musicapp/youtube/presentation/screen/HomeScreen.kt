@@ -1,82 +1,82 @@
 package com.example.musicapp.youtube.presentation.screen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.musicapp.LocalMediaControllerManager
-import com.example.musicapp.R
-import com.example.musicapp.core.presentation.components.CommonIcon
-import com.example.musicapp.di.FakeModule
-import com.example.musicapp.ui.theme.black
-import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.youtube.presentation.YoutubeRoute
-import com.example.musicapp.youtube.presentation.YoutubeViewModel
-
-@Preview
-@Composable
-private fun YoutubeScreenPreview() {
-    MyMusicAppTheme {
-        YoutubeScreen(
-            navController = rememberNavController(),
-            youtubeViewModel = FakeModule.provideYoutubeViewModel()
-        )
-    }
-}
-
-@Composable
-fun YoutubeScreen(
-    modifier: Modifier = Modifier,
-    navController: NavHostController,
-    youtubeViewModel: YoutubeViewModel
-) {
-
-    val mediaControllerManager = LocalMediaControllerManager.current ?: return
-
+//import androidx.compose.foundation.background
+//import androidx.compose.foundation.layout.Arrangement
+//import androidx.compose.foundation.layout.Row
+//import androidx.compose.foundation.layout.fillMaxSize
+//import androidx.compose.foundation.layout.padding
+//import androidx.compose.foundation.lazy.LazyColumn
+//import androidx.compose.material3.MaterialTheme
+//import androidx.compose.material3.Scaffold
+//import androidx.compose.material3.Text
+//import androidx.compose.runtime.Composable
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.unit.dp
+//import androidx.navigation.NavHostController
+//import androidx.navigation.compose.rememberNavController
+//import com.example.musicapp.LocalMediaControllerManager
+//import com.example.musicapp.R
+//import com.example.musicapp.core.presentation.components.CommonIcon
+//import com.example.musicapp.di.FakeModule
+//import com.example.musicapp.ui.theme.black
+//import com.example.musicapp.ui.theme.MyMusicAppTheme
+//import com.example.musicapp.youtube.presentation.YoutubeRoute
+//import com.example.musicapp.youtube.presentation.YoutubeViewModel
+//
+//@Preview
+//@Composable
+//private fun YoutubeScreenPreview() {
+//    MyMusicAppTheme {
+//        YoutubeScreen(
+//            navController = rememberNavController(),
+//            youtubeViewModel = FakeModule.provideYoutubeViewModel()
+//        )
+//    }
+//}
+//
+//@Composable
+//fun YoutubeScreen(
+//    modifier: Modifier = Modifier,
+//    navController: NavHostController,
+//    youtubeViewModel: YoutubeViewModel
+//) {
+//
+//    val mediaControllerManager = LocalMediaControllerManager.current ?: return
+//
 //    val home by youtubeViewModel.home.collectAsState()
-
-    Scaffold(
-        topBar = {
-            Row {
-                Text(
-                    text = "Cuhp Tube",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.weight(1f)
-                )
-
-                CommonIcon(
-                    icon = R.drawable.ic_search,
-                    onClick = {
-                        navController.navigate(YoutubeRoute.SEARCH)
-                    }
-                )
-
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = modifier
-                .background(black)
-                .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            TODO("Implement the rest of the screen")
+//
+//    Scaffold(
+//        topBar = {
+//            Row {
+//                Text(
+//                    text = "Cuhp Tube",
+//                    style = MaterialTheme.typography.titleLarge,
+//                    color = MaterialTheme.colorScheme.primary,
+//                    modifier = Modifier.weight(1f)
+//                )
+//
+//                CommonIcon(
+//                    icon = R.drawable.ic_search,
+//                    onClick = {
+//                        navController.navigate(YoutubeRoute.SEARCH)
+//                    }
+//                )
+//
+//            }
+//        },
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(8.dp)
+//    ) { innerPadding ->
+//        LazyColumn(
+//            modifier = modifier
+//                .background(black)
+//                .fillMaxSize()
+//                .padding(innerPadding),
+//            verticalArrangement = Arrangement.spacedBy(8.dp)
+//        ) {
+//            TODO("Implement the rest of the screen")
 //            itemsIndexed(items = home.sections) { _, section ->
 //                HomePageSection(
 //                    section = section,
@@ -94,14 +94,14 @@ fun YoutubeScreen(
 //                    }
 //                )
 //            }
-        }
-    }
-
-
-}
-
-val ListItemHeight = 60.dp
-
+//        }
+//    }
+//
+//
+//}
+//
+//val ListItemHeight = 60.dp
+//
 //@Composable
 //private fun HomePageSection(
 //    section: HomePage.Section,
