@@ -31,6 +31,12 @@ interface AppDAO {
     // PlayList
     @Query("SELECT * FROM playlist")
     fun getPlayLists(): Flow<List<PlaylistEntity>>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun savePlaylist(playListEntity: PlaylistEntity): Long
+
+    @Query("SELECT * FROM playlist")
+    suspend fun getPlaylist(): List<PlaylistEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPlayList(playListEntity: PlaylistEntity): Long

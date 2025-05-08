@@ -16,10 +16,18 @@ class RoomDataSource @Inject constructor(
     private val dao: AppDAO,
 ) {
 
-    suspend fun createPlayList(name: String) = dao.addPlayList(PlaylistEntity(name = name))
+    suspend fun savePlaylist(name: String, description: String, createdBy: String, songs: List<SongEntity>){
+        val playlist = PlaylistEntity(name = name, description = description, createdBy = createdBy, createdAt = System.currentTimeMillis(), songs = songs)
+        dao.savePlaylist(playlist)
+    }
+    
+    suspend fun getPlaylists() :List<PlaylistEntity> {
+        return dao.getPlaylists()
+    }
+
+    suspend fun createPlayList(name: String) = dao.addPlayList(PlaylistEntity(name = name, description = "", createdBy = "", createdAt = System.currentTimeMillis(), songs = emptyList()))
 
     suspend fun updatePlaylist(id: Int, name: String) = dao.updatePlayList(PlaylistEntity(id, name))
-
     suspend fun addSongs(songs: List<Song>, playListId: Int) {
         songs.forEach { song ->
             val audioSource = when (song) {

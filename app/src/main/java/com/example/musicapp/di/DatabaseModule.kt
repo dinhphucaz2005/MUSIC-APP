@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.musicapp.music.data.database.AppDAO
+import com.example.musicapp.music.data.RoomDataSource
 import com.example.musicapp.music.data.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -44,5 +45,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDao(database: AppDatabase): AppDAO = database.appDAO()
+
+    @Provides
+    @Singleton
+    fun provideRoomDataSource(appDao: AppDAO): RoomDataSource = RoomDataSource(appDao)
+
 
 }

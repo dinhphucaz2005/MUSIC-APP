@@ -1,15 +1,23 @@
 package com.example.musicapp.music.data.database.entity
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.musicapp.music.data.converter.SongConverter
 
 
 @Entity(tableName = "playlist")
+@TypeConverters(SongConverter::class)
 data class PlaylistEntity(
-    @PrimaryKey val id: Int? = null,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
+    val description: String = "",
+    val createdAt: Long = System.currentTimeMillis(),
+    val createdBy: String = "",
+    val coverUrl: String = "",
+    val songs: List<SongEntity> = emptyList(),
 ) {
-    companion object {
-        const val LIKED_PLAYLIST_ID = 0
-    }
+
 }

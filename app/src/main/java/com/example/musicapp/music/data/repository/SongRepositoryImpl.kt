@@ -153,4 +153,12 @@ class SongRepositoryImpl @Inject constructor(
         roomDataSource.deleteSongByAudioSource(audioSource, PlaylistEntity.LIKED_PLAYLIST_ID)
     }
 
+    override suspend fun savePlaylist(
+        name: String, description: String, createdBy: String, songs: List<SongEntity>
+    ) {
+        roomDataSource.savePlaylist(name, description, createdBy, songs)
+    }
+
+    override suspend fun getPlaylists(): List<PlaylistEntity> = roomDataSource.getPlaylists()
+
 }

@@ -7,7 +7,7 @@ import com.example.musicapp.music.data.database.entity.PlaylistEntity
 import com.example.musicapp.music.data.database.entity.SongEntity
 import com.example.musicapp.music.data.database.entity.SongEntityConverter
 
-@Database(entities = [SongEntity::class, PlaylistEntity::class], version = 1)
+@Database(entities = [SongEntity::class, PlaylistEntity::class], version = 2)
 @TypeConverters(SongEntityConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 

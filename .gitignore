@@ -19,3 +19,5 @@ README.pdf
 */build
 .kotlin
 app/google-services.json
+.idx
+.vscode
