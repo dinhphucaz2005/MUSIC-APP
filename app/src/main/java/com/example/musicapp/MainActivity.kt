@@ -69,8 +69,8 @@ import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.core.presentation.components.BottomSheetPlayer
 import com.example.musicapp.music.presentation.navigation.Routes
-import com.example.musicapp.music.presentation.ui.screen.local.LocalSongsScreen
-import com.example.musicapp.music.presentation.ui.screen.local.LocalViewModel
+import com.example.musicapp.other.presentation.ui.screen.playlist.playlistNavigation
+import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistViewModel
 import com.example.musicapp.ui.theme.darkGray
 import com.example.musicapp.ui.theme.lightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
@@ -173,6 +173,8 @@ private fun App() {
         animationSpec = NavigationBarAnimationSpec,
         label = ""
     )
+
+    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
 
     NavHost(navController = navController, startDestination = Routes.HOME_SCREEN) {
         composable(route = Routes.HOME_SCREEN) {
@@ -290,9 +292,10 @@ private fun App() {
             }
         }
 
-        composable(route = Routes.LOCAL_SONGS) {
-            LocalSongsScreen(localViewModel = hiltViewModel<LocalViewModel>())
-        }
+        playlistNavigation(
+            navController = navController,
+            playlistViewModel = playlistViewModel,
+        )
     }
 
 }

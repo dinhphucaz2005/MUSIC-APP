@@ -1,19 +1,14 @@
-package com.example.musicapp.other.viewmodels
+package com.example.musicapp.other.presentation.ui.screen.playlist
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.musicapp.extension.withIOContext
-import com.example.musicapp.music.data.database.entity.PlaylistEntity
 import com.example.musicapp.music.data.database.entity.SongEntity
+import com.example.musicapp.music.domain.model.Playlist
 import com.example.musicapp.music.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-
 
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(
@@ -21,15 +16,15 @@ class PlaylistViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class PlaylistItem(
-        val data: PlaylistEntity, val isSelected: Boolean = false
+        val data: Playlist, val isSelected: Boolean = false
     )
 
     private val _isLoading = MutableStateFlow(false)
 
-    val playlists = songRepository
-        .getPlaylists()
-        .map { it.map { playlist -> PlaylistItem(playlist) } }
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+//    val playlists = songRepository
+//        .getPlayLists()
+//        .map { it.map { playlist -> PlaylistItem(playlist) } }
+//        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val isLoading = _isLoading.asStateFlow()
 
@@ -39,7 +34,7 @@ class PlaylistViewModel @Inject constructor(
             songRepository.savePlaylist(name, description, createdBy, songs)
         }
     }
-    fun getPlaylists() = songRepository.getPlaylists()
+//    fun getPlaylists() = songRepository.getPlaylists()
 
 //    fun createNewPlayList(name: String) {
 //        withIOContext {

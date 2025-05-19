@@ -6,26 +6,25 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.musicapp.constants.Screens
-import com.example.musicapp.music.domain.model.Song
-import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.other.viewmodels.PlaylistViewModel
+import com.example.musicapp.music.presentation.navigation.Routes
 
 fun NavGraphBuilder.playlistNavigation(
     navController: NavHostController,
-    playlistViewModel: PlaylistViewModel,
-    homeViewModel: HomeViewModel
+    playlistViewModel: PlaylistViewModel
 ) {
-    navigation(startDestination = PlaylistRoute.HOME, route = Screens.Playlists.route) {
+    navigation(startDestination = PlaylistRoute.HOME, route = Routes.LOCAL_SONGS) {
         composable(route = PlaylistRoute.HOME) {
-            PlayListHome(playlistViewModel = playlistViewModel)
+            CreateNewPlaylistScreen(
+                playlistViewModel = playlistViewModel,
+                dismiss = { navController.popBackStack() },
+                songs = listOf(),
+            )
         }
         composable(route = PlaylistRoute.CREATE_NEW_PLAYLIST) {
             CreateNewPlaylistScreen(
                 playlistViewModel = playlistViewModel,
                 dismiss = { navController.popBackStack() },
-                song = emptyList(),
-                homeViewModel = homeViewModel
+                songs = listOf(),
             )
         }
         composable(
@@ -52,7 +51,7 @@ fun NavGraphBuilder.playlistNavigation(
                 navController.popBackStack()
                 return@composable
             }
-            PlayListEdit(playlistId, navController, playlistViewModel, homeViewModel)
+//            PlayListEdit(playlistId, navController, playlistViewModel, homeViewModel)
         }
     }
 }

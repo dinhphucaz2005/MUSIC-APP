@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import com.example.musicapp.music.data.database.entity.PlaylistEntity
+import com.example.musicapp.music.data.database.entity.SongEntity
 import com.example.musicapp.music.domain.model.CurrentSong
 import com.example.musicapp.music.domain.model.FirebaseSong
 import com.example.musicapp.music.domain.model.LocalSong
@@ -130,6 +132,18 @@ object FakeModule {
         }
 
         override fun getLikedSongs(): Flow<List<Song>> = likedSongs
+        override suspend fun savePlaylist(
+            name: String,
+            description: String,
+            createdBy: String,
+            songs: List<SongEntity>
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getPlaylists(): List<PlaylistEntity> {
+            TODO("Not yet implemented")
+        }
     }
 
     private val cloudRepository: CloudRepository = object : CloudRepository {

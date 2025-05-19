@@ -10,33 +10,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.extension.launchIO
 import com.example.musicapp.music.domain.model.Song
 import com.example.musicapp.music.data.database.entity.SongEntity
-import com.example.musicapp.other.viewmodels.HomeViewModel
-import com.example.musicapp.other.viewmodels.PlaylistViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.example.musicapp.music.domain.model.LocalSong
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNewPlaylistScreen(
     playlistViewModel: PlaylistViewModel,
     dismiss: () -> Unit,
-    songs: List<Song>,
-    homeViewModel: HomeViewModel
+    songs: List<Song>
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    val scope = CoroutineScope(Dispatchers.IO)
 
     val onSavePlaylist = {
-        val songEntities = songs.map {
-            SongEntity(it.id, it.title, it.artist, it.uri, it.duration)
+        val songEntities: List<SongEntity> = songs.map { song ->
+            SongEntity(
+                song = song as LocalSong,
+                playlistId = 0
+            )
         }
-        scope.launchIO {
-            playlistViewModel.savePlaylist(name, description, "user", songEntities)
-        }
+        playlistViewModel.savePlaylist(name, description, "user", songEntities)
     }
 
     Column(

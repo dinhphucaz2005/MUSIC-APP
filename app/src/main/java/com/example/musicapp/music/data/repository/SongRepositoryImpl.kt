@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -132,16 +133,11 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun getPlayLists(): Flow<List<Playlist>> =
         roomDataSource.getPlayLists().map {
-            it.mapNotNull { entity ->
-                if (entity.id == null)
-                    null
-                else
-                    Playlist(id = entity.id, name = entity.name)
-            }
+            it.map { entity -> Playlist(id = entity.id, name = entity.name) }
         }
 
     override suspend fun likeSong(song: Song) =
-        roomDataSource.addSongs(listOf(song), PlaylistEntity.LIKED_PLAYLIST_ID)
+        roomDataSource.addSongs(listOf(song), -1/*TODO*/)
 
     override suspend fun unlikeSong(song: Song) {
         val audioSource = when (song) {
@@ -150,7 +146,7 @@ class SongRepositoryImpl @Inject constructor(
             is YoutubeSong -> song.mediaId
             else -> null
         } ?: return
-        roomDataSource.deleteSongByAudioSource(audioSource, PlaylistEntity.LIKED_PLAYLIST_ID)
+        roomDataSource.deleteSongByAudioSource(audioSource, -1/*TODO*/)
     }
 
     override suspend fun savePlaylist(
@@ -159,6 +155,12 @@ class SongRepositoryImpl @Inject constructor(
         roomDataSource.savePlaylist(name, description, createdBy, songs)
     }
 
-    override suspend fun getPlaylists(): List<PlaylistEntity> = roomDataSource.getPlaylists()
+    override suspend fun getPlaylists(): List<PlaylistEntity> {
+        // get 1st time from flow
+        val playlists = roomDataSource.getPlayLists()
+            .map { it.map { entity -> entity } }
+            .first()
+        return playlists
+    }
 
 }

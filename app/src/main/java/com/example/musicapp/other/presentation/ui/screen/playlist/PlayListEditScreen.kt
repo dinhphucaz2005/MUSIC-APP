@@ -27,7 +27,7 @@ package com.example.musicapp.other.presentation.ui.screen.playlist
 //import com.example.musicapp.di.FakeModule
 //import com.example.musicapp.other.domain.model.LocalSong
 //import com.example.musicapp.other.viewmodels.HomeViewModel
-//import com.example.musicapp.other.viewmodels.PlaylistViewModel
+//import com.example.musicapp.other.presentation.ui.screen.playlist.PlaylistViewModel
 //import kotlin.random.Random
 //
 //@UnstableApi

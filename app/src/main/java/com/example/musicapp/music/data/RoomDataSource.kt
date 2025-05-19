@@ -21,9 +21,6 @@ class RoomDataSource @Inject constructor(
         dao.savePlaylist(playlist)
     }
     
-    suspend fun getPlaylists() :List<PlaylistEntity> {
-        return dao.getPlaylists()
-    }
 
     suspend fun createPlayList(name: String) = dao.addPlayList(PlaylistEntity(name = name, description = "", createdBy = "", createdAt = System.currentTimeMillis(), songs = emptyList()))
 
@@ -66,6 +63,6 @@ class RoomDataSource @Inject constructor(
     suspend fun deleteSongById(id: Int) = dao.deleteSongById(id)
 
     fun getLikedSongs(): Flow<List<SongEntity>> =
-        dao.getSongsFromPlaylist(PlaylistEntity.LIKED_PLAYLIST_ID)
+        dao.getSongsFromPlaylist(-1/*TODO*/)
 
 }
