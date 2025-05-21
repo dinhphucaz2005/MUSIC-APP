@@ -23,10 +23,10 @@ fun CustomSlider(
         onValueChangeFinished = onValueChangeFinished,
         modifier = modifier,
         colors = SliderDefaults.colors(
-            activeTrackColor = MaterialTheme.colorScheme.primary,
-            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(0.5f),
-            thumbColor = MaterialTheme.colorScheme.primary,
-            activeTickColor = MaterialTheme.colorScheme.primary
+            activeTrackColor = MaterialTheme.colorScheme.onBackground,
+            inactiveTrackColor = MaterialTheme.colorScheme.onBackground.copy(0.5f),
+            thumbColor = MaterialTheme.colorScheme.onBackground,
+            activeTickColor = MaterialTheme.colorScheme.onBackground
         )
     )
 }

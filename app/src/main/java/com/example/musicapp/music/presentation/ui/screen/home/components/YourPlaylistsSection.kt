@@ -17,8 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.ui.theme.darkGray
-import com.example.musicapp.ui.theme.white
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+
+@ExtendDevicePreviews
+@Composable
+private fun YourPlaylistsSectionPreview() {
+    MyMusicAppTheme {
+        YourPlaylistsSection()
+    }
+}
 
 @Composable
 fun YourPlaylistsSection() {
@@ -27,7 +35,7 @@ fun YourPlaylistsSection() {
         Text(
             text = "Your Playlists",
             style = MaterialTheme.typography.titleLarge,
-            color = white,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         LazyRow(
@@ -40,12 +48,12 @@ fun YourPlaylistsSection() {
                         .width(160.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(darkGray)
+                        .background(MaterialTheme.colorScheme.secondary)
                 ) {
                     Text(
                         text = "Playlist ${index + 1}",
                         style = MaterialTheme.typography.titleMedium,
-                        color = white,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .align(Alignment.Center)
                     )

@@ -28,9 +28,6 @@ import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.core.presentation.components.LazyColumnWithAnimation2
 import com.example.musicapp.core.presentation.components.SongItemContent
-import com.example.musicapp.ui.theme.darkGray
-import com.example.musicapp.ui.theme.lightGray
-import com.example.musicapp.ui.theme.white
 
 @Composable
 fun LocalSongsScreen(
@@ -49,7 +46,7 @@ fun LocalSongsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(darkGray)
+            .background(MaterialTheme.colorScheme.secondary)
     ) {
         // Header with back button
         Row(
@@ -65,14 +62,14 @@ fun LocalSongsScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = white
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
                 text = "Your Songs",
                 style = MaterialTheme.typography.headlineMedium,
-                color = white,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
@@ -98,7 +95,7 @@ fun LocalSongsScreen(
                         Text(
                             text = "No local songs found",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = lightGray
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 } else {
@@ -152,7 +149,7 @@ fun LocalSongsScreen(
                     Text(
                         text = "Loading your songs...",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = lightGray
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
             }

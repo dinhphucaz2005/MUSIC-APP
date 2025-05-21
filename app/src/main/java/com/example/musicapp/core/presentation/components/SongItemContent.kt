@@ -33,11 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.di.FakeModule
 import com.example.musicapp.music.domain.model.Song
-import com.example.musicapp.ui.theme.LocalAppBrushes
-import com.example.musicapp.ui.theme.black
-import com.example.musicapp.ui.theme.lightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.white
 
 @Preview
 @Composable
@@ -61,7 +57,7 @@ fun MiniSongItemContent(song: Song) {
             Text(
                 text = song.getSongTitle(),
                 style = MaterialTheme.typography.titleMedium,
-                color = white,
+                color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 modifier = Modifier.basicMarquee(
                     iterations = Int.MAX_VALUE, spacing = MarqueeSpacing.fractionOfContainer(
@@ -81,7 +77,7 @@ fun MiniSongItemContent(song: Song) {
             Text(
                 text = song.getSongArtist() + " \u2022 " + song.getDuration(),
                 style = MaterialTheme.typography.titleSmall,
-                color = lightGray
+                color = MaterialTheme.colorScheme.tertiary
             )
         }, modifier = Modifier
             .padding(horizontal = 12.dp)
@@ -101,7 +97,7 @@ fun SongItemContent(
             .fillMaxWidth()
             .clickable(onClick = onSongClick)
             .clip(RoundedCornerShape(12.dp))
-            .background(LocalAppBrushes.current.songItemGradient)
+            .background(MaterialTheme.colorScheme.secondary)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -123,19 +119,20 @@ fun SongItemContent(
                 text = song.getSongTitle(),
                 fontSize = 18.sp,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = "${song.getSongArtist()} \u00B7 ${song.getDuration()}",
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.tertiary
             )
         }
 
         IconButton(onClick = onMoreChoice) {
             Icon(
                 imageVector = Icons.Default.MoreVert, contentDescription = null,
-                tint = black,
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }

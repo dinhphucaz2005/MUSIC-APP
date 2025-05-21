@@ -3,65 +3,62 @@ package com.example.musicapp.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-// Dark theme colors - improved palette
-val primary = Color(0xFFFFFFFF)         // Rich purple
-val secondary = Color(0xFF7B2CBF)       // Deep purple
-val tertiary = Color(0xFFC77DFF)        // Light purple
-val background = Color(0xFF10002B)      // Deep purple-black
-val surface = Color(0xFF240046)         // Rich dark purple
-
-// Text and icon colors
-val white = Color(0xFFF8F9FA)
-val lightGray = Color(0xFFE2E2E2)
-val darkGray = Color(0xFF2A2A2A)
-val black = Color(0xFF000000)
-
 // Custom color scheme
-private val DarkColorScheme = darkColorScheme(
-    primary = primary,
-    secondary = secondary,
-    tertiary = tertiary,
-    background = background,
-    surface = surface,
-    onPrimary = white,
-    onSecondary = white,
-    onTertiary = black,
-    onBackground = white,
-    onSurface = white
+val customDarkColorScheme = darkColorScheme(
+    primary = Color(0xFF171C26),              // Nền chính đậm
+    onPrimary = Color.White,                  // Chữ trên primary
+
+    secondary = Color(0xFF6C7689),            // Màu phụ
+    onSecondary = Color.White,
+
+    tertiary = Color(0xFFA4AAB7),             // Màu nhấn thứ ba
+    onTertiary = Color.Black,
+
+    background = Color(0xFF171C26),           // Nền toàn app
+    onBackground = Color.White,               // Text trên nền tối
+
+    surface = Color(0xFF1E1E1E),              // Nền khối UI
+    onSurface = Color.White,
+
+    surfaceVariant = Color(0xFF2E2E2E),       // Cho card, list, sheet
+    onSurfaceVariant = Color(0xFFCCCCCC),
+
+    surfaceTint = Color(0xFF171C26),          // Màu dùng làm tint cho elevation
+
+    inverseSurface = Color.White,
+    inverseOnSurface = Color(0xFF171C26),
+
+    inversePrimary = Color(0xFF9BB3FF),
+
+    error = Color(0xFFCF6679),                // Màu lỗi nền tối
+    onError = Color.Black,
+
+    errorContainer = Color(0xFFB00020),
+    onErrorContainer = Color.White,
+
+    primaryContainer = Color(0xFF2C313D),     // Dùng cho nút nổi
+    onPrimaryContainer = Color.White,
+
+    secondaryContainer = Color(0xFF444B5A),
+    onSecondaryContainer = Color.White,
+
+    tertiaryContainer = Color(0xFFBEC3D1),
+    onTertiaryContainer = Color.Black,
+
+    outline = Color(0xFF8E8E93),
+    outlineVariant = Color(0xFF2C2C2E),
+
+    scrim = Color.Black.copy(alpha = 0.5f)
 )
 
-// Theme extension to provide custom brushes
-data class AppBrushes(
-    val playerGradient: Brush = Brush.horizontalGradient(
-        colors = listOf(
-            Color(0xFFD5ADEF),
-            Color(0xFFBFA2DB),
-        )
-    ),
-    val songItemGradient: Brush = Brush.radialGradient(
-        colors = listOf(Color(0xFFE0BBE4), Color(0xFFD291BC), Color(0xFF957DAD), Color(0xFFB5AEDF)),
-        center = Offset.Infinite,
-        radius = 1000f
-    )
-)
-
-val LocalAppBrushes = staticCompositionLocalOf { AppBrushes() }
 
 @Composable
 fun MyMusicAppTheme(content: @Composable () -> Unit) {
-    CompositionLocalProvider(
-        LocalAppBrushes provides AppBrushes()
-    ) {
-        MaterialTheme(
-            colorScheme = DarkColorScheme,
-            typography = Typography,
-            content = content
-        )
-    }
+    MaterialTheme(
+        colorScheme = customDarkColorScheme,
+        typography = Typography,
+        content = content
+    )
 }

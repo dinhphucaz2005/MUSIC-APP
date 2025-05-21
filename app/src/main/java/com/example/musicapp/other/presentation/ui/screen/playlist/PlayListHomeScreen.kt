@@ -37,7 +37,6 @@ import com.example.musicapp.R
 import com.example.musicapp.constants.DefaultCornerSize
 import com.example.musicapp.music.domain.model.Playlist
 import com.example.musicapp.ui.theme.Black
-import com.example.musicapp.ui.theme.black
 
 
 @Composable
@@ -69,7 +68,7 @@ fun PlayListHome(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(black)
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -86,7 +85,7 @@ fun PlayListHome(
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(contentPadding)
-                    .background(black)
+                    .background(MaterialTheme.colorScheme.primary)
             ) {
 //                items(items = playlists, key = { item ->
 //                    item.id

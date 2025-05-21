@@ -14,9 +14,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
 import com.example.musicapp.di.fakeViewModel
 import com.example.musicapp.music.presentation.ui.screen.home.components.FeaturedSection
 import com.example.musicapp.music.presentation.ui.screen.home.components.RecentlyPlayedSection
@@ -28,7 +28,7 @@ import com.example.musicapp.ui.theme.MyMusicAppTheme
 
 @ExperimentalMaterial3Api
 @UnstableApi
-@Preview
+@ExtendDevicePreviews
 @Composable
 fun Preview() {
     MyMusicAppTheme {

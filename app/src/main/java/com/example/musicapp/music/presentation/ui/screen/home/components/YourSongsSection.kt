@@ -19,10 +19,36 @@ import androidx.compose.ui.unit.dp
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.core.presentation.components.SongItemContent
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
+import com.example.musicapp.di.FakeModule
 import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
-import com.example.musicapp.ui.theme.LocalAppBrushes
-import com.example.musicapp.ui.theme.lightGray
-import com.example.musicapp.ui.theme.white
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+
+@ExtendDevicePreviews
+@Composable
+private fun YourSongsSectionPreview() {
+    MyMusicAppTheme {
+        Box(
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+        ) {
+            YourSongsSection(
+                localSongState = HomeViewModel.LocalSongState.Success(
+                    songs = listOf(
+                        FakeModule.localSong,
+                        FakeModule.localSong,
+                        FakeModule.localSong,
+                        FakeModule.localSong,
+                        FakeModule.localSong,
+                        FakeModule.localSong,
+                    ),
+                    lastReloadMillis = 0
+                ),
+                onSeeAllClick = {}
+            )
+        }
+    }
+}
+
 
 @Composable
 fun YourSongsSection(
@@ -34,7 +60,6 @@ fun YourSongsSection(
     val menuState = LocalMenuState.current
 
     Column {
-        // Section header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -45,7 +70,7 @@ fun YourSongsSection(
             Text(
                 text = "Your Songs",
                 style = MaterialTheme.typography.titleLarge,
-                color = white
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             if (localSongState is HomeViewModel.LocalSongState.Success &&
@@ -54,7 +79,7 @@ fun YourSongsSection(
                 Text(
                     text = "See All",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = lightGray,
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.clickable(onClick = onSeeAllClick)
                 )
             }
@@ -73,7 +98,7 @@ fun YourSongsSection(
                     Text(
                         text = "No songs loaded yet",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = lightGray
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
             }
@@ -102,7 +127,7 @@ fun YourSongsSection(
                         Text(
                             text = "No songs found",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = lightGray
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 } else {
@@ -114,7 +139,7 @@ fun YourSongsSection(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
                             onSongClick = {
-                                mediaControllerManager?.playQueue(
+                                mediaControllerManager.playQueue(
                                     songs = localSongState.songs,
                                     index = index,
                                     id = localSongState.lastReloadMillis.toString()
@@ -126,7 +151,7 @@ fun YourSongsSection(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(300.dp)
-                                            .background(brush = LocalAppBrushes.current.playerGradient)
+                                            .background(color = MaterialTheme.colorScheme.primary)
                                     )
                                 }
                             }

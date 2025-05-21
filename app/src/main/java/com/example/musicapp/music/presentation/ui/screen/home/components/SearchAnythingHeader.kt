@@ -16,7 +16,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.musicapp.R
-import com.example.musicapp.ui.theme.white
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+
+@ExtendDevicePreviews
+@Composable
+private fun SearchAnythingHeaderPreview() {
+    MyMusicAppTheme {
+        SearchAnythingHeader()
+    }
+}
 
 @Composable
 fun SearchAnythingHeader(
@@ -32,13 +41,13 @@ fun SearchAnythingHeader(
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineMedium,
-            color = white
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Icon(
             painter = painterResource(R.drawable.playlist),
             contentDescription = "Search",
-            tint = white,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .size(24.dp)
                 .clickable { onSearchClick() }

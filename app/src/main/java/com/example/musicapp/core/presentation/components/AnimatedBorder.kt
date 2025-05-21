@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +21,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.ui.theme.black
 
 
 @Composable
@@ -52,7 +52,7 @@ fun AnimatedBorder(
     }
 
     Surface(
-        modifier = modifier, shape = RoundedCornerShape(32.dp), color = black
+        modifier = modifier, shape = RoundedCornerShape(32.dp), color = MaterialTheme.colorScheme.primary
     ) {
         Surface(
             modifier = Modifier
@@ -68,7 +68,7 @@ fun AnimatedBorder(
                 }
                 .padding(8.dp),
             shape = RoundedCornerShape(24.dp),
-            color = black
+            color = MaterialTheme.colorScheme.primary
         ) {
             content(
                 Modifier

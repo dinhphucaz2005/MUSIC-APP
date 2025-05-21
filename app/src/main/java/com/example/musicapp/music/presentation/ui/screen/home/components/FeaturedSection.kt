@@ -20,9 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.musicapp.R
-import com.example.musicapp.ui.theme.darkGray
-import com.example.musicapp.ui.theme.lightGray
-import com.example.musicapp.ui.theme.white
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+
+@ExtendDevicePreviews
+@Composable
+private fun FeaturedSectionPreview() {
+    MyMusicAppTheme {
+        FeaturedSection()
+    }
+}
 
 @Composable
 fun FeaturedSection() {
@@ -30,7 +37,7 @@ fun FeaturedSection() {
         Text(
             text = "Featured",
             style = MaterialTheme.typography.titleLarge,
-            color = white,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
@@ -40,7 +47,7 @@ fun FeaturedSection() {
                 .height(180.dp)
                 .padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(darkGray)
+                .background(MaterialTheme.colorScheme.secondary)
         ) {
             Column(
                 modifier = Modifier
@@ -50,19 +57,19 @@ fun FeaturedSection() {
                 Text(
                     text = "Discover Weekly",
                     style = MaterialTheme.typography.titleMedium,
-                    color = white
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "Updated every Monday",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = lightGray
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
 
             Icon(
                 painter = painterResource(R.drawable.playlist),
                 contentDescription = "Play",
-                tint = white,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)

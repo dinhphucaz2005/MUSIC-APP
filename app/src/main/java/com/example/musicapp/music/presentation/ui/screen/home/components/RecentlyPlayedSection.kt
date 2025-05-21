@@ -18,9 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.musicapp.ui.theme.darkGray
-import com.example.musicapp.ui.theme.lightGray
-import com.example.musicapp.ui.theme.white
+import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
+import com.example.musicapp.ui.theme.MyMusicAppTheme
+
+@ExtendDevicePreviews
+@Composable
+private fun RecentlyPlayedSectionPreview() {
+    MyMusicAppTheme {
+        RecentlyPlayedSection()
+    }
+}
+
 
 @Composable
 fun RecentlyPlayedSection() {
@@ -28,7 +36,7 @@ fun RecentlyPlayedSection() {
         Text(
             text = "Recently Played",
             style = MaterialTheme.typography.titleLarge,
-            color = white,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
@@ -45,7 +53,7 @@ fun RecentlyPlayedSection() {
                         modifier = Modifier
                             .size(140.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(darkGray)
+                            .background(MaterialTheme.colorScheme.secondary)
                     ) {
                         // Album placeholder
                     }
@@ -53,7 +61,7 @@ fun RecentlyPlayedSection() {
                     Text(
                         text = "Song Title $index",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = white,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 8.dp)
@@ -62,7 +70,7 @@ fun RecentlyPlayedSection() {
                     Text(
                         text = "Artist Name",
                         style = MaterialTheme.typography.bodySmall,
-                        color = lightGray,
+                        color = MaterialTheme.colorScheme.tertiary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

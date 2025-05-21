@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -32,7 +33,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.musicapp.R
 import com.example.musicapp.ui.theme.OnSecondary
 import com.example.musicapp.ui.theme.SearchBarBackground
-import com.example.musicapp.ui.theme.white
 
 @Composable
 fun DefaultSearchBar(
@@ -43,8 +43,8 @@ fun DefaultSearchBar(
 ) {
     CompositionLocalProvider(
         LocalTextSelectionColors provides TextSelectionColors(
-            handleColor = white,
-            backgroundColor = white
+            handleColor = MaterialTheme.colorScheme.primary,
+            backgroundColor = MaterialTheme.colorScheme.primary
         )
     ) {
         Column(

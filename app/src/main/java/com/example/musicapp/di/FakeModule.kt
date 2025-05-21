@@ -220,6 +220,8 @@ object FakeModule {
 
             override fun addToQueue(song: Song) {}
 
+            override fun dispose() {}
+
             override fun toggleLikedCurrentSong() {}
 
         }

@@ -50,8 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.musicapp.LocalMediaControllerManager
 import com.example.musicapp.LocalMenuState
 import com.example.musicapp.R
@@ -65,10 +63,7 @@ import com.example.musicapp.extension.toDurationString
 import com.example.musicapp.extension.withMainContext
 import com.example.musicapp.music.domain.model.Queue
 import com.example.musicapp.music.domain.model.Song
-import com.example.musicapp.ui.theme.lightGray
 import com.example.musicapp.ui.theme.MyMusicAppTheme
-import com.example.musicapp.ui.theme.primary
-import com.example.musicapp.ui.theme.white
 import com.example.musicapp.util.MediaControllerManager
 import kotlinx.coroutines.delay
 
@@ -76,22 +71,20 @@ import kotlinx.coroutines.delay
 fun BottomSheetPlayer(
     state: BottomSheetState,
     modifier: Modifier = Modifier,
-    navController: NavHostController,
 ) {
 
-    val mediaControllerManager = LocalMediaControllerManager.current ?: return
+    val mediaControllerManager = LocalMediaControllerManager.current
 
     BottomSheet(
         state = state,
         modifier = modifier,
         backgroundColor = MaterialTheme.colorScheme.background,
         onDismiss = { },
-        collapsedContent = { MiniPlayer(state, mediaControllerManager) }
+        collapsedContent = { MiniPlayer(state) }
     ) {
         SongScreenContent(
             state = state,
-            mediaControllerManager = mediaControllerManager,
-            navController = navController
+            mediaControllerManager = mediaControllerManager
         )
     }
 }
@@ -121,8 +114,7 @@ private fun SongScreenContentPreview() {
         MyMusicAppTheme {
             SongScreenContent(
                 state = playerBottomSheetState,
-                mediaControllerManager = mediaControllerManager,
-                navController = rememberNavController()
+                mediaControllerManager = mediaControllerManager
             )
         }
     }
@@ -133,8 +125,7 @@ private fun SongScreenContentPreview() {
 @Composable
 private fun SongScreenContent(
     state: BottomSheetState,
-    mediaControllerManager: MediaControllerManager,
-    navController: NavHostController
+    mediaControllerManager: MediaControllerManager
 ) {
 
     val menuState = LocalMenuState.current
@@ -202,7 +193,7 @@ private fun SongScreenContent(
 
             Text(
                 text = currentSong.data.getSongTitle(),
-                color = white,
+                color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.basicMarquee(
@@ -214,7 +205,7 @@ private fun SongScreenContent(
 
             Text(
                 text = currentSong.data.getSongArtist(),
-                color = white,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleMedium,
             )
 
@@ -251,13 +242,13 @@ private fun SongScreenContent(
             ) {
                 Text(
                     text = current,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.labelSmall
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = currentSong.data.getDuration(),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.labelSmall
                 )
             }
@@ -294,7 +285,7 @@ private fun SongScreenContent(
                     modifier = Modifier
                         .clickable(onClick = mediaControllerManager::togglePlayPause)
                         .clip(RoundedCornerShape(cornerSize))
-                        .background(primary)
+                        .background(MaterialTheme.colorScheme.error)
                         .fillMaxHeight()
                         .aspectRatio(1f),
                     contentAlignment = Alignment.Center
@@ -360,7 +351,7 @@ private fun SongScreenContent(
                 list.forEach {
                     Text(
                         text = stringResource(it.first),
-                        color = white,
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
@@ -384,7 +375,7 @@ private fun Lyrics(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.lyrics),
             style = MaterialTheme.typography.titleMedium,
-            color = white,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 
@@ -404,7 +395,7 @@ private fun Lyrics(modifier: Modifier = Modifier) {
 //        Text(
 //            text = stringResource(R.string.related),
 //            style = MaterialTheme.typography.titleMedium,
-//            color = white,
+//            color = MaterialTheme.colorScheme.primary,
 //        )
 //        LazyColumn(
 //            modifier = Modifier
@@ -449,7 +440,7 @@ fun QueueView(
         Text(
             text = "Queue",
             style = MaterialTheme.typography.titleMedium,
-            color = white,
+            color = MaterialTheme.colorScheme.primary,
         )
 
         LazyColumnWithAnimation2(
@@ -492,7 +483,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = white
+                    color = MaterialTheme.colorScheme.primary
                 )
             },
             leadingContent = {
@@ -509,7 +500,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                 Text(
                     text = song.getSongArtist() + " \u2022 " + song.getDuration(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = lightGray,
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             },
@@ -534,7 +525,7 @@ fun Menu(modifier: Modifier = Modifier, song: Song) {
                     Text(
                         text = stringResource(it.second),
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = white
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 leadingContent = {

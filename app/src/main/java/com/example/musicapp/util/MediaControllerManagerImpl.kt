@@ -175,7 +175,7 @@ class MediaControllerManagerImpl(
     }
 
 
-    fun dispose() {
+    override fun dispose() {
         controller?.removeListener(this)
     }
 
