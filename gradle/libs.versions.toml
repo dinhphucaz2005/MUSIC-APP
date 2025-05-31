@@ -44,11 +44,13 @@ squigglyslider = "1.0.0"
 appcompat = "1.7.0"
 material = "1.12.0"
 ksp = "2.0.20-1.0.25"
+swiperefreshlayout = "1.1.0"
 
 [libraries]
 
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist-navigation-animation" }
-accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist-swipe-refresh" }
+#accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist-swipe-refresh" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 # AndroidX Core KTX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }

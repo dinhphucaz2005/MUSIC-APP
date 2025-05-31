@@ -130,7 +130,7 @@ dependencies {
     implementation(libs.compose.color.picker.android)
 
     //Swipe Refresh
-    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.androidx.swiperefreshlayout)
 
     //Drag select
     implementation(libs.dragselect)
@@ -163,4 +163,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
 //    implementation(libs.jtransforms)
+
+    implementation("androidx.documentfile:documentfile:1.1.0")
 }

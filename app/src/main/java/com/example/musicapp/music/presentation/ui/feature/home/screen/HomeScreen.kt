@@ -1,4 +1,4 @@
-package com.example.musicapp.music.presentation.ui.screen.home
+package com.example.musicapp.music.presentation.ui.feature.home.screen
 
 
 import androidx.compose.foundation.background
@@ -18,11 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
 import com.example.musicapp.di.fakeViewModel
-import com.example.musicapp.music.presentation.ui.screen.home.components.FeaturedSection
-import com.example.musicapp.music.presentation.ui.screen.home.components.RecentlyPlayedSection
-import com.example.musicapp.music.presentation.ui.screen.home.components.SearchAnythingHeader
-import com.example.musicapp.music.presentation.ui.screen.home.components.YourPlaylistsSection
-import com.example.musicapp.music.presentation.ui.screen.home.components.YourSongsSection
+import com.example.musicapp.music.presentation.ui.feature.home.HomeViewModel
+import com.example.musicapp.music.presentation.ui.feature.home.components.FeaturedSection
+import com.example.musicapp.music.presentation.ui.feature.home.components.RecentlyPlayedSection
+import com.example.musicapp.music.presentation.ui.feature.home.components.SearchAnythingHeader
+import com.example.musicapp.music.presentation.ui.feature.home.components.YourPlaylistsSection
+import com.example.musicapp.music.presentation.ui.feature.home.components.YourSongsSection
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 
 

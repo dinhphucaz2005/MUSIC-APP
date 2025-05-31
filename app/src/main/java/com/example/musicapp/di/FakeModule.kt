@@ -1,9 +1,11 @@
 package com.example.musicapp.di
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.musicapp.music.data.database.entity.PlaylistEntity
 import com.example.musicapp.music.data.database.entity.SongEntity
@@ -17,7 +19,9 @@ import com.example.musicapp.music.domain.model.Song
 import com.example.musicapp.music.domain.model.ThumbnailSource
 import com.example.musicapp.music.domain.repository.CloudRepository
 import com.example.musicapp.music.domain.repository.SongRepository
-import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
+import com.example.musicapp.music.presentation.ui.feature.home.HomeViewModel
+import com.example.musicapp.music.presentation.ui.feature.playlist.PlaylistDetailViewModel
+import com.example.musicapp.music.presentation.ui.feature.playlist.PlaylistRepository
 import com.example.musicapp.util.MediaControllerManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -234,6 +238,13 @@ object FakeModule {
 
     val localSong = localSongs.random()
 
+    fun providePlaylistDetailViewModel(): PlaylistDetailViewModel {
+        @SuppressLint("StaticFieldLeak")
+        return object : PlaylistDetailViewModel(
+            PlaylistRepository(), SavedStateHandle(mapOf("playlistId" to "1"))
+        ) {
+        }
+    }
 }
 
 @Composable
@@ -242,6 +253,7 @@ inline fun <reified T : ViewModel> fakeViewModel(): T {
     return if (isPreview) {
         when (T::class) {
             HomeViewModel::class -> FakeModule.provideHomeViewModel()
+            PlaylistDetailViewModel::class -> FakeModule.providePlaylistDetailViewModel()
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as T
     } else hiltViewModel<T>()

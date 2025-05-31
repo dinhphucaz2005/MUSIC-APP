@@ -51,19 +51,24 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
 import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
 import com.example.musicapp.core.presentation.components.BottomSheetPlayer
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
+import com.example.musicapp.core.presentation.components.Test
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.music.domain.repository.SongRepository
-import com.example.musicapp.music.presentation.ui.screen.home.HomeScreen
+import com.example.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
+import com.example.musicapp.music.presentation.ui.feature.playlist.screen.CreatePlaylistScreen
 import com.example.musicapp.service.MusicService
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 import com.example.musicapp.util.MediaControllerManager
@@ -190,8 +195,6 @@ private fun App() {
             }
         }
 
-        val horizontalPagerState = rememberPagerState(pageCount = navigationItems::size)
-
         NavHost(
             navController = navController, startDestination = Screens.Home.route,
             modifier = Modifier
@@ -205,6 +208,42 @@ private fun App() {
             composable(route = Screens.Home.route) {
                 HomeScreen(homeViewModel = hiltViewModel()) { }
             }
+
+
+            composable(
+                route = Screens.Playlists.route + "/{playlistId}",
+                arguments = listOf(navArgument("playlistId") {
+                    type = NavType.StringType
+                })
+            ) {
+                CreatePlaylistScreen(
+                    viewModel = hiltViewModel(),
+                    onNavigateBack = {},
+                    onPlaylistCreatedSuccessfully = { }
+                )
+            }
+
+
+//            composable(
+//                route = Screens.Playlists.route + "/{playlistId}",
+//                arguments = listOf(navArgument("playlistId") {
+//                    type = NavType.StringType
+//                })
+//            ) {
+//                PlaylistDetailScreen(
+//                    viewModel = hiltViewModel(),
+//                    onNavigateBack = {
+//                        navController.navigate(Screens.Home.route) {
+//                            popUpTo(Screens.Home.route) {
+//                                saveState = true
+//                            }
+//                            launchSingleTop = true
+//                            restoreState = true
+//                        }
+//                    }
+//                )
+//            }
+
         }
 
         BottomSheetPlayer(
@@ -235,8 +274,7 @@ private fun App() {
                     }
                 },
             navigationItems = navigationItems,
-            //            navController = navController
-            state = horizontalPagerState
+            navController = navController
         )
 
 
@@ -254,7 +292,7 @@ private fun App() {
 private fun BoxWithConstraintsScope.MainNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
-    state: PagerState
+    navController: NavHostController
 ) {
     val coroutineScope = rememberCoroutineScope()
     Row(
@@ -271,15 +309,37 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
                     .weight(1f)
                     .clickable(onClick = {
                         coroutineScope.launch {
-                            state.animateScrollToPage(index)
+                            if (navController.currentDestination?.route != screen.route) {
+
+                                if (screen == Screens.Playlists) {
+                                    navController.navigate(screen.route + "/test") {
+                                        popUpTo(Screens.Home.route) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                } else {
+
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            }
                         }
                     }),
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                val color =
-                    if (state.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                val color = if (navController.currentDestination?.route == screen.route) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.tertiary
+                }
 
                 Icon(
                     painter = painterResource(screen.iconId),

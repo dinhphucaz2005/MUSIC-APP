@@ -1,4 +1,4 @@
-package com.example.musicapp.music.presentation.ui.screen.home.components
+package com.example.musicapp.music.presentation.ui.feature.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +21,7 @@ import com.example.musicapp.LocalMenuState
 import com.example.musicapp.core.presentation.components.SongItemContent
 import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
 import com.example.musicapp.di.FakeModule
-import com.example.musicapp.music.presentation.ui.screen.home.HomeViewModel
+import com.example.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 
 @ExtendDevicePreviews

@@ -1,4 +1,4 @@
-package com.example.musicapp.music.presentation.ui.screen.home.components
+package com.example.musicapp.music.presentation.ui.feature.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

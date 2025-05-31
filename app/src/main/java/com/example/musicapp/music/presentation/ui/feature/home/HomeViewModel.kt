@@ -1,4 +1,4 @@
-package com.example.musicapp.music.presentation.ui.screen.home
+package com.example.musicapp.music.presentation.ui.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
