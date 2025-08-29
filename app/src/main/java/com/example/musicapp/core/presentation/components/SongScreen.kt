@@ -450,7 +450,7 @@ fun QueueView(
             items = queue.songs,
             state = state,
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            key = { _, item -> item.id }
+            key = { _, item -> item.id.toString() }
         ) { itemModifier, index, song ->
             SongItemContent(
                 song = song,

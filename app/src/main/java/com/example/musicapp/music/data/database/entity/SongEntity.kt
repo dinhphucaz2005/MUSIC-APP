@@ -43,14 +43,14 @@ data class SongEntity(
 
 
     constructor(song: LocalSong, playlistId: Int) : this(
-        otherId = song.id,
+        otherId = song.id.toString(),
         audioSource = song.uri.path.toString(),
         type = LOCAL_SONG,
         playlistId = playlistId
     )
 
     constructor(song: FirebaseSong, playlistId: Int) : this(
-        otherId = song.id,
+        otherId = song.id.toString(),
         title = song.title,
         audioSource = song.audioUrl,
         artists = listOf(Artist(song.artist, null)),
@@ -61,9 +61,9 @@ data class SongEntity(
     )
 
     constructor(song: YoutubeSong, playlistId: Int) : this(
-        otherId = song.id,
+        otherId = song.id.toString(),
         title = song.title,
-        audioSource = song.id,
+        audioSource = song.id.toString(),
         artists = song.artists,
         thumbnail = song.thumbnail,
         durationMillis = song.durationMillis,

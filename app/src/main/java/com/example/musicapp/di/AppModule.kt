@@ -5,13 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.constants.PREF_NAME
-import com.example.musicapp.music.data.FirebaseDataSource
 import com.example.musicapp.music.data.LocalDataSource
 import com.example.musicapp.music.data.RoomDataSource
-import com.example.musicapp.music.data.repository.CloudRepositoryImpl
-import com.example.musicapp.music.data.repository.SongRepositoryImpl
+import com.example.musicapp.music.data.repository.LocalSongRepository
 import com.example.musicapp.music.data.repository.UserRepositoryImpl
-import com.example.musicapp.music.domain.repository.CloudRepository
 import com.example.musicapp.music.domain.repository.SongRepository
 import com.example.musicapp.music.domain.repository.UserRepository
 import com.example.musicapp.service.MusicService
@@ -60,23 +57,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlaylistRepository(
+    fun provideSongRepository(
         context: Context, roomDataSource: RoomDataSource, localDataSource: LocalDataSource
     ): SongRepository {
-        return SongRepositoryImpl(context, roomDataSource, localDataSource)
+        return LocalSongRepository(context, roomDataSource, localDataSource)
     }
 
     @Provides
     @Singleton
     fun provideUserRepository(sharedPreferences: SharedPreferences): UserRepository {
         return UserRepositoryImpl(sharedPreferences)
-    }
-
-    @Provides
-    @Singleton
-    fun provideCloudRepository(
-        firebaseDataSource: FirebaseDataSource
-    ): CloudRepository {
-        return CloudRepositoryImpl(firebaseDataSource)
     }
 }

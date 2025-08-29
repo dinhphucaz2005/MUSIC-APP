@@ -4,7 +4,9 @@ import com.example.musicapp.music.data.database.entity.PlaylistEntity
 import com.example.musicapp.music.data.database.entity.SongEntity
 import com.example.musicapp.music.domain.model.LocalSong
 import com.example.musicapp.music.domain.model.Playlist
+import com.example.musicapp.music.domain.model.PlaylistId
 import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.domain.model.SongId
 import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {
@@ -38,8 +40,6 @@ interface SongRepository {
     @Deprecated("No longer used")
     suspend fun unlikeSong(song: Song)
 
-    fun getLikedSongs(): Flow<List<Song>>
-
     @Deprecated("No longer used")
     suspend fun savePlaylist(
         name: String,
@@ -51,4 +51,14 @@ interface SongRepository {
     @Deprecated("No longer used")
     suspend fun getPlaylists(): List<PlaylistEntity>
 
+    val allSongs: Flow<List<Song>>
+    val likedSongs: Flow<Set<SongId>>
+    val playlists: Flow<List<Playlist>>
+
+    suspend fun getSongs()
+    suspend fun addSong(song: Song)
+    suspend fun toggleLike(songId: SongId)
+    suspend fun createPlaylist(name: String): String
+    suspend fun addSongToPlaylist(playlistId: PlaylistId, song: Song)
+    suspend fun removeSongFromPlaylist(playlistId: PlaylistId, songId: SongId)
 }

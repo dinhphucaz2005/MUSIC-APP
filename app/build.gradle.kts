@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.com.google.devtools.ksp)
-    id("com.google.gms.google-services")
+//    id("com.google.gms.google-services")
+    id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
 }
 
@@ -110,8 +111,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //Firebase
-    implementation(libs.firebase.database)
-    implementation(libs.firebase.storage)
+//    implementation(libs.firebase.database)
+//    implementation(libs.firebase.storage)
 
     //Coil
     implementation(libs.bundles.coil)

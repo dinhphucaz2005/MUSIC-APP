@@ -14,8 +14,10 @@ import com.example.musicapp.music.domain.model.FirebaseSong
 import com.example.musicapp.music.domain.model.LocalSong
 import com.example.musicapp.music.domain.model.PlayBackState
 import com.example.musicapp.music.domain.model.Playlist
+import com.example.musicapp.music.domain.model.PlaylistId
 import com.example.musicapp.music.domain.model.Queue
 import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.domain.model.SongId
 import com.example.musicapp.music.domain.model.ThumbnailSource
 import com.example.musicapp.music.domain.repository.CloudRepository
 import com.example.musicapp.music.domain.repository.SongRepository
@@ -26,24 +28,15 @@ import com.example.musicapp.util.MediaControllerManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.last
 import kotlin.random.Random
 
 object FakeModule {
 
-//    val artistPage: ArtistPage = ArtistPage(
-//        artist = ArtistItem(
-//            id = "TODO()",
-//            title = "TODO()",
-//            thumbnail = "TODO()",
-//            shuffleEndpoint = null,
-//            radioEndpoint = null
-//        ),
-//        description = null
-//    )
-
     private val localSongs = listOf(
         LocalSong(
-            id = "1",
+            id = SongId.Local("1"),
             title = "Song A",
             artist = "Artist X",
             uri = Uri.EMPTY,
@@ -51,7 +44,7 @@ object FakeModule {
             durationMillis = 180000
         ),
         LocalSong(
-            id = "2",
+            id = SongId.Local("2"),
             title = "Song B",
             artist = "Artist Y",
             uri = Uri.EMPTY,
@@ -59,7 +52,7 @@ object FakeModule {
             durationMillis = 200000
         ),
         LocalSong(
-            id = "3",
+            id = SongId.Local("3"),
             title = "Song C",
             artist = "Artist Z",
             uri = Uri.EMPTY,
@@ -88,39 +81,26 @@ object FakeModule {
     private val songRepository: SongRepository = object : SongRepository {
 
         override suspend fun getSongsFromPlaylist(playlistId: Int): List<Song> {
-            return playlists.value.find { it.id == playlistId }?.songs ?: emptyList()
+            return playlists.last().find { it.id == playlistId }?.songs ?: emptyList()
         }
 
         override suspend fun createPlayList(name: String) {
             val newPlaylist = Playlist(
-                id = (playlists.value.maxOfOrNull { it.id } ?: 0) + 1,
+                id = (playlists.last().maxOfOrNull { it.id } ?: 0) + 1,
                 name = name
             )
-            playlists.value += newPlaylist
         }
 
         override suspend fun updatePlaylist(playlistId: Int, name: String) {
-            playlists.value = playlists.value.map {
-                if (it.id == playlistId) it.copy(name = name) else it
-            }
         }
 
         override suspend fun deletePlayList(id: Int) {
-            playlists.value = playlists.value.filterNot { it.id == id }
         }
 
         override suspend fun addSongsToPlaylist(playListId: Int, localSongs: List<Song>) {
-            playlists.value = playlists.value.map {
-                if (it.id == playListId) it.copy(songs = it.songs + localSongs) else it
-            }
         }
 
         override suspend fun deleteSongs(songIds: List<String>) {
-            playlists.value = playlists.value.map { playlist ->
-                playlist.copy(
-                    songs = playlist.songs.filterNot { it.id in songIds }
-                )
-            }
         }
 
         override suspend fun getLocalSong(): List<LocalSong> = localSongs
@@ -128,14 +108,11 @@ object FakeModule {
         override fun getPlayLists(): Flow<List<Playlist>> = playlists
 
         override suspend fun likeSong(song: Song) {
-            likedSongs.value += song
         }
 
         override suspend fun unlikeSong(song: Song) {
-            likedSongs.value = likedSongs.value.filterNot { it.id == song.id }
         }
 
-        override fun getLikedSongs(): Flow<List<Song>> = likedSongs
         override suspend fun savePlaylist(
             name: String,
             description: String,
@@ -145,8 +122,29 @@ object FakeModule {
             TODO("Not yet implemented")
         }
 
-        override suspend fun getPlaylists(): List<PlaylistEntity> {
-            TODO("Not yet implemented")
+        override suspend fun getPlaylists(): List<PlaylistEntity> = emptyList()
+
+        override val allSongs: Flow<List<Song>> = flow {}
+        override val likedSongs: Flow<Set<SongId>> = flow {}
+        override val playlists: Flow<List<Playlist>> = flow {}
+        override suspend fun getSongs() {}
+
+        override suspend fun addSong(song: Song) {}
+
+        override suspend fun toggleLike(songId: SongId) {}
+
+        override suspend fun createPlaylist(name: String): String = ""
+
+        override suspend fun addSongToPlaylist(
+            playlistId: PlaylistId,
+            song: Song
+        ) {
+        }
+
+        override suspend fun removeSongFromPlaylist(
+            playlistId: PlaylistId,
+            songId: SongId
+        ) {
         }
     }
 
@@ -155,7 +153,7 @@ object FakeModule {
         override suspend fun load(): List<FirebaseSong> {
             return listOf(
                 FirebaseSong(
-                    id = "cloud_1",
+                    id = SongId.Firebase("cloud_1"),
                     title = "Cloud Song 1",
                     artist = "Cloud Artist 1",
                     audioUrl = "https://example.com/audio1.mp3",
@@ -163,7 +161,7 @@ object FakeModule {
                     durationMillis = 210_000L
                 ),
                 FirebaseSong(
-                    id = "cloud_2",
+                    id = SongId.Firebase("cloud_2"),
                     title = "Cloud Song 2",
                     artist = "Cloud Artist 2",
                     audioUrl = "https://example.com/audio2.mp3",

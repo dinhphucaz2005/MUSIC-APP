@@ -13,7 +13,7 @@ import java.util.UUID
 abstract class Song(
 ) {
 
-    abstract val id: String
+    abstract val id: SongId
 
     abstract fun getSongTitle(): String
 
@@ -40,7 +40,9 @@ abstract class Song(
                     return null
                 }
 
-                override val id: String = id
+                override val id: SongId
+                    get() = SongId.Unidentified(id)
+
 
                 override fun getSongTitle(): String = "No song is playing"
 
@@ -69,7 +71,7 @@ abstract class Song(
 }
 
 data class LocalSong(
-    override val id: String,
+    override val id: SongId.Local,
     val title: String,
     val artist: String,
     val uri: Uri,
@@ -109,8 +111,9 @@ data class LocalSong(
 
 }
 
+@Deprecated("Not used anymore")
 data class FirebaseSong(
-    override val id: String,
+    override val id: SongId.Firebase,
     val title: String,
     val artist: String,
     val audioUrl: String,
@@ -150,8 +153,9 @@ data class FirebaseSong(
 
 }
 
+@Deprecated("Not used anymore")
 data class YoutubeSong(
-    override val id: String,
+    override val id: SongId.YouTube,
     val mediaId: String,
     val title: String,
     val artists: List<Artist>,

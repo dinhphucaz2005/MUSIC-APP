@@ -9,6 +9,7 @@ import com.example.musicapp.extension.getFileId
 import com.example.musicapp.extension.getImageBitmap
 import com.example.musicapp.extension.getTitle
 import com.example.musicapp.music.domain.model.LocalSong
+import com.example.musicapp.music.domain.model.SongId
 import com.example.musicapp.music.domain.model.ThumbnailSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -71,7 +72,7 @@ object MediaRetrieverHelper {
             retriever.setDataSource(path)
 
             val localSong = LocalSong(
-                id = file.getFileId(),
+                id = SongId.Local(file.getFileId()),
                 title = retriever.getTitle() ?: file.nameWithoutExtension,
                 artist = retriever.getAuthor(),
                 uri = file.toUri(),

@@ -70,21 +70,21 @@ class MediaControllerManagerImpl(
     init {
         Log.d(TAG, "init")
         withIOContext {
-            songRepository.getLikedSongs().collect { likedSongs ->
-                likedSongsSet = likedSongs.map { it.getAudio() }.toSet()
-                val song = if (queue.value?.songs?.isEmpty() == true) {
-                    CurrentSong.unidentifiedSong()
-                } else {
-                    val index = runBlocking(Dispatchers.Main) {
-                        getCurrentMediaIndex()
-                    } ?: 0
-                    val song = queue.value?.songs?.get(index) ?: return@collect
-                    val isLiked = song.getAudio().let { likedSongsSet.contains(it) }
-                    CurrentSong(song, isLiked)
-                }
-                val isLiked = song.data.getAudio().let { likedSongsSet.contains(it) }
-                _currentSong.update { CurrentSong(song.data, isLiked) }
-            }
+//            songRepository.getLikedSongs().collect { likedSongs ->
+//                likedSongsSet = likedSongs.map { it.getAudio() }.toSet()
+//                val song = if (queue.value?.songs?.isEmpty() == true) {
+//                    CurrentSong.unidentifiedSong()
+//                } else {
+//                    val index = runBlocking(Dispatchers.Main) {
+//                        getCurrentMediaIndex()
+//                    } ?: 0
+//                    val song = queue.value?.songs?.get(index) ?: return@collect
+//                    val isLiked = song.getAudio().let { likedSongsSet.contains(it) }
+//                    CurrentSong(song, isLiked)
+//                }
+//                val isLiked = song.data.getAudio().let { likedSongsSet.contains(it) }
+//                _currentSong.update { CurrentSong(song.data, isLiked) }
+//            }
         }
         controllerFuture?.addListener({
             try {

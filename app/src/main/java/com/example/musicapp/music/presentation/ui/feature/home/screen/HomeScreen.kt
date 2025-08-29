@@ -1,6 +1,5 @@
 package com.example.musicapp.music.presentation.ui.feature.home.screen
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,10 +17,6 @@ import androidx.media3.common.util.UnstableApi
 import com.example.musicapp.core.presentation.previews.ExtendDevicePreviews
 import com.example.musicapp.di.fakeViewModel
 import com.example.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import com.example.musicapp.music.presentation.ui.feature.home.components.FeaturedSection
-import com.example.musicapp.music.presentation.ui.feature.home.components.RecentlyPlayedSection
-import com.example.musicapp.music.presentation.ui.feature.home.components.SearchAnythingHeader
-import com.example.musicapp.music.presentation.ui.feature.home.components.YourPlaylistsSection
 import com.example.musicapp.music.presentation.ui.feature.home.components.YourSongsSection
 import com.example.musicapp.ui.theme.MyMusicAppTheme
 
@@ -31,11 +25,10 @@ import com.example.musicapp.ui.theme.MyMusicAppTheme
 @UnstableApi
 @ExtendDevicePreviews
 @Composable
-fun Preview() {
+private fun Preview() {
     MyMusicAppTheme {
         HomeScreen(
             homeViewModel = fakeViewModel<HomeViewModel>(),
-            onNavigateToAllLocalSongScreen = {}
         )
     }
 }
@@ -44,12 +37,9 @@ fun Preview() {
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel,
-    onNavigateToAllLocalSongScreen: () -> Unit,
 ) {
-    val localSongState by homeViewModel.localSongState.collectAsState()
+    val songs by homeViewModel.songs.collectAsState()
     val scrollState = rememberLazyListState()
-
-    LaunchedEffect(Unit) { homeViewModel.loadSongs() }
 
     LazyColumn(
         modifier = modifier
@@ -59,18 +49,9 @@ fun HomeScreen(
         contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        item { SearchAnythingHeader(onSearchClick = { }) }
-
-        item { FeaturedSection() }
-
-        item { RecentlyPlayedSection() }
-
-        item { YourPlaylistsSection() }
-
         item {
             YourSongsSection(
-                localSongState = localSongState,
-                onSeeAllClick = onNavigateToAllLocalSongScreen
+                songs = songs
             )
         }
 

@@ -1,7 +1,7 @@
 buildscript {
     dependencies {
-        classpath(libs.google.services)
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.51.1")
+//        classpath(libs.google.services)
+        classpath(libs.hilt.android.gradle.plugin)
     }
     repositories {
         gradlePluginPortal()

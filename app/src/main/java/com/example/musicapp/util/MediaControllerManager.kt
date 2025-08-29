@@ -6,6 +6,7 @@ import com.example.musicapp.music.domain.model.LocalSong
 import com.example.musicapp.music.domain.model.PlayBackState
 import com.example.musicapp.music.domain.model.Queue
 import com.example.musicapp.music.domain.model.Song
+import com.example.musicapp.music.domain.model.SongId
 import com.example.musicapp.music.domain.model.ThumbnailSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,7 +61,7 @@ class UninitializedMediaControllerManager : MediaControllerManager {
         MutableStateFlow<CurrentSong>(
             CurrentSong(
                 data = LocalSong(
-                    id = "",
+                    id = SongId.Local(""),
                     title = "",
                     artist = "",
                     uri = Uri.EMPTY,

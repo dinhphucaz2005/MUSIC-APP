@@ -1,5 +1,6 @@
 package com.example.musicapp.music.domain.model
 
+@Deprecated("No longer used, replaced by QueueItem")
 data class Queue(
     val id: String = "",
     var index: Int = 0,

@@ -23,6 +23,7 @@ fontawesomecompose = "1.1.0"
 glanceAppwidget = "1.1.1"
 googleServices = "4.4.2"
 hiltAndroid = "2.51.1"
+hiltAndroidGradlePlugin = "2.51.1"
 hiltCompiler = "2.51.1"
 hiltNavigationComposeVersion = "1.2.0"
 jtransforms = "3.1"
@@ -119,6 +120,7 @@ fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", versi
 
 # JUnit
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroidGradlePlugin" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
 jtransforms = { module = "com.github.wendykierp:JTransforms", version.ref = "jtransforms" }

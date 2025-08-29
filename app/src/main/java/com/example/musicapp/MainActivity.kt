@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
@@ -51,20 +54,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.musicapp.constants.MiniPlayerHeight
 import com.example.musicapp.constants.NavigationBarHeight
 import com.example.musicapp.constants.Screens
 import com.example.musicapp.core.presentation.components.BottomSheetMenu
 import com.example.musicapp.core.presentation.components.BottomSheetPlayer
 import com.example.musicapp.core.presentation.components.NavigationBarAnimationSpec
-import com.example.musicapp.core.presentation.components.Test
 import com.example.musicapp.core.presentation.components.rememberBottomSheetState
 import com.example.musicapp.music.domain.repository.SongRepository
 import com.example.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
@@ -150,10 +145,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun App() {
 
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-
     val density = LocalDensity.current
 
     val windowsInsets = WindowInsets.systemBars
@@ -161,12 +152,16 @@ private fun App() {
     val mediaControllerManager = LocalMediaControllerManager.current
 
     val navigationItems = remember { Screens.MainScreens }
-
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f,
+        pageCount = { navigationItems.size }
+    )
     val queue by mediaControllerManager.queue.collectAsState()
 
     val active by rememberSaveable { mutableStateOf(false) }
 
-    val shouldShowNavigationBar = remember(navBackStackEntry, active) { true }
+    val shouldShowNavigationBar = remember(pagerState, active) { true }
 
     val navigationBarHeight by animateDpAsState(
         targetValue = if (shouldShowNavigationBar) NavigationBarHeight else 0.dp,
@@ -185,7 +180,7 @@ private fun App() {
             expandedBound = maxHeight,
         )
 
-        LaunchedEffect(navBackStackEntry) {
+        LaunchedEffect(pagerState) {
             playerBottomSheetState.collapseSoft()
         }
 
@@ -194,56 +189,24 @@ private fun App() {
                 playerBottomSheetState.collapseSoft()
             }
         }
-
-        NavHost(
-            navController = navController, startDestination = Screens.Home.route,
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
                 )
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background),
-        ) {
-            composable(route = Screens.Home.route) {
-                HomeScreen(homeViewModel = hiltViewModel()) { }
-            }
-
-
-            composable(
-                route = Screens.Playlists.route + "/{playlistId}",
-                arguments = listOf(navArgument("playlistId") {
-                    type = NavType.StringType
-                })
-            ) {
+                .background(color = MaterialTheme.colorScheme.background)
+        ) { page ->
+            if (navigationItems[page] == Screens.Home)
+                HomeScreen(homeViewModel = hiltViewModel())
+            else if (navigationItems[page] == Screens.Playlists)
                 CreatePlaylistScreen(
                     viewModel = hiltViewModel(),
                     onNavigateBack = {},
                     onPlaylistCreatedSuccessfully = { }
                 )
-            }
-
-
-//            composable(
-//                route = Screens.Playlists.route + "/{playlistId}",
-//                arguments = listOf(navArgument("playlistId") {
-//                    type = NavType.StringType
-//                })
-//            ) {
-//                PlaylistDetailScreen(
-//                    viewModel = hiltViewModel(),
-//                    onNavigateBack = {
-//                        navController.navigate(Screens.Home.route) {
-//                            popUpTo(Screens.Home.route) {
-//                                saveState = true
-//                            }
-//                            launchSingleTop = true
-//                            restoreState = true
-//                        }
-//                    }
-//                )
-//            }
-
         }
 
         BottomSheetPlayer(
@@ -274,7 +237,7 @@ private fun App() {
                     }
                 },
             navigationItems = navigationItems,
-            navController = navController
+            pagerState = pagerState
         )
 
 
@@ -292,7 +255,7 @@ private fun App() {
 private fun BoxWithConstraintsScope.MainNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
-    navController: NavHostController
+    pagerState: PagerState,
 ) {
     val coroutineScope = rememberCoroutineScope()
     Row(
@@ -307,40 +270,23 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable(onClick = {
-                        coroutineScope.launch {
-                            if (navController.currentDestination?.route != screen.route) {
-
-                                if (screen == Screens.Playlists) {
-                                    navController.navigate(screen.route + "/test") {
-                                        popUpTo(Screens.Home.route) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                } else {
-
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
+                    .clickable(
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(
+                                    index,
+                                    animationSpec = tween(
+                                        durationMillis = 600,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
                             }
-                        }
-                    }),
+                        },
+                    ),
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val color = if (navController.currentDestination?.route == screen.route) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.tertiary
-                }
-
+                val color = MaterialTheme.colorScheme.primary
                 Icon(
                     painter = painterResource(screen.iconId),
                     modifier = Modifier.size(24.dp),
