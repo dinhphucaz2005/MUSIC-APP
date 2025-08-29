@@ -13,7 +13,7 @@ val apiKey: String = System.getenv("API_KEY") ?: "SDLF"
 
 //noinspection OldTargetApi
 android {
-    namespace = "com.example.musicapp"
+    namespace = "nd.phuc.musicapp"
     compileSdk = 34
 
     buildFeatures {
@@ -22,13 +22,13 @@ android {
 
     defaultConfig {
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
-        applicationId = "com.example.musicapp"
+        applicationId = "nd.phuc.musicapp"
         minSdk = 26
         targetSdk = 34
         maxSdk = 34
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "com.example.musicapp.HiltTestRunner"
+        testInstrumentationRunner = "nd.phuc.musicapp.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -74,9 +74,6 @@ ksp {
 
 
 dependencies {
-
-    // Inner Tube Module
-    implementation(project(":innertube"))
 
     // Media3
     implementation(libs.androidx.media)
@@ -135,6 +132,7 @@ dependencies {
 
     //Drag select
     implementation(libs.dragselect)
+    implementation(libs.kotlinx.serialization.json)
 
     //Nav animation
     implementation(libs.accompanist.navigation.animation)
@@ -143,8 +141,8 @@ dependencies {
     implementation(libs.fontawesomecompose)
 
     //Glance
-    implementation(libs.androidx.glance.appwidget)
-    implementation(libs.androidx.glance.material3)
+//    implementation(libs.androidx.glance.appwidget)
+//    implementation(libs.androidx.glance.material3)
 
     //Squiggly Slider
     implementation(libs.squigglyslider)

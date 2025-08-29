@@ -1,10 +1,10 @@
-package com.example.musicapp
+package nd.phuc.musicapp
 
 //import android.util.Log
 //import androidx.test.ext.junit.runners.AndroidJUnit4
-//import com.example.musicapp.other.data.database.AppDAO
-//import com.example.musicapp.other.data.database.entity.PlayListEntity
-//import com.example.musicapp.other.data.database.entity.SongEntity
+//import nd.phuc.musicapp.other.data.database.AppDAO
+//import nd.phuc.musicapp.other.data.database.entity.PlayListEntity
+//import nd.phuc.musicapp.other.data.database.entity.SongEntity
 //import dagger.hilt.android.testing.HiltAndroidRule
 //import dagger.hilt.android.testing.HiltAndroidTest
 //import kotlinx.coroutines.runBlocking

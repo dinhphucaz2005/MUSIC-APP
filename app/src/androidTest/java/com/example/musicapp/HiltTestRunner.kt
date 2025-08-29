@@ -1,4 +1,4 @@
-package com.example.musicapp
+package nd.phuc.musicapp
 
 //import android.app.Application
 //import android.content.Context

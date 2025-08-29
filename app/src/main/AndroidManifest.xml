@@ -22,7 +22,7 @@
         android:theme="@style/MusicApp">
 
         <activity
-            android:name=".MainActivity"
+            android:name="nd.phuc.musicapp.MainActivity"
             android:exported="true"
             android:theme="@style/MusicApp">
 

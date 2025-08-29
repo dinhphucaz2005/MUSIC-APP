@@ -1,11 +1,11 @@
-package com.example.musicapp
+package nd.phuc.musicapp
 
 //import android.app.Application
 //import android.content.Context
 //import androidx.room.Room.inMemoryDatabaseBuilder
-//import com.example.musicapp.other.data.database.AppDAO
-//import com.example.musicapp.other.data.database.AppDatabase
-//import com.example.musicapp.di.DatabaseModule
+//import nd.phuc.musicapp.other.data.database.AppDAO
+//import nd.phuc.musicapp.other.data.database.AppDatabase
+//import nd.phuc.musicapp.di.DatabaseModule
 //import dagger.Module
 //import dagger.Provides
 //import dagger.hilt.android.qualifiers.ApplicationContext
