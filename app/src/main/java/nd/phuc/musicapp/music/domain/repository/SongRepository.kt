@@ -2,11 +2,11 @@ package nd.phuc.musicapp.music.domain.repository
 
 import nd.phuc.musicapp.music.data.database.entity.PlaylistEntity
 import nd.phuc.musicapp.music.data.database.entity.SongEntity
-import nd.phuc.musicapp.music.domain.model.LocalSong
-import nd.phuc.musicapp.music.domain.model.Playlist
-import nd.phuc.musicapp.music.domain.model.PlaylistId
-import nd.phuc.musicapp.music.domain.model.Song
-import nd.phuc.musicapp.music.domain.model.SongId
+import nd.phuc.core.model.LocalSong
+import nd.phuc.core.model.Playlist
+import nd.phuc.core.model.PlaylistId
+import nd.phuc.core.model.Song
+import nd.phuc.core.model.SongId
 import kotlinx.coroutines.flow.Flow
 
 interface SongRepository {

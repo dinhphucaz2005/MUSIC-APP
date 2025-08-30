@@ -12,11 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import nd.phuc.musicapp.LocalMediaControllerManager
 import nd.phuc.musicapp.LocalMenuState
-import nd.phuc.musicapp.core.presentation.components.SongItemContent
-import nd.phuc.musicapp.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.musicapp.di.FakeModule
-import nd.phuc.musicapp.music.domain.model.Song
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.model.Song
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 @ExtendDevicePreviews
 @Composable
@@ -50,29 +49,29 @@ fun YourSongsSection(
 
     Column {
         songs.take(5).forEachIndexed { index, song ->
-            SongItemContent(
-                song = song,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                onSongClick = {
-                    mediaControllerManager.playQueue(
-                        songs = songs,
-                        index = index,
-                        id = "songs.lastReloadMillis.toString()"
-                    )
-                },
-                onMoreChoice = {
-                    menuState.show {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(300.dp)
-                                .background(color = MaterialTheme.colorScheme.primary)
-                        )
-                    }
-                }
-            )
+//            SongItemContent(
+//                song = song,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp, vertical = 4.dp),
+//                onSongClick = {
+//                    mediaControllerManager.playQueue(
+//                        songs = songs,
+//                        index = index,
+//                        id = "songs.lastReloadMillis.toString()"
+//                    )
+//                },
+//                onMoreChoice = {
+//                    menuState.show {
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(300.dp)
+//                                .background(color = MaterialTheme.colorScheme.primary)
+//                        )
+//                    }
+//                }
+//            )
         }
     }
 }

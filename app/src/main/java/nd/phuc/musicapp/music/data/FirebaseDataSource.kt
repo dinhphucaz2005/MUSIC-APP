@@ -6,8 +6,8 @@ package nd.phuc.musicapp.music.data
 //import nd.phuc.musicapp.extension.DEFAULT_COMPRESS_FORMAT
 //import nd.phuc.musicapp.extension.toByteArray
 //import nd.phuc.musicapp.helper.FileHelper
-//import nd.phuc.musicapp.music.domain.model.LocalSong
-//import nd.phuc.musicapp.music.domain.model.ThumbnailSource
+//import nd.phuc.core.model.LocalSong
+//import nd.phuc.core.model.ThumbnailSource
 //import nd.phuc.musicapp.util.FirebaseKey
 //import com.google.firebase.database.DatabaseReference
 //import com.google.firebase.storage.StorageReference

@@ -1,7 +1,7 @@
 package nd.phuc.musicapp.music.data.repository
 
 import android.content.SharedPreferences
-import nd.phuc.musicapp.music.domain.model.UserSetting
+import nd.phuc.core.model.UserSetting
 import nd.phuc.musicapp.music.domain.repository.UserRepository
 import javax.inject.Inject
 import androidx.core.content.edit

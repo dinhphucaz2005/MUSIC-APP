@@ -1,18 +1,9 @@
 package nd.phuc.musicapp.music.presentation.ui.widget
 
-import android.content.Context
-import android.util.Log
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.byteArrayPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 //import androidx.glance.GlanceId
 //import androidx.glance.appwidget.GlanceAppWidget
 //import androidx.glance.appwidget.provideContent
 //import androidx.glance.currentState
-import androidx.media3.common.Player
-import nd.phuc.musicapp.extension.toBitmap
 
 //class MusicWidget : GlanceAppWidget() {
 //

@@ -1,9 +1,9 @@
 package nd.phuc.musicapp.other.presentation.ui.screen.playlist
 
 import androidx.lifecycle.ViewModel
-import nd.phuc.musicapp.extension.withIOContext
+import nd.phuc.core.extension.withIOContext
 import nd.phuc.musicapp.music.data.database.entity.SongEntity
-import nd.phuc.musicapp.music.domain.model.Playlist
+import nd.phuc.core.model.Playlist
 import nd.phuc.musicapp.music.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

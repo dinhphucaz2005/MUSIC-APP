@@ -3,8 +3,8 @@ package nd.phuc.musicapp.music.presentation.ui.feature.playlist
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import nd.phuc.musicapp.music.domain.model.Playlist
-import nd.phuc.musicapp.music.domain.model.Song
+import nd.phuc.core.model.Playlist
+import nd.phuc.core.model.Song
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -15,10 +15,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import nd.phuc.musicapp.extension.withMainContext
 import nd.phuc.musicapp.helper.NotificationHelper
-import nd.phuc.musicapp.music.domain.model.Queue
-import nd.phuc.musicapp.music.domain.model.Song
+import nd.phuc.core.model.Queue
+import nd.phuc.core.model.Song
 //import nd.phuc.musicapp.music.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

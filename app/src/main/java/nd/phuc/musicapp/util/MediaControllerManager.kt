@@ -1,13 +1,13 @@
 package nd.phuc.musicapp.util
 
 import android.net.Uri
-import nd.phuc.musicapp.music.domain.model.CurrentSong
-import nd.phuc.musicapp.music.domain.model.LocalSong
-import nd.phuc.musicapp.music.domain.model.PlayBackState
-import nd.phuc.musicapp.music.domain.model.Queue
-import nd.phuc.musicapp.music.domain.model.Song
-import nd.phuc.musicapp.music.domain.model.SongId
-import nd.phuc.musicapp.music.domain.model.ThumbnailSource
+import nd.phuc.core.model.CurrentSong
+import nd.phuc.core.model.LocalSong
+import nd.phuc.core.model.PlayBackState
+import nd.phuc.core.model.Queue
+import nd.phuc.core.model.Song
+import nd.phuc.core.model.SongId
+import nd.phuc.core.model.ThumbnailSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

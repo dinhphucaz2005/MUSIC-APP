@@ -1,7 +1,7 @@
 package nd.phuc.musicapp.music.domain.repository
 
-import nd.phuc.musicapp.music.domain.model.FirebaseSong
-import nd.phuc.musicapp.music.domain.model.LocalSong
+import nd.phuc.core.model.FirebaseSong
+import nd.phuc.core.model.LocalSong
 
 interface CloudRepository {
 

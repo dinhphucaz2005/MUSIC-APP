@@ -3,7 +3,7 @@ package nd.phuc.musicapp.music.data
 import android.content.Context
 import android.provider.MediaStore
 import nd.phuc.musicapp.helper.MediaRetrieverHelper
-import nd.phuc.musicapp.music.domain.model.LocalSong
+import nd.phuc.core.model.LocalSong
 import javax.inject.Inject
 import javax.inject.Singleton
 

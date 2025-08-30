@@ -9,7 +9,7 @@ package nd.phuc.musicapp.youtube.presentation
 //import androidx.navigation.compose.composable
 //import androidx.navigation.navArgument
 //import androidx.navigation.navigation
-//import nd.phuc.musicapp.constants.Screens
+//import nd.phuc.core.model.Screens
 //import nd.phuc.musicapp.youtube.presentation.YoutubeRoute.ALBUM_ID
 //import nd.phuc.musicapp.youtube.presentation.YoutubeRoute.ARTIST_ID
 //import nd.phuc.musicapp.youtube.presentation.YoutubeRoute.PLAYLIST_ID

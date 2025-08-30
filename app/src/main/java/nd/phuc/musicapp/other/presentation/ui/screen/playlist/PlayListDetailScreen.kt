@@ -18,10 +18,10 @@ package nd.phuc.musicapp.other.presentation.ui.screen.playlist
 //import androidx.compose.ui.layout.ContentScale
 //import androidx.compose.ui.tooling.preview.Preview
 //import androidx.compose.ui.unit.dp
-//import nd.phuc.musicapp.constants.DefaultCornerSize
-//import nd.phuc.musicapp.core.presentation.components.LazyColumnWithAnimation2
-//import nd.phuc.musicapp.core.presentation.components.MyListItem
-//import nd.phuc.musicapp.core.presentation.components.Thumbnail
+//import nd.phuc.core.model.DefaultCornerSize
+//import nd.phuc.core.presentation.components.LazyColumnWithAnimation2
+//import nd.phuc.core.presentation.components.MyListItem
+//import nd.phuc.core.presentation.components.Thumbnail
 //import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 //import nd.phuc.musicapp.ui.theme.white
 //import nd.phuc.musicapp.di.FakeModule

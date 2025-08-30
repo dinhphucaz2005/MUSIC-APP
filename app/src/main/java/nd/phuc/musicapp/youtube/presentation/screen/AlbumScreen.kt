@@ -2,7 +2,7 @@ package nd.phuc.musicapp.youtube.presentation.screen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 //@Composable
 //fun AlbumScreen(

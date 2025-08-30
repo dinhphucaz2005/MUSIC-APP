@@ -2,10 +2,10 @@ package nd.phuc.musicapp.music.presentation.ui.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import nd.phuc.musicapp.music.domain.model.LocalSong
-import nd.phuc.musicapp.music.domain.model.Playlist
-import nd.phuc.musicapp.music.domain.model.Song
-import nd.phuc.musicapp.music.domain.model.SongId
+import nd.phuc.core.model.LocalSong
+import nd.phuc.core.model.Playlist
+import nd.phuc.core.model.Song
+import nd.phuc.core.model.SongId
 import nd.phuc.musicapp.music.domain.repository.SongRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

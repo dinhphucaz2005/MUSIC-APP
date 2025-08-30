@@ -10,8 +10,8 @@ package nd.phuc.musicapp.other.presentation.ui.screen.cloud
 //import androidx.compose.ui.tooling.preview.Preview
 //import androidx.compose.ui.unit.dp
 //import nd.phuc.musicapp.LocalMediaControllerManager
-//import nd.phuc.musicapp.core.presentation.components.LazyColumnWithAnimation2
-//import nd.phuc.musicapp.core.presentation.components.LoadingScreen
+//import nd.phuc.core.presentation.components.LazyColumnWithAnimation2
+//import nd.phuc.core.presentation.components.LoadingScreen
 //import nd.phuc.musicapp.di.fakeViewModel
 //import nd.phuc.musicapp.other.domain.model.Queue
 //import nd.phuc.musicapp.other.viewmodels.CloudViewModel

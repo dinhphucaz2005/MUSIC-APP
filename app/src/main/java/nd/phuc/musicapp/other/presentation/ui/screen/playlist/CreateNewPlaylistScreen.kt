@@ -10,9 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import nd.phuc.musicapp.music.domain.model.Song
+import nd.phuc.core.model.Song
 import nd.phuc.musicapp.music.data.database.entity.SongEntity
-import nd.phuc.musicapp.music.domain.model.LocalSong
+import nd.phuc.core.model.LocalSong
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

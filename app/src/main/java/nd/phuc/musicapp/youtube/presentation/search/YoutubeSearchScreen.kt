@@ -14,8 +14,8 @@ package nd.phuc.musicapp.youtube.presentation.search
 //import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 //import androidx.hilt.navigation.compose.hiltViewModel
 //import nd.phuc.musicapp.LocalMediaControllerManager
-//import nd.phuc.musicapp.core.presentation.components.DefaultSearchBar
-//import nd.phuc.musicapp.core.presentation.components.LazyColumnWithAnimation2
+//import nd.phuc.core.presentation.components.DefaultSearchBar
+//import nd.phuc.core.presentation.components.LazyColumnWithAnimation2
 ////import nd.phuc.musicapp.youtube.presentation.screen.SongItemFromYoutube
 //import kotlinx.coroutines.launch
 //

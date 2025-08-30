@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.core.domain
+package nd.phuc.core.domain
 
 sealed interface DataError: Error {
     enum class Remote: DataError {

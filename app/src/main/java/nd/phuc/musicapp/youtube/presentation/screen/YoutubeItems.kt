@@ -26,10 +26,10 @@ package nd.phuc.musicapp.youtube.presentation.screen
 //import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.sp
 //import com.example.innertube.models.SongItem
-//import nd.phuc.musicapp.constants.DefaultCornerSize
-//import nd.phuc.musicapp.constants.SongItemHeight
-//import nd.phuc.musicapp.core.presentation.components.MyListItem
-//import nd.phuc.musicapp.core.presentation.components.Thumbnail
+//import nd.phuc.core.model.DefaultCornerSize
+//import nd.phuc.core.model.SongItemHeight
+//import nd.phuc.core.presentation.components.MyListItem
+//import nd.phuc.core.presentation.components.Thumbnail
 //import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 //import nd.phuc.musicapp.ui.theme.white
 //import nd.phuc.musicapp.extension.toArtistString

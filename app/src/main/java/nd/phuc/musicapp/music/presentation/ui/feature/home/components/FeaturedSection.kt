@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import nd.phuc.musicapp.R
-import nd.phuc.musicapp.core.presentation.previews.ExtendDevicePreviews
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 @ExtendDevicePreviews
 @Composable

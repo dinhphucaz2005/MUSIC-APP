@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import nd.phuc.musicapp.R
-import nd.phuc.musicapp.constants.DefaultCornerSize
-import nd.phuc.musicapp.music.domain.model.Playlist
-import nd.phuc.musicapp.ui.theme.Black
+import nd.phuc.core.model.DefaultCornerSize
+import nd.phuc.core.model.Playlist
+import nd.phuc.core.presentation.theme.Black
 
 
 @Composable

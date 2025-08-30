@@ -14,11 +14,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
-import nd.phuc.musicapp.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.musicapp.di.fakeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.components.YourSongsSection
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 
 @ExperimentalMaterial3Api

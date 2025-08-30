@@ -1,3 +1,3 @@
-package nd.phuc.musicapp.core.domain
+package nd.phuc.core.domain
 
 interface Error

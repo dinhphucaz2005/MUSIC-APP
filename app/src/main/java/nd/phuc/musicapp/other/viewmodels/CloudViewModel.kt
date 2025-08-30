@@ -2,7 +2,7 @@ package nd.phuc.musicapp.other.viewmodels
 
 //import androidx.lifecycle.ViewModel
 //import androidx.lifecycle.viewModelScope
-//import nd.phuc.musicapp.constants.DEFAULT_DURATION_MILLIS
+//import nd.phuc.core.model.DEFAULT_DURATION_MILLIS
 //import nd.phuc.musicapp.extension.load
 //import nd.phuc.musicapp.other.domain.model.FirebaseSong
 //import nd.phuc.musicapp.other.domain.repository.CloudRepository

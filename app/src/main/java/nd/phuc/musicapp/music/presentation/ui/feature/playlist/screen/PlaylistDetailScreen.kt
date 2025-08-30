@@ -25,12 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import nd.phuc.musicapp.LocalMediaControllerManager
 import nd.phuc.musicapp.LocalMenuState
-import nd.phuc.musicapp.core.presentation.components.SongItemContent
-import nd.phuc.musicapp.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.musicapp.di.fakeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.playlist.PlaylistDetailViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.playlist.components.PlaylistHeader
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 @ExtendDevicePreviews
 @Composable
@@ -91,29 +90,29 @@ fun PlaylistDetailScreen(
 
                     items(state.songs.size) { index ->
                         val song = state.songs[index]
-                        SongItemContent(
-                            song = song,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            onSongClick = {
-                                mediaControllerManager.playQueue(
-                                    songs = state.songs,
-                                    index = index,
-                                    id = state.playlist.id.toString()
-                                )
-                            },
-                            onMoreChoice = {
-                                menuState.show {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(300.dp)
-                                            .background(color = MaterialTheme.colorScheme.primary)
-                                    )
-                                }
-                            }
-                        )
+//                        SongItemContent(
+//                            song = song,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(horizontal = 16.dp, vertical = 4.dp),
+//                            onSongClick = {
+//                                mediaControllerManager.playQueue(
+//                                    songs = state.songs,
+//                                    index = index,
+//                                    id = state.playlist.id.toString()
+//                                )
+//                            },
+//                            onMoreChoice = {
+//                                menuState.show {
+//                                    Box(
+//                                        modifier = Modifier
+//                                            .fillMaxWidth()
+//                                            .height(300.dp)
+//                                            .background(color = MaterialTheme.colorScheme.primary)
+//                                    )
+//                                }
+//                            }
+//                        )
                     }
 
                     item {

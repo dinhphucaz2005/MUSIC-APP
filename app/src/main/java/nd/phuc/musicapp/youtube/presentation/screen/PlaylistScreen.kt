@@ -38,9 +38,9 @@ package nd.phuc.musicapp.youtube.presentation.screen
 //import com.example.innertube.pages.PlaylistPage
 //import nd.phuc.musicapp.LocalMediaControllerManager
 //import nd.phuc.musicapp.R
-//import nd.phuc.musicapp.constants.DefaultCornerSize
-//import nd.phuc.musicapp.core.presentation.components.CommonIcon
-//import nd.phuc.musicapp.core.presentation.components.Thumbnail
+//import nd.phuc.core.model.DefaultCornerSize
+//import nd.phuc.core.presentation.components.CommonIcon
+//import nd.phuc.core.presentation.components.Thumbnail
 //import nd.phuc.musicapp.ui.theme.LightGray
 //import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 //import nd.phuc.musicapp.di.FakeModule

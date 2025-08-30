@@ -62,11 +62,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import coil3.compose.AsyncImage
-import nd.phuc.musicapp.core.presentation.components.AppOutlinedTextField
+import nd.phuc.core.presentation.components.AppOutlinedTextField
 import nd.phuc.musicapp.music.presentation.ui.feature.playlist.CreatePlaylistViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.playlist.PlaylistRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.playlist.dialog.FastCreatePlaylistDialog
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

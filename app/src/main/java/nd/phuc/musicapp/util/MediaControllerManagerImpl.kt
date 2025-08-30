@@ -9,25 +9,24 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import nd.phuc.musicapp.constants.LoopMode
-import nd.phuc.musicapp.constants.PlayerState
-import nd.phuc.musicapp.extension.withIOContext
-import nd.phuc.musicapp.music.domain.model.CurrentSong
-import nd.phuc.musicapp.music.domain.model.PlayBackState
-import nd.phuc.musicapp.music.domain.model.Queue
-import nd.phuc.musicapp.music.domain.model.Song
+import nd.phuc.core.model.LoopMode
+import nd.phuc.core.extension.withIOContext
+import nd.phuc.core.model.CurrentSong
+import nd.phuc.core.model.PlayBackState
+import nd.phuc.core.model.Queue
+import nd.phuc.core.model.Song
 import nd.phuc.musicapp.music.domain.repository.SongRepository
-import nd.phuc.musicapp.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import nd.phuc.musicapp.service.MusicService
 
 @SuppressLint("UnsafeOptInUsageError")
 class MediaControllerManagerImpl(
     context: Context,
-    private val binder: nd.phuc.musicapp.service.MusicService.MusicBinder?,
+    private val binder: MusicService.MusicBinder?,
     private val songRepository: SongRepository
 ) : Player.Listener, MediaControllerManager {
 
@@ -101,12 +100,12 @@ class MediaControllerManagerImpl(
                 repeatMode = Player.REPEAT_MODE_ALL
             }
 
-            _playBackState.update {
-                PlayBackState(
-                    PlayerState.fromBoolean(isPlaying),
-                    LoopMode.fromInt(repeatMode, shuffleModeEnabled)
-                )
-            }
+//            _playBackState.update {
+//                PlayBackState(
+//                    PlayerState.fromBoolean(isPlaying),
+//                    LoopMode.fromInt(repeatMode, shuffleModeEnabled)
+//                )
+//            }
         }
     }
 

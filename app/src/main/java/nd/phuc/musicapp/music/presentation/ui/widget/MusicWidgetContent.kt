@@ -2,12 +2,9 @@ package nd.phuc.musicapp.music.presentation.ui.widget
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import androidx.annotation.DrawableRes
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 //import androidx.glance.AndroidResourceImageProvider
 //import androidx.glance.BitmapImageProvider
 //import androidx.glance.GlanceModifier
@@ -32,12 +29,7 @@ import androidx.compose.ui.unit.sp
 //import androidx.glance.text.Text
 //import androidx.glance.text.TextStyle
 //import androidx.glance.unit.ColorProvider
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import nd.phuc.musicapp.MainActivity
-import nd.phuc.musicapp.R
-import nd.phuc.musicapp.constants.IconSize
-import nd.phuc.musicapp.service.MusicService
 
 private val textColor = Color(0xFFf07fb4)
 private val backgroundColor = Color(0xFFffdbe8)

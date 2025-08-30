@@ -17,7 +17,7 @@ package nd.phuc.musicapp.youtube.presentation.screen
 //import androidx.navigation.compose.rememberNavController
 //import nd.phuc.musicapp.LocalMediaControllerManager
 //import nd.phuc.musicapp.R
-//import nd.phuc.musicapp.core.presentation.components.CommonIcon
+//import nd.phuc.core.presentation.components.CommonIcon
 //import nd.phuc.musicapp.di.FakeModule
 //import nd.phuc.musicapp.ui.theme.black
 //import nd.phuc.musicapp.ui.theme.MyMusicAppTheme

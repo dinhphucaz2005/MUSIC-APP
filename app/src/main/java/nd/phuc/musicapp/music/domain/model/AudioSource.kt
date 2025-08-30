@@ -1,6 +1,7 @@
-package nd.phuc.musicapp.music.domain.model
+package nd.phuc.core.model
 
 import android.net.Uri
+import nd.phuc.core.model.AudioSource
 
 sealed class AudioSource {
     data class FromUrl(val url: String) : AudioSource()

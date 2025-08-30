@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
-import nd.phuc.musicapp.constants.PREF_NAME
+import nd.phuc.core.model.PREF_NAME
 import nd.phuc.musicapp.music.data.LocalDataSource
 import nd.phuc.musicapp.music.data.RoomDataSource
 import nd.phuc.musicapp.music.data.repository.LocalSongRepository

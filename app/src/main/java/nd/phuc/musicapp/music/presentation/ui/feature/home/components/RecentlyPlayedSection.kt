@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import nd.phuc.musicapp.core.presentation.previews.ExtendDevicePreviews
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 @ExtendDevicePreviews
 @Composable

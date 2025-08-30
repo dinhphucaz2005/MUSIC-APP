@@ -3,10 +3,10 @@ package nd.phuc.musicapp.music.data.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import nd.phuc.musicapp.music.domain.model.FirebaseSong
-import nd.phuc.musicapp.music.domain.model.LocalSong
-import nd.phuc.musicapp.music.domain.model.Song
-import nd.phuc.musicapp.music.domain.model.YoutubeSong
+import nd.phuc.core.model.FirebaseSong
+import nd.phuc.core.model.LocalSong
+import nd.phuc.core.model.Song
+import nd.phuc.core.model.YoutubeSong
 
 @Entity(
     tableName = "song"

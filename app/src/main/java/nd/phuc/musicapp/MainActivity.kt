@@ -7,13 +7,14 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -30,12 +31,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,7 +47,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,20 +59,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import nd.phuc.musicapp.constants.MiniPlayerHeight
-import nd.phuc.musicapp.constants.NavigationBarHeight
-import nd.phuc.musicapp.constants.Screens
-import nd.phuc.musicapp.core.presentation.components.BottomSheetMenu
-import nd.phuc.musicapp.core.presentation.components.BottomSheetPlayer
-import nd.phuc.musicapp.core.presentation.components.NavigationBarAnimationSpec
-import nd.phuc.musicapp.core.presentation.components.rememberBottomSheetState
+import nd.phuc.core.model.MiniPlayerHeight
+import nd.phuc.core.model.NavigationBarHeight
+import nd.phuc.core.presentation.components.BottomSheetMenu
+import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
+import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.musicapp.flutter.FlutterEngineHelper
 import nd.phuc.musicapp.flutter.FlutterComposeView
 import nd.phuc.musicapp.music.domain.repository.SongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.service.MusicService
-import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.util.MediaControllerManager
 import nd.phuc.musicapp.util.MediaControllerManagerImpl
 import nd.phuc.musicapp.util.UninitializedMediaControllerManager
@@ -162,6 +160,34 @@ class MainActivity : FragmentActivity() {
 
 }
 
+
+@Immutable
+sealed class Screens(
+    @StringRes val titleId: Int,
+    @DrawableRes val iconId: Int,
+    val route: String
+) {
+    data object Home : Screens(R.string.home, R.drawable.ic_home, "home")
+    data object Playlists : Screens(R.string.playlists, R.drawable.ic_disc, "playlist")
+
+    @Deprecated("Not use")
+    data object Cloud : Screens(R.string.cloud, R.drawable.ic_cloud, "cloud")
+
+    @Deprecated("Not use")
+    data object Youtube : Screens(R.string.youtube, R.drawable.ic_youtube, "youtube")
+
+    @Deprecated("Not use")
+    data object Setting : Screens(R.string.setting, R.drawable.ic_setting, "setting")
+
+    @Deprecated("Not use")
+    data object AudioVisualizer :
+        Screens(R.string.audio_visualizer, R.drawable.audio, "audio_visualizer")
+
+    companion object {
+        val MainScreens = listOf(Home, Playlists)
+    }
+}
+
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun App() {
@@ -230,13 +256,13 @@ fun App() {
             }
         }
 
-        BottomSheetPlayer(
-            state = playerBottomSheetState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .wrapContentHeight(),
-        )
+//        BottomSheetPlayer(
+//            state = playerBottomSheetState,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .align(Alignment.BottomCenter)
+//                .wrapContentHeight(),
+//        )
 
         MainNavigationBar(
             modifier = Modifier

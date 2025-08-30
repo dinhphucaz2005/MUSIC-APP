@@ -10,7 +10,7 @@ import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import nd.phuc.musicapp.extension.withMainContext
+import nd.phuc.core.extension.withMainContext
 import nd.phuc.musicapp.flutter.service.native.abstract.ManageHouseService
 import nd.phuc.musicapp.flutter.service.native.core.response.*
 

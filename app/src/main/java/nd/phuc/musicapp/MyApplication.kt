@@ -1,8 +1,6 @@
 package nd.phuc.musicapp
 
 import android.content.SharedPreferences
-import nd.phuc.musicapp.constants.PREFERENCE_KEY_COOKIE
-import nd.phuc.musicapp.constants.PREFERENCE_KEY_VISITOR_DATA
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

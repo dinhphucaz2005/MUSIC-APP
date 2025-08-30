@@ -1,8 +1,8 @@
 package nd.phuc.musicapp.music.presentation.ui.feature.playlist
 
 import nd.phuc.musicapp.di.FakeModule
-import nd.phuc.musicapp.music.domain.model.Playlist
-import nd.phuc.musicapp.music.domain.model.Song
+import nd.phuc.core.model.Playlist
+import nd.phuc.core.model.Song
 import javax.inject.Inject
 import kotlin.random.Random
 

@@ -1,8 +1,6 @@
-package nd.phuc.musicapp.music.domain.model
+package nd.phuc.core.model
 
 import androidx.compose.runtime.Immutable
-import nd.phuc.musicapp.constants.LoopMode
-import nd.phuc.musicapp.constants.PlayerState
 
 @Immutable
 data class PlayBackState(

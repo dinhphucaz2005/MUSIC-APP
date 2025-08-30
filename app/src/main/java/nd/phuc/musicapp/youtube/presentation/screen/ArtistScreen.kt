@@ -35,7 +35,7 @@ package nd.phuc.musicapp.youtube.presentation.screen
 ////import com.example.innertube.models.SongItem
 ////import com.example.innertube.pages.ArtistPage
 //import nd.phuc.musicapp.LocalMediaControllerManager
-//import nd.phuc.musicapp.core.presentation.components.Thumbnail
+//import nd.phuc.core.presentation.components.Thumbnail
 //import nd.phuc.musicapp.ui.theme.Black
 //import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 //import nd.phuc.musicapp.ui.theme.White

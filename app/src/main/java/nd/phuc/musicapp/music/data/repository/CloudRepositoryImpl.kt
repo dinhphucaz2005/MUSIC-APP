@@ -1,9 +1,9 @@
 package nd.phuc.musicapp.music.data.repository
 
 //import nd.phuc.musicapp.music.data.FirebaseDataSource
-//import nd.phuc.musicapp.music.domain.model.FirebaseSong
-//import nd.phuc.musicapp.music.domain.model.LocalSong
-//import nd.phuc.musicapp.music.domain.model.ThumbnailSource
+//import nd.phuc.core.model.FirebaseSong
+//import nd.phuc.core.model.LocalSong
+//import nd.phuc.core.model.ThumbnailSource
 //import nd.phuc.musicapp.music.domain.repository.CloudRepository
 //import javax.inject.Inject
 //

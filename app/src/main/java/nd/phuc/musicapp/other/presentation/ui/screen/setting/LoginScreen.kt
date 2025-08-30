@@ -15,7 +15,7 @@ package nd.phuc.musicapp.other.presentation.ui.screen.setting
 //import androidx.hilt.navigation.compose.hiltViewModel
 //import androidx.navigation.NavHostController
 //import nd.phuc.musicapp.R
-//import nd.phuc.musicapp.core.presentation.components.CommonIcon
+//import nd.phuc.core.presentation.components.CommonIcon
 //import nd.phuc.musicapp.other.viewmodels.LoginViewModel
 //
 //@SuppressLint("SetJavaScriptEnabled")

@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.core.data
+package nd.phuc.core.data
 
 
 //import io.ktor.client.HttpClient

@@ -1,6 +1,6 @@
 package nd.phuc.musicapp.music.domain.repository
 
-import nd.phuc.musicapp.music.domain.model.UserSetting
+import nd.phuc.core.model.UserSetting
 
 interface UserRepository {
 

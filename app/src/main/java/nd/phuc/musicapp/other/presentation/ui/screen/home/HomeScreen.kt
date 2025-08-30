@@ -42,9 +42,9 @@ package nd.phuc.musicapp.other.presentation.ui.screen.home
 //import nd.phuc.musicapp.LocalMediaControllerManager
 //import nd.phuc.musicapp.LocalMenuState
 //import nd.phuc.musicapp.R
-//import nd.phuc.musicapp.constants.DefaultCornerSize
-//import nd.phuc.musicapp.core.presentation.components.MyListItem
-//import nd.phuc.musicapp.core.presentation.components.Thumbnail
+//import nd.phuc.core.model.DefaultCornerSize
+//import nd.phuc.core.presentation.components.MyListItem
+//import nd.phuc.core.presentation.components.Thumbnail
 //import nd.phuc.musicapp.di.FakeModule
 //import nd.phuc.musicapp.other.domain.model.LocalSong
 //import nd.phuc.musicapp.other.domain.model.Queue

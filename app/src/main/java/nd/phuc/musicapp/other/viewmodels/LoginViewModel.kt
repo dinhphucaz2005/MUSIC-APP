@@ -3,8 +3,8 @@ package nd.phuc.musicapp.other.viewmodels
 //import android.content.SharedPreferences
 //import androidx.lifecycle.ViewModel
 //import com.example.innertube.CustomYoutube
-//import nd.phuc.musicapp.constants.PREFERENCE_KEY_COOKIE
-//import nd.phuc.musicapp.constants.PREFERENCE_KEY_VISITOR_DATA
+//import nd.phuc.core.model.PREFERENCE_KEY_COOKIE
+//import nd.phuc.core.model.PREFERENCE_KEY_VISITOR_DATA
 //import dagger.hilt.android.lifecycle.HiltViewModel
 //import javax.inject.Inject
 //

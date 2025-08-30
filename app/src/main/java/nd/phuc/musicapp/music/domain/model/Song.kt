@@ -1,11 +1,11 @@
-package nd.phuc.musicapp.music.domain.model
+package nd.phuc.core.model
 
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import nd.phuc.musicapp.extension.toDurationString
+import nd.phuc.core.extension.toDurationString
 import java.util.UUID
 
 abstract class Song(
