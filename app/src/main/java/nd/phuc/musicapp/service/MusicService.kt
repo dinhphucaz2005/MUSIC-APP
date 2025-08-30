@@ -54,7 +54,7 @@ class MusicService : MediaLibraryService() {
 
     private val binder = MusicBinder()
 
-    inner class MusicBinder : android.os.Binder() {
+    inner class MusicBinder : Binder() {
         val service: MusicService
             get() = this@MusicService
     }
