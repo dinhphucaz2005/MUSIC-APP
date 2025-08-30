@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.testng.remote.RemoteTestNG.isDebug
+
 plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -163,5 +165,6 @@ dependencies {
 
 //    implementation(libs.jtransforms)
 
-    implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation(libs.androidx.documentfile)
+    implementation(project(":flutter"))
 }

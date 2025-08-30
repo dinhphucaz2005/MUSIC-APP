@@ -13,9 +13,17 @@ sealed class Screens(
 ) {
     data object Home : Screens(R.string.home, R.drawable.ic_home, "home")
     data object Playlists : Screens(R.string.playlists, R.drawable.ic_disc, "playlist")
+
+    @Deprecated("Not use")
     data object Cloud : Screens(R.string.cloud, R.drawable.ic_cloud, "cloud")
+
+    @Deprecated("Not use")
     data object Youtube : Screens(R.string.youtube, R.drawable.ic_youtube, "youtube")
+
+    @Deprecated("Not use")
     data object Setting : Screens(R.string.setting, R.drawable.ic_setting, "setting")
+
+    @Deprecated("Not use")
     data object AudioVisualizer :
         Screens(R.string.audio_visualizer, R.drawable.audio, "audio_visualizer")
 

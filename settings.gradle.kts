@@ -7,13 +7,18 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+        maven("https://storage.googleapis.com/download.flutter.io")
     }
 }
 
 rootProject.name = "My Music App"
 include(":app")
+// Flutter
+include(":third-party:aio_module")
+project(":third-party:aio_module").projectDir = file("third-party/aio_module")
+apply(from = file("third-party/aio_module/.android/include_flutter.groovy"))

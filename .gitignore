@@ -21,4 +21,5 @@ README.pdf
 app/google-services.json
 .idx
 .vscode
-app/schemas/*
+app/schemas/*.kotlin
+.kotlin

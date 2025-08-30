@@ -16,6 +16,7 @@ composeColorPickerAndroid = "0.7.0"
 constraintlayoutCompose = "1.1.0"
 datastorePreferencesCoreJvm = "1.1.1"
 dec = "0.1.2"
+documentfile = "1.1.0"
 dragselect = "2.3.0"
 firebaseDatabase = "21.0.0"
 firebaseStorage = "21.0.1"
@@ -46,11 +47,13 @@ appcompat = "1.7.0"
 material = "1.12.0"
 ksp = "2.0.20-1.0.25"
 swiperefreshlayout = "1.1.0"
+flutter_embedding_releaseVersion = "1.0.0-cf56914b326edb0ccb123ffdc60f00060bd513fa"
 
 [libraries]
 
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanist-navigation-animation" }
 #accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist-swipe-refresh" }
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 # AndroidX Core KTX
@@ -154,6 +157,10 @@ squigglyslider = { module = "me.saket.squigglyslider:squigglyslider", version.re
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+# Flutter
+flutter-flutter_embedding_release = { module = "io.flutter:flutter_embedding_release", version.ref = "flutter_embedding_releaseVersion" }
+flutter-arm64_v8a_release = { module = "io.flutter:arm64_v8a_release", version.ref = "flutter_embedding_releaseVersion" }
+flutter-armeabi_v7a_release = { module = "io.flutter:armeabi_v7a_release", version.ref = "flutter_embedding_releaseVersion" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

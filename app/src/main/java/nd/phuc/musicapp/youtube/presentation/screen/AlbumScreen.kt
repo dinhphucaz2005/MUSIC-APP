@@ -33,7 +33,7 @@ import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 @Preview
 @Composable
 private fun ArtistContentPreview() {
-    _root_ide_package_.nd.phuc.musicapp.ui.theme.MyMusicAppTheme {
+    MyMusicAppTheme {
 //        AlbumContent(FakeModule.provideAlbumPage())
     }
 }

@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 @UnstableApi
 @AndroidEntryPoint
-class MusicService : androidx.media3.session.MediaLibraryService() {
+class MusicService : MediaLibraryService() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)

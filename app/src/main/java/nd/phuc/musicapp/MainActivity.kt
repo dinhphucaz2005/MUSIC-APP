@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -14,6 +13,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,8 +54,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import nd.phuc.musicapp.constants.MiniPlayerHeight
 import nd.phuc.musicapp.constants.NavigationBarHeight
 import nd.phuc.musicapp.constants.Screens
@@ -61,35 +66,34 @@ import nd.phuc.musicapp.core.presentation.components.BottomSheetMenu
 import nd.phuc.musicapp.core.presentation.components.BottomSheetPlayer
 import nd.phuc.musicapp.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.musicapp.core.presentation.components.rememberBottomSheetState
+import nd.phuc.musicapp.flutter.FlutterEngineHelper
+import nd.phuc.musicapp.flutter.FlutterComposeView
 import nd.phuc.musicapp.music.domain.repository.SongRepository
+import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlist.screen.CreatePlaylistScreen
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
 import nd.phuc.musicapp.util.MediaControllerManager
 import nd.phuc.musicapp.util.MediaControllerManagerImpl
 import nd.phuc.musicapp.util.UninitializedMediaControllerManager
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @UnstableApi
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var songRepository: SongRepository
 
-    private var mediaControllerManager by mutableStateOf<nd.phuc.musicapp.util.MediaControllerManager>(
-        _root_ide_package_.nd.phuc.musicapp.util.UninitializedMediaControllerManager()
+    private var mediaControllerManager by mutableStateOf<MediaControllerManager>(
+        UninitializedMediaControllerManager()
     )
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as nd.phuc.musicapp.service.MusicService.MusicBinder
+            val binder = service as MusicService.MusicBinder
             mediaControllerManager =
-                _root_ide_package_.nd.phuc.musicapp.util.MediaControllerManagerImpl(
+                MediaControllerManagerImpl(
                     this@MainActivity,
                     binder,
                     songRepository
@@ -99,15 +103,16 @@ class MainActivity : ComponentActivity() {
         override fun onServiceDisconnected(name: ComponentName?) {
             mediaControllerManager.dispose()
             mediaControllerManager =
-                _root_ide_package_.nd.phuc.musicapp.util.UninitializedMediaControllerManager()
+                UninitializedMediaControllerManager()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startMusicService()
+        FlutterEngineHelper.initializeFlutter(this)
         setContent {
-            _root_ide_package_.nd.phuc.musicapp.ui.theme.MyMusicAppTheme {
+            MyMusicAppTheme {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {
@@ -120,9 +125,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        startService(Intent(this, _root_ide_package_.nd.phuc.musicapp.service.MusicService::class.java))
+        startService(
+            Intent(
+                this,
+                MusicService::class.java
+            )
+        )
         bindService(
-            Intent(this, _root_ide_package_.nd.phuc.musicapp.service.MusicService::class.java),
+            Intent(this, MusicService::class.java),
             serviceConnection,
             BIND_AUTO_CREATE
         )
@@ -136,20 +146,25 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaControllerManager.dispose()
+        FlutterEngineHelper.dispose()
     }
 
 
     private fun startMusicService() {
-        val musicServiceIntent = Intent(this@MainActivity, _root_ide_package_.nd.phuc.musicapp.service.MusicService::class.java)
+        val musicServiceIntent = Intent(
+            this@MainActivity,
+            MusicService::class.java
+        )
         bindService(musicServiceIntent, serviceConnection, BIND_AUTO_CREATE)
         startService(musicServiceIntent)
     }
+
+
 }
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-private fun App() {
-
+fun App() {
     val density = LocalDensity.current
 
     val windowsInsets = WindowInsets.systemBars
@@ -204,14 +219,15 @@ private fun App() {
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
         ) { page ->
-            if (navigationItems[page] == Screens.Home)
-                HomeScreen(homeViewModel = hiltViewModel())
-            else if (navigationItems[page] == Screens.Playlists)
-                CreatePlaylistScreen(
-                    viewModel = hiltViewModel(),
-                    onNavigateBack = {},
-                    onPlaylistCreatedSuccessfully = { }
-                )
+            val navigationItem = navigationItems[page]
+            when (navigationItem) {
+                Screens.AudioVisualizer -> TODO()
+                Screens.Cloud -> TODO()
+                Screens.Home -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
+                Screens.Playlists -> FlutterComposeView()
+                Screens.Setting -> TODO()
+                Screens.Youtube -> TODO()
+            }
         }
 
         BottomSheetPlayer(
@@ -254,6 +270,7 @@ private fun App() {
             background = MaterialTheme.colorScheme.secondary,
         )
     }
+
 }
 
 @Composable
