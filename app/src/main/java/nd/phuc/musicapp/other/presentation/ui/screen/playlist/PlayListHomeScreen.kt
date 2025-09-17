@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.other.presentation.ui.screen.playlist
 
 import androidx.compose.foundation.Image
@@ -74,7 +75,9 @@ fun PlayListHome(
         ) {
 
             Text(
-                text = stringResource(R.string.saved_playlist) + " \u2022 ${0/*playlists.size*/} playlists",
+                text = stringResource(R.string.saved_playlist) + " \u2022 ${0*/
+/*playlists.size*//*
+} playlists",
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
@@ -270,3 +273,4 @@ fun PlaylistItem(item: Playlist, navController: NavController) {
 //    }
 //
 //}
+*/

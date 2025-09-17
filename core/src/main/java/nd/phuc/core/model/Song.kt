@@ -6,13 +6,12 @@ import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import nd.phuc.core.extension.toDurationString
-//import nd.phuc.musicapp.extension.toDurationString
 import java.util.UUID
 
 abstract class Song(
 ) {
 
-    abstract val id: SongId
+    abstract val id: Any
 
     abstract fun getSongTitle(): String
 
@@ -39,8 +38,8 @@ abstract class Song(
                     return null
                 }
 
-                override val id: SongId
-                    get() = SongId.Unidentified(id)
+                override val id: String
+                    get() = id
 
 
                 override fun getSongTitle(): String = "No song is playing"
@@ -70,15 +69,18 @@ abstract class Song(
 }
 
 data class LocalSong(
-    override val id: SongId.Local,
     val title: String,
     val artist: String,
-    val uri: Uri,
+    val filePath: String,
     val thumbnailSource: ThumbnailSource,
     val durationMillis: Long?,
 ) : Song() {
+    override val id: String
+        get() = filePath
 
-    override fun getAudio(): Uri = this.uri
+    private val uri: Uri by lazy { filePath.toUri() }
+
+    override fun getAudio(): Uri = uri
 
     override fun getSongTitle(): String = this.title
 
@@ -111,50 +113,8 @@ data class LocalSong(
 }
 
 @Deprecated("Not used anymore")
-data class FirebaseSong(
-    override val id: SongId.Firebase,
-    val title: String,
-    val artist: String,
-    val audioUrl: String,
-    val thumbnailSource: ThumbnailSource,
-    val durationMillis: Long?,
-) : Song() {
-
-    override fun getAudio(): Uri = this.audioUrl.toUri()
-
-    override fun getSongTitle(): String = this.title
-
-    override fun getSongArtist(): String = this.artist
-
-    override fun getThumbnail(): ThumbnailSource = this.thumbnailSource
-
-    override fun getDuration(): String = this.durationMillis.toDurationString()
-
-    override fun toMediaItem(): MediaItem = MediaItem.Builder().apply {
-        setUri(audioUrl.toUri())
-        setMediaMetadata(
-            MediaMetadata.Builder().apply {
-                setTitle(title)
-                setArtist(artist)
-                when (thumbnailSource) {
-                    is ThumbnailSource.FromUrl -> setArtworkUri(thumbnailSource.url?.toUri())
-                    else -> {
-                        // Not to do anything
-                    }
-                }
-            }.build()
-        )
-    }.build()
-
-    override fun getArtistId(): String? {
-        return null
-    }
-
-}
-
-@Deprecated("Not used anymore")
 data class YoutubeSong(
-    override val id: SongId.YouTube,
+    override val id: String,
     val mediaId: String,
     val title: String,
     val thumbnail: String,
@@ -198,15 +158,4 @@ data class YoutubeSong(
     }.build()
 
     override fun getArtistId(): String? = null
-}
-
-data class CurrentSong(
-    val data: Song,
-    val isLiked: Boolean = false,
-) {
-    companion object {
-        fun unidentifiedSong(): CurrentSong {
-            return CurrentSong(Song.unidentifiedSong())
-        }
-    }
 }

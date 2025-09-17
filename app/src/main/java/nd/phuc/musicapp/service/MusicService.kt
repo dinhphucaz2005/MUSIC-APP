@@ -5,9 +5,6 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
-//import androidx.glance.GlanceId
-//import androidx.glance.appwidget.GlanceAppWidgetManager
-//import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -15,10 +12,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import nd.phuc.musicapp.helper.NotificationHelper
-import nd.phuc.core.model.Queue
-import nd.phuc.core.model.Song
-//import nd.phuc.musicapp.music.presentation.ui.widget.MusicWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,15 +19,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import nd.phuc.core.model.Song
+import nd.phuc.musicapp.helper.NotificationHelper
 import javax.inject.Inject
 
 @UnstableApi
 @AndroidEntryPoint
 class MusicService : MediaLibraryService() {
-
-    private val serviceJob = Job()
-    private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
 
     companion object {
@@ -56,15 +47,6 @@ class MusicService : MediaLibraryService() {
     inner class MusicBinder : Binder() {
         val service: MusicService
             get() = this@MusicService
-    }
-
-    private val _queueFlow = MutableStateFlow<Queue?>(null)
-    val queueFlow: StateFlow<Queue?> = _queueFlow.asStateFlow()
-
-    fun updateQueue(queue: Queue) {
-        serviceScope.launch {
-            _queueFlow.emit(queue)
-        }
     }
 
 //    private val _currentSongFlow = MutableStateFlow(Song.unidentifiedSong())
@@ -228,7 +210,6 @@ class MusicService : MediaLibraryService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceJob.cancel()
         player.run {
             clearMediaItems()
             release()
@@ -246,16 +227,10 @@ class MusicService : MediaLibraryService() {
 
     fun addToNext(song: Song) {
         player.addMediaItem(player.currentMediaItemIndex + 1, song.toMediaItem())
-        _queueFlow.value?.let {
-            updateQueue(it.copy(songs = it.songs.toMutableList().apply { add(it.index + 1, song) }))
-        }
     }
 
     fun addToQueue(song: Song) {
         player.addMediaItem(song.toMediaItem())
-        _queueFlow.value?.let {
-            updateQueue(it.copy(songs = it.songs.toMutableList().apply { add(song) }))
-        }
     }
 
 }

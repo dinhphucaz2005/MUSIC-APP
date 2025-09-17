@@ -1,111 +1,118 @@
 package nd.phuc.musicapp.util
 
-import android.net.Uri
-import nd.phuc.core.model.CurrentSong
-import nd.phuc.core.model.LocalSong
-import nd.phuc.core.model.PlayBackState
-import nd.phuc.core.model.Queue
-import nd.phuc.core.model.Song
-import nd.phuc.core.model.SongId
-import nd.phuc.core.model.ThumbnailSource
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
+import androidx.annotation.MainThread
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import nd.phuc.core.model.Song
+import nd.phuc.musicapp.service.MusicService
 
-interface MediaControllerManager {
 
-    val audioSessionId: StateFlow<Int?>
-    val playBackState: StateFlow<PlayBackState>
-    val currentSong: StateFlow<CurrentSong>
-    val queue: StateFlow<Queue?>
+@SuppressLint("UnsafeOptInUsageError")
+class MediaControllerManager : Player.Listener {
 
-    fun playQueue(songs: List<Song>, index: Int = 0, id: String): Unit?
+    private lateinit var controllerFuture: ListenableFuture<MediaController>
 
-    fun computePlaybackFraction(): Float?
-
-    fun getCurrentTrackPosition(): Long?
-
-    fun downLoadCurrentSong()
-
-    fun seekToSliderPosition(sliderPosition: Float)
-
-    fun updatePlayListState(): Unit?
-
-    fun playPreviousSong(): Unit?
-
-    fun togglePlayPause(): Unit?
-
-    fun playNextSong(): Unit?
-
-    fun getCurrentMediaIndex(): Int?
-
-    fun playAtIndex(index: Int): Unit?
-
-    fun toggleLikedCurrentSong()
-
-    fun addToNext(song: Song)
-
-    fun addToQueue(song: Song)
-
-    fun dispose()
-}
-
-class UninitializedMediaControllerManager : MediaControllerManager {
-    override val audioSessionId: StateFlow<Int?>
-        get() = MutableStateFlow<Int?>(null).asStateFlow()
-
-    override val playBackState: StateFlow<PlayBackState>
-        get() = MutableStateFlow<PlayBackState>(PlayBackState()).asStateFlow()
-
-    override val currentSong: StateFlow<CurrentSong> =
-        MutableStateFlow<CurrentSong>(
-            CurrentSong(
-                data = LocalSong(
-                    id = SongId.Local(""),
-                    title = "",
-                    artist = "",
-                    uri = Uri.EMPTY,
-                    thumbnailSource = ThumbnailSource.FromUrl(""),
-                    durationMillis = 0
-                ),
-                isLiked = false
-            )
-        ).asStateFlow()
-
-    override val queue: StateFlow<Queue?> = MutableStateFlow<Queue?>(null).asStateFlow()
-
-    override fun playQueue(
-        songs: List<Song>,
-        index: Int,
-        id: String
-    ) {
+    companion object {
+        const val TAG = "MediaControllerManager"
     }
 
-    override fun computePlaybackFraction(): Float? = null
+    fun initialize(
+        context: Context,
+        binder: MusicService.MusicBinder,
+    ) {
+        controllerFuture =
+            binder.service.getSession().token.let {
+                MediaController
+                    .Builder(context, it)
+                    .buildAsync()
+            }
+        audioSessionId = binder.service.audioSessionId
+        Log.d(TAG, "init")
+        controllerFuture.addListener({
+            try {
+                controller = controllerFuture.get().apply {
+                    playWhenReady = true
+                    addListener(this@MediaControllerManager)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating MediaController", e)
+            }
+        }, MoreExecutors.directExecutor())
+        withController {
+            if (repeatMode == Player.REPEAT_MODE_OFF) {
+                repeatMode = Player.REPEAT_MODE_ALL
+            }
+        }
+    }
 
-    override fun getCurrentTrackPosition(): Long? = null
 
-    override fun downLoadCurrentSong() {}
+    private var controller: MediaController? = null
+    private val _playerState = MutableStateFlow(PlayerState.STOPPED)
+    val playerState: StateFlow<PlayerState> = _playerState.asStateFlow()
+    private val _repeatState = MutableStateFlow(RepeatState.NONE)
+    val repeatState: StateFlow<RepeatState> = _repeatState.asStateFlow()
+    private val _shuffleState = MutableStateFlow(ShuffleState.OFF)
+    val shuffleState: StateFlow<ShuffleState> = _shuffleState.asStateFlow()
+    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
+    val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
+    var audioSessionId: StateFlow<Int?> = MutableStateFlow(null)
+        private set
 
-    override fun seekToSliderPosition(sliderPosition: Float) {}
 
-    override fun updatePlayListState() {}
+    @MainThread
+    private inline fun <T> withController(action: MediaController.() -> T?): T? {
+        return controller?.run(action)
+    }
 
-    override fun playPreviousSong() {}
+    @MainThread
+    private inline fun <T> withControllerPlay(action: MediaController.() -> T?): Unit? {
+        return controller?.run {
+            action(this)
+            play()
+        }
+    }
 
-    override fun togglePlayPause() {}
 
-    override fun playNextSong() {}
+    fun dispose() {
+        controller?.removeListener(this)
+    }
 
-    override fun getCurrentMediaIndex(): Int? = null
+    fun play(song: Song) {
+        withControllerPlay {
+            setMediaItem(song.toMediaItem())
+            _currentSong.value = song
+        }
+    }
 
-    override fun playAtIndex(index: Int) {}
 
-    override fun toggleLikedCurrentSong() {}
+    enum class PlayerState {
+        PLAYING,
+        PAUSED,
+        STOPPED;
 
-    override fun addToNext(song: Song) {}
+        companion object {
+            fun fromBoolean(playing: Boolean): PlayerState {
+                return if (playing) PLAYING else PAUSED
+            }
+        }
+    }
 
-    override fun addToQueue(song: Song) {}
+    enum class RepeatState {
+        NONE,
+        ONE,
+        ALL
+    }
 
-    override fun dispose() {}
+    enum class ShuffleState {
+        OFF,
+        ON
+    }
 }

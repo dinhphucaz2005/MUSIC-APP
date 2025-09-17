@@ -1,24 +1,17 @@
 package nd.phuc.musicapp.music.presentation.ui.feature.home.screen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import nd.phuc.core.presentation.previews.ExtendDevicePreviews
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.di.fakeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.components.YourSongsSection
-import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
 
 @ExperimentalMaterial3Api
@@ -27,9 +20,7 @@ import nd.phuc.core.presentation.theme.MyMusicAppTheme
 @Composable
 private fun Preview() {
     MyMusicAppTheme {
-        HomeScreen(
-            homeViewModel = fakeViewModel<HomeViewModel>(),
-        )
+        HomeScreen(homeViewModel = fakeViewModel<HomeViewModel>())
     }
 }
 
@@ -39,21 +30,10 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
 ) {
     val songs by homeViewModel.songs.collectAsState()
-    val scrollState = rememberLazyListState()
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        state = scrollState,
-        contentPadding = PaddingValues(bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        item {
-            YourSongsSection(
-                songs = songs
-            )
-        }
+    YourSongsSection(
+        songs = songs,
+        modifier = modifier.fillMaxSize()
+    )
 
-    }
 }

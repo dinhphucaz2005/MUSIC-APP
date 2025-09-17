@@ -2,19 +2,16 @@ package nd.phuc.musicapp.helper
 
 import android.media.MediaMetadataRetriever
 import android.util.Log
-import androidx.core.net.toUri
-import nd.phuc.core.extension.getAuthor
-import nd.phuc.core.extension.getDuration
-import nd.phuc.core.extension.getFileId
-import nd.phuc.core.extension.getImageBitmap
-import nd.phuc.core.extension.getTitle
-import nd.phuc.core.model.LocalSong
-import nd.phuc.core.model.SongId
-import nd.phuc.core.model.ThumbnailSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import nd.phuc.core.extension.getAuthor
+import nd.phuc.core.extension.getDuration
+import nd.phuc.core.extension.getImageBitmap
+import nd.phuc.core.extension.getTitle
+import nd.phuc.core.model.LocalSong
+import nd.phuc.core.model.ThumbnailSource
 import java.io.File
 
 object MediaRetrieverHelper {
@@ -72,12 +69,11 @@ object MediaRetrieverHelper {
             retriever.setDataSource(path)
 
             val localSong = LocalSong(
-                id = SongId.Local(file.getFileId()),
                 title = retriever.getTitle() ?: file.nameWithoutExtension,
                 artist = retriever.getAuthor(),
-                uri = file.toUri(),
                 thumbnailSource = ThumbnailSource.FromBitmap(retriever.getImageBitmap()),
                 durationMillis = retriever.getDuration(),
+                filePath = path,
             )
 
             hashMap[path] = localSong // Save song to hashmap to avoid extract again

@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -38,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,14 +62,12 @@ import nd.phuc.core.model.NavigationBarHeight
 import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
-import nd.phuc.musicapp.music.domain.repository.SongRepository
+import nd.phuc.core.presentation.theme.MyMusicAppTheme
+import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.service.MusicService
-import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.util.MediaControllerManager
-import nd.phuc.musicapp.util.MediaControllerManagerImpl
-import nd.phuc.musicapp.util.UninitializedMediaControllerManager
 import javax.inject.Inject
 
 @UnstableApi
@@ -79,27 +75,18 @@ import javax.inject.Inject
 class MainActivity : FragmentActivity() {
 
     @Inject
-    lateinit var songRepository: SongRepository
+    lateinit var songRepository: LocalSongRepository
 
-    private var mediaControllerManager by mutableStateOf<MediaControllerManager>(
-        UninitializedMediaControllerManager()
-    )
+    private var mediaControllerManager by mutableStateOf(MediaControllerManager())
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
-            mediaControllerManager =
-                MediaControllerManagerImpl(
-                    this@MainActivity,
-                    binder,
-                    songRepository
-                )
+            mediaControllerManager.initialize(this@MainActivity, binder)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             mediaControllerManager.dispose()
-            mediaControllerManager =
-                UninitializedMediaControllerManager()
         }
     }
 
@@ -161,23 +148,9 @@ class MainActivity : FragmentActivity() {
 sealed class Screens(
     @StringRes val titleId: Int,
     @DrawableRes val iconId: Int,
-    val route: String
 ) {
-    data object Home : Screens(R.string.home, R.drawable.ic_home, "home")
-    data object Playlists : Screens(R.string.playlists, R.drawable.ic_disc, "playlist")
-
-    @Deprecated("Not use")
-    data object Cloud : Screens(R.string.cloud, R.drawable.ic_cloud, "cloud")
-
-    @Deprecated("Not use")
-    data object Youtube : Screens(R.string.youtube, R.drawable.ic_youtube, "youtube")
-
-    @Deprecated("Not use")
-    data object Setting : Screens(R.string.setting, R.drawable.ic_setting, "setting")
-
-    @Deprecated("Not use")
-    data object AudioVisualizer :
-        Screens(R.string.audio_visualizer, R.drawable.audio, "audio_visualizer")
+    data object Home : Screens(R.string.home, R.drawable.ic_home)
+    data object Playlists : Screens(R.string.playlists, R.drawable.ic_disc)
 
     companion object {
         val MainScreens = listOf(Home, Playlists)
@@ -191,7 +164,6 @@ fun App() {
 
     val windowsInsets = WindowInsets.systemBars
     val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
-    val mediaControllerManager = LocalMediaControllerManager.current
 
     val navigationItems = remember { Screens.MainScreens }
     val pagerState = rememberPagerState(
@@ -199,7 +171,6 @@ fun App() {
         initialPageOffsetFraction = 0f,
         pageCount = { navigationItems.size }
     )
-    val queue by mediaControllerManager.queue.collectAsState()
 
     val active by rememberSaveable { mutableStateOf(false) }
 
@@ -226,11 +197,6 @@ fun App() {
             playerBottomSheetState.collapseSoft()
         }
 
-        LaunchedEffect(queue) {
-            if (queue != null && playerBottomSheetState.isDismissed) {
-                playerBottomSheetState.collapseSoft()
-            }
-        }
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -243,12 +209,8 @@ fun App() {
         ) { page ->
             val navigationItem = navigationItems[page]
             when (navigationItem) {
-                Screens.AudioVisualizer -> TODO()
-                Screens.Cloud -> TODO()
                 Screens.Home -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
                 Screens.Playlists -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
-                Screens.Setting -> TODO()
-                Screens.Youtube -> TODO()
             }
         }
 

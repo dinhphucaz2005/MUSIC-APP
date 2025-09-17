@@ -4,20 +4,21 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.media3.common.util.UnstableApi
-import nd.phuc.core.model.PREF_NAME
-import nd.phuc.musicapp.music.data.LocalDataSource
-import nd.phuc.musicapp.music.data.RoomDataSource
-import nd.phuc.musicapp.music.data.repository.LocalSongRepository
-import nd.phuc.musicapp.music.data.repository.UserRepositoryImpl
-import nd.phuc.musicapp.music.domain.repository.SongRepository
-import nd.phuc.musicapp.music.domain.repository.UserRepository
-import nd.phuc.musicapp.service.MusicService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import nd.phuc.musicapp.music.data.LocalDataSource
+import nd.phuc.musicapp.music.data.RoomDataSource
+import nd.phuc.musicapp.music.data.repository.LocalSongRepositoryImpl
+import nd.phuc.musicapp.music.data.repository.UserRepositoryImpl
+import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
+import nd.phuc.musicapp.music.domain.repository.UserRepository
+import nd.phuc.musicapp.service.MusicService
 import java.io.File
 import javax.inject.Singleton
+
+const val PREF_NAME = "music_app_pref"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -58,9 +59,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSongRepository(
-        context: Context, roomDataSource: RoomDataSource, localDataSource: LocalDataSource
-    ): SongRepository {
-        return LocalSongRepository(context, roomDataSource, localDataSource)
+        roomDataSource: RoomDataSource, localDataSource: LocalDataSource,
+    ): LocalSongRepository {
+        return LocalSongRepositoryImpl(roomDataSource, localDataSource)
     }
 
     @Provides

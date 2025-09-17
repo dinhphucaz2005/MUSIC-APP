@@ -2,13 +2,15 @@ package nd.phuc.musicapp.music.data
 
 import android.content.Context
 import android.provider.MediaStore
-import nd.phuc.musicapp.helper.MediaRetrieverHelper
 import nd.phuc.core.model.LocalSong
+import nd.phuc.musicapp.helper.MediaRetrieverHelper
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LocalDataSource @Inject constructor() {
+class LocalDataSource @Inject constructor(
+    private val context: Context,
+) {
 
     private fun getAllLocalFilePaths(context: Context): List<String> {
         val filePaths = mutableListOf<String>()
@@ -29,7 +31,7 @@ class LocalDataSource @Inject constructor() {
     }
 
 
-    suspend fun get(context: Context): List<LocalSong> {
+    suspend fun get(): List<LocalSong> {
         val paths = getAllLocalFilePaths(context)
         return MediaRetrieverHelper.extracts(paths)
     }

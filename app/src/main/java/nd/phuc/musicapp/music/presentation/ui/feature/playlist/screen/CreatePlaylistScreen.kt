@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.music.presentation.ui.feature.playlist.screen
 
 import androidx.compose.foundation.background
@@ -339,7 +340,9 @@ fun ThumbnailSelectionDialog(
                                         color = MaterialTheme.colorScheme.tertiary,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { /* Upload custom image */ },
+                                    .clickable { */
+/* Upload custom image *//*
+ },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -424,4 +427,4 @@ private fun CreatePlaylistScreenPreview() {
             onPlaylistCreatedSuccessfully = {}
         )
     }
-}
+}*/

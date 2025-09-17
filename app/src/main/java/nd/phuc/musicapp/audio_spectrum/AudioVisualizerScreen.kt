@@ -18,7 +18,7 @@ fun AudioVisualizerScreen() {
 
     val mediaControllerManager = LocalMediaControllerManager.current
 
-    val audioSessionId by mediaControllerManager?.audioSessionId?.collectAsState() ?: return
+    val audioSessionId by mediaControllerManager.audioSessionId.collectAsState()
 
     Column(
         modifier = Modifier

@@ -3,10 +3,8 @@ package nd.phuc.musicapp.music.data
 import nd.phuc.musicapp.music.data.database.AppDAO
 import nd.phuc.musicapp.music.data.database.entity.PlaylistEntity
 import nd.phuc.musicapp.music.data.database.entity.SongEntity
-import nd.phuc.core.model.FirebaseSong
 import nd.phuc.core.model.LocalSong
 import nd.phuc.core.model.Song
-import nd.phuc.core.model.YoutubeSong
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,21 +43,20 @@ class RoomDataSource @Inject constructor(
 
     suspend fun updatePlaylist(id: Int, name: String) = dao.updatePlayList(PlaylistEntity(id, name))
     suspend fun addSongs(songs: List<Song>, playListId: Int) {
-        songs.forEach { song ->
-            val audioSource = when (song) {
-                is LocalSong -> song.uri.path
-                is FirebaseSong -> song.audioUrl
-                is YoutubeSong -> song.id
-                else -> null
-            }
-            val exists: Boolean = audioSource
-                ?.let { dao.isSongExists(it.toString(), playListId) }
-                ?.let { it > 0 } == true
-
-            if (exists) return
-
-            SongEntity.create(song = song, playlistId = playListId)?.let { dao.addSong(it) }
-        }
+//        songs.forEach { song ->
+//            val audioSource = when (song) {
+//                is LocalSong -> song.uri.path
+//                is YoutubeSong -> song.id
+//                else -> null
+//            }
+//            val exists: Boolean = audioSource
+//                ?.let { dao.isSongExists(it.toString(), playListId) }
+//                ?.let { it > 0 } == true
+//
+//            if (exists) return
+//
+//            SongEntity.create(song = song, playlistId = playListId)?.let { dao.addSong(it) }
+//        }
     }
 
     suspend fun getSongsByPlaylistId(playListId: Int): List<SongEntity> =
