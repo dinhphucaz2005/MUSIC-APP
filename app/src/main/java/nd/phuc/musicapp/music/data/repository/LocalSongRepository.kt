@@ -3,7 +3,6 @@ package nd.phuc.musicapp.music.data.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -15,7 +14,7 @@ import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import javax.inject.Inject
 
 class LocalSongRepositoryImpl @Inject constructor(
-    roomDataSource: RoomDataSource,
+    private val roomDataSource: RoomDataSource,
     private val localDataSource: LocalDataSource,
 ) : LocalSongRepository {
 
@@ -29,6 +28,10 @@ class LocalSongRepositoryImpl @Inject constructor(
         songs.map { it.copy(isLiked = likedPaths.contains(it.filePath)) }
     }
 
+    override suspend fun toggleLike(value: LocalSong) {
+        roomDataSource.toggleLike(value)
+    }
+
     override suspend fun getSongs() {
         withContext(Dispatchers.IO) {
             mutex.withLock {
@@ -37,4 +40,5 @@ class LocalSongRepositoryImpl @Inject constructor(
             }
         }
     }
+
 }

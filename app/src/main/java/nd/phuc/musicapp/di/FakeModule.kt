@@ -9,7 +9,6 @@ import nd.phuc.core.model.LocalSong
 import nd.phuc.core.model.ThumbnailSource
 import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import nd.phuc.musicapp.util.MediaControllerManager
 
 object FakeModule {
 
@@ -44,14 +43,16 @@ object FakeModule {
         override val allSongs: Flow<List<LocalSong>>
             get() = TODO("Not yet implemented")
 
+        override suspend fun toggleLike(value: LocalSong) {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun getSongs() {
             TODO("Not yet implemented")
         }
     }
 
     fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository = songRepository)
-
-    val mediaControllerManager = MediaControllerManager()
 
 }
 

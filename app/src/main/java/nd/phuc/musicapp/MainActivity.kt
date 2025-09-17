@@ -43,7 +43,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -61,13 +60,13 @@ import kotlinx.coroutines.launch
 import nd.phuc.core.model.MiniPlayerHeight
 import nd.phuc.core.model.NavigationBarHeight
 import nd.phuc.core.presentation.components.BottomSheetMenu
-import nd.phuc.musicapp.other.presentation.ui.screen.home.BottomSheetPlayer
 import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
+import nd.phuc.musicapp.other.presentation.ui.screen.home.BottomSheetPlayer
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.util.MediaControllerManager
 import javax.inject.Inject
@@ -79,12 +78,16 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var songRepository: LocalSongRepository
 
-    private var mediaControllerManager by mutableStateOf(MediaControllerManager())
+    @Inject
+    lateinit var mediaControllerManager: MediaControllerManager
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.MusicBinder
-            mediaControllerManager.initialize(this@MainActivity, binder)
+            mediaControllerManager.initialize(
+                context = this@MainActivity,
+                binder = binder,
+            )
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {

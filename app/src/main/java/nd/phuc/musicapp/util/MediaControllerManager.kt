@@ -8,19 +8,33 @@ import androidx.media3.common.Timeline
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import nd.phuc.core.model.LocalSong
 import nd.phuc.core.model.Song
+import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import nd.phuc.musicapp.service.MusicService
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
 @SuppressLint("UnsafeOptInUsageError")
-class MediaControllerManager : Player.Listener {
+@Singleton
+class MediaControllerManager @Inject constructor(
+    private val songRepository: LocalSongRepository,
+) : Player.Listener {
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     fun initialize(
         context: Context,
         binder: MusicService.MusicBinder,
@@ -61,7 +75,20 @@ class MediaControllerManager : Player.Listener {
     private val _shuffleState = MutableStateFlow(ShuffleState.OFF)
     val shuffleState: StateFlow<ShuffleState> = _shuffleState.asStateFlow()
     private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
-    val currentSong: StateFlow<Song> = _currentSong.asStateFlow()
+    val currentSong: StateFlow<Song> = combine(
+        _currentSong,
+        songRepository.allSongs
+    ) { currentSong, allSongs ->
+        if (currentSong is LocalSong) {
+            allSongs.find { it.filePath == currentSong.filePath } ?: currentSong
+        } else {
+            currentSong
+        }
+    }.stateIn(
+        scope = scope,
+        started = kotlinx.coroutines.flow.SharingStarted.Eagerly,
+        initialValue = Song.unidentifiedSong()
+    )
     var audioSessionId: StateFlow<Int?> = MutableStateFlow(null)
         private set
     private val _position = MutableStateFlow(0L)
@@ -124,7 +151,12 @@ class MediaControllerManager : Player.Listener {
     }
 
     fun toggleLikedCurrentSong() {
-        TODO("Not yet implemented")
+        scope.launch {
+            val currentSong = currentSong.value
+            if (currentSong is LocalSong) {
+                songRepository.toggleLike(currentSong)
+            }
+        }
     }
 
     fun toggleShuffle() = withController {

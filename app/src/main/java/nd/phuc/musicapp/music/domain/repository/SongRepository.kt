@@ -6,6 +6,7 @@ import nd.phuc.core.model.Song
 
 interface SongRepository<S : Song> {
     val allSongs: Flow<List<S>>
+    suspend fun toggleLike(value: S)
     suspend fun getSongs()
 }
 
