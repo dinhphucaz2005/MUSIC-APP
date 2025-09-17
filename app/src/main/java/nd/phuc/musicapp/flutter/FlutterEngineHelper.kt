@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.flutter
 
 import android.content.Context
@@ -59,9 +60,11 @@ object FlutterEngineHelper {
             .build()
     }
 
-    /**
+    */
+/**
      * Clean up resources
-     */
+     *//*
+
     fun dispose() {
         methodChannel?.setMethodCallHandler(null)
         flutterEngine?.destroy()
@@ -70,3 +73,4 @@ object FlutterEngineHelper {
         methodChannel = null
     }
 }
+*/

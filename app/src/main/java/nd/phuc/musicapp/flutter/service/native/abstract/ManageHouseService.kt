@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.flutter.service.native.abstract
 
 import io.flutter.plugin.common.MethodCall
@@ -18,3 +19,4 @@ abstract class ManageHouseService : HandlerService() {
         )
 }
 
+*/

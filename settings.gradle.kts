@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 rootProject.name = "My Music App"
 include(":app")
 include(":core")
+/*
 // Flutter
 include(":third-party:aio_module")
 project(":third-party:aio_module").projectDir = file("third-party/aio_module")
@@ -32,3 +33,4 @@ exec {
 }
 println("pre_sync.sh finished.")
 apply(from = file("third-party/aio_module/.android/include_flutter.groovy"))
+*/

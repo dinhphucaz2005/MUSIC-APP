@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.flutter
 
 
@@ -67,3 +68,4 @@ class MethodChannelHandler(
         }
     }
 }
+*/

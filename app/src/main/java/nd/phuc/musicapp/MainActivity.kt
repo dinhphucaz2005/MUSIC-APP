@@ -64,8 +64,6 @@ import nd.phuc.core.model.NavigationBarHeight
 import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
-import nd.phuc.musicapp.flutter.FlutterEngineHelper
-import nd.phuc.musicapp.flutter.FlutterComposeView
 import nd.phuc.musicapp.music.domain.repository.SongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
@@ -108,7 +106,6 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startMusicService()
-        FlutterEngineHelper.initializeFlutter(this)
         setContent {
             MyMusicAppTheme {
                 CompositionLocalProvider(
@@ -144,7 +141,6 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaControllerManager.dispose()
-        FlutterEngineHelper.dispose()
     }
 
 
@@ -250,7 +246,7 @@ fun App() {
                 Screens.AudioVisualizer -> TODO()
                 Screens.Cloud -> TODO()
                 Screens.Home -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
-                Screens.Playlists -> FlutterComposeView()
+                Screens.Playlists -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
                 Screens.Setting -> TODO()
                 Screens.Youtube -> TODO()
             }

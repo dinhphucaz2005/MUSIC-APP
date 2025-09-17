@@ -1,3 +1,4 @@
+/*
 package nd.phuc.musicapp.flutter.service.native.core
 
 import io.flutter.plugin.common.MethodCall
@@ -10,3 +11,4 @@ abstract class HandlerService {
     abstract fun provideHandlers(): Map<String, suspend (MethodCall) -> NativeResponse>
 }
 
+*/

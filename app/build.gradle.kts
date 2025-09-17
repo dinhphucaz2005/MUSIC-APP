@@ -92,6 +92,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.documentfile)
 
-    implementation(project(":flutter"))
+//    implementation(project(":flutter"))
     implementation(project(":core"))
 }
