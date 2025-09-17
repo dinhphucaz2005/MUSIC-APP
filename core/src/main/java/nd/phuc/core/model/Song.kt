@@ -11,6 +11,7 @@ import java.util.UUID
 abstract class Song(
 ) {
 
+    abstract val isLiked: Boolean
     abstract val id: Any
 
     abstract fun getSongTitle(): String
@@ -37,6 +38,9 @@ abstract class Song(
                 override fun getArtistId(): String? {
                     return null
                 }
+
+                override val isLiked: Boolean
+                    get() = false
 
                 override val id: String
                     get() = id
@@ -74,6 +78,7 @@ data class LocalSong(
     val filePath: String,
     val thumbnailSource: ThumbnailSource,
     val durationMillis: Long?,
+    override val isLiked: Boolean,
 ) : Song() {
     override val id: String
         get() = filePath
@@ -119,6 +124,7 @@ data class YoutubeSong(
     val title: String,
     val thumbnail: String,
     val durationMillis: Long?,
+    override val isLiked: Boolean,
 ) : Song() {
 
     override fun getAudio(): Uri = this.mediaId.toUri()

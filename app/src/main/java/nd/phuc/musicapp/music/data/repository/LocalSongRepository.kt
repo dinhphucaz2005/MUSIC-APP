@@ -15,20 +15,18 @@ import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import javax.inject.Inject
 
 class LocalSongRepositoryImpl @Inject constructor(
-    private val roomDataSource: RoomDataSource,
+    roomDataSource: RoomDataSource,
     private val localDataSource: LocalDataSource,
 ) : LocalSongRepository {
 
     private val mutex = Mutex()
     private val _allSongs = MutableStateFlow<List<LocalSong>>(emptyList())
-    override val allSongs: Flow<List<LocalSong>> = _allSongs.asStateFlow()
-
-    override val likedSongs: Flow<Set<LocalSong>> = combine(
-        roomDataSource.getLikedSongs(),
-        _allSongs
-    ) { songEntities, allSongs ->
-        val likedSongPaths = songEntities.map { it.filePath }.toSet()
-        allSongs.filter { it.filePath in likedSongPaths }.toSet()
+    override val allSongs: Flow<List<LocalSong>> = combine(
+        _allSongs,
+        roomDataSource.getLikedSongs()
+    ) { songs, likedSongs ->
+        val likedPaths = likedSongs.map { it.filePath }.toSet()
+        songs.map { it.copy(isLiked = likedPaths.contains(it.filePath)) }
     }
 
     override suspend fun getSongs() {

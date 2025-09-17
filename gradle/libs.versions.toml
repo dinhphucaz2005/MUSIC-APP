@@ -48,6 +48,7 @@ material = "1.12.0"
 ksp = "2.0.20-1.0.25"
 swiperefreshlayout = "1.1.0"
 flutter_embedding_releaseVersion = "1.0.0-cf56914b326edb0ccb123ffdc60f00060bd513fa"
+timber = "5.0.1"
 
 [libraries]
 
@@ -161,6 +162,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 flutter-flutter_embedding_release = { module = "io.flutter:flutter_embedding_release", version.ref = "flutter_embedding_releaseVersion" }
 flutter-arm64_v8a_release = { module = "io.flutter:arm64_v8a_release", version.ref = "flutter_embedding_releaseVersion" }
 flutter-armeabi_v7a_release = { module = "io.flutter:armeabi_v7a_release", version.ref = "flutter_embedding_releaseVersion" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

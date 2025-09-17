@@ -10,10 +10,10 @@ import me.saket.squiggles.SquigglySlider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomSlider(
+    modifier: Modifier = Modifier,
     value: Float,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     SquigglySlider(
         value = value,

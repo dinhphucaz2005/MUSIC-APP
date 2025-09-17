@@ -55,4 +55,5 @@ dependencies {
     api(libs.androidx.navigation.compose)
     api(libs.androidx.media)
     api(libs.bundles.media3)
+    api(libs.timber)
 }

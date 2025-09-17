@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -60,6 +61,7 @@ import kotlinx.coroutines.launch
 import nd.phuc.core.model.MiniPlayerHeight
 import nd.phuc.core.model.NavigationBarHeight
 import nd.phuc.core.presentation.components.BottomSheetMenu
+import nd.phuc.musicapp.other.presentation.ui.screen.home.BottomSheetPlayer
 import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
@@ -214,13 +216,13 @@ fun App() {
             }
         }
 
-//        BottomSheetPlayer(
-//            state = playerBottomSheetState,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .align(Alignment.BottomCenter)
-//                .wrapContentHeight(),
-//        )
+        BottomSheetPlayer(
+            state = playerBottomSheetState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .wrapContentHeight(),
+        )
 
         MainNavigationBar(
             modifier = Modifier

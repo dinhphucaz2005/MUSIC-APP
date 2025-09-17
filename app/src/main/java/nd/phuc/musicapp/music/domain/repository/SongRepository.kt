@@ -6,7 +6,6 @@ import nd.phuc.core.model.Song
 
 interface SongRepository<S : Song> {
     val allSongs: Flow<List<S>>
-    val likedSongs: Flow<Set<S>>
     suspend fun getSongs()
 }
 

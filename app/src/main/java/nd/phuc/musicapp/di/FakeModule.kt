@@ -20,6 +20,7 @@ object FakeModule {
             thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
             filePath = "/path/to/songA.mp3",
             durationMillis = 180000,
+            isLiked = false,
         ),
         LocalSong(
             title = "Song B",
@@ -27,6 +28,7 @@ object FakeModule {
             thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
             filePath = "/path/to/songB.mp3",
             durationMillis = 200000,
+            isLiked = true,
         ),
         LocalSong(
             title = "Song C",
@@ -34,13 +36,12 @@ object FakeModule {
             thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
             filePath = "/path/to/songC.mp3",
             durationMillis = 240000,
+            isLiked = false,
         )
     )
 
     val songRepository = object : LocalSongRepository {
         override val allSongs: Flow<List<LocalSong>>
-            get() = TODO("Not yet implemented")
-        override val likedSongs: Flow<Set<LocalSong>>
             get() = TODO("Not yet implemented")
 
         override suspend fun getSongs() {

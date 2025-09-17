@@ -74,6 +74,7 @@ object MediaRetrieverHelper {
                 thumbnailSource = ThumbnailSource.FromBitmap(retriever.getImageBitmap()),
                 durationMillis = retriever.getDuration(),
                 filePath = path,
+                isLiked = false, // Default value, should be updated from repository
             )
 
             hashMap[path] = localSong // Save song to hashmap to avoid extract again

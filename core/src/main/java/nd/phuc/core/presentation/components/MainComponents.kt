@@ -1,19 +1,21 @@
 package nd.phuc.core.presentation.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import coil3.compose.AsyncImage
 import nd.phuc.core.model.ThumbnailSource
+import nd.phuc.core.presentation.theme.Black
 
 @Composable
 fun Thumbnail(
     modifier: Modifier = Modifier,
     thumbnailSource: ThumbnailSource?,
-    contentScale: ContentScale = ContentScale.Fit
+    contentScale: ContentScale = ContentScale.Fit,
 ) {
 
     if (thumbnailSource == null) {
@@ -43,7 +45,7 @@ fun Thumbnail(
 @Composable
 fun Thumbnail(
     modifier: Modifier = Modifier, thumbnail: ImageBitmap?,
-    contentScale: ContentScale = ContentScale.Fit
+    contentScale: ContentScale = ContentScale.Fit,
 ) {
     thumbnail?.let {
         Image(
@@ -52,5 +54,9 @@ fun Thumbnail(
             contentDescription = null,
             modifier = modifier
         )
-    } ?: throw Exception("Thumbnail image is null")
+    } ?: Box(
+        modifier = modifier
+            .background(Black)
+    ) {
+    }
 }

@@ -2,6 +2,7 @@ package nd.phuc.musicapp
 
 import android.content.SharedPreferences
 import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -12,6 +13,12 @@ class MyApplication : android.app.Application() {
 
     override fun onCreate() {
         super.onCreate()
+        if (BuildConfig.DEBUG) {
+            // In logcat
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashReportingTree())
+        }
 //        CustomYoutube.locale = YouTubeLocale(
 //            gl = "VN", hl = "en"
 //        )
