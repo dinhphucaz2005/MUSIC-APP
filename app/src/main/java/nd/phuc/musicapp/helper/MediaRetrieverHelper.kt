@@ -1,7 +1,6 @@
 package nd.phuc.musicapp.helper
 
 import android.media.MediaMetadataRetriever
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -12,11 +11,11 @@ import nd.phuc.core.extension.getImageBitmap
 import nd.phuc.core.extension.getTitle
 import nd.phuc.core.model.LocalSong
 import nd.phuc.core.model.ThumbnailSource
+import timber.log.Timber
 import java.io.File
 
 object MediaRetrieverHelper {
 
-    private const val TAG = "MediaRetrieverHelper"
     private const val NUMBER_OF_THREADS = 6
 
     private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
@@ -80,7 +79,7 @@ object MediaRetrieverHelper {
             hashMap[path] = localSong // Save song to hashmap to avoid extract again
             localSong
         } catch (e: Exception) {
-            Log.e(TAG, "Error retrieving song info for path: $path", e)
+            Timber.e(e, "Error retrieving song info for path: $path")
             null
         }
     }
