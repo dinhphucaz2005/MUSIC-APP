@@ -13,6 +13,8 @@ interface SongRepository<S : Song> {
     suspend fun getSongs()
 
     suspend fun createPlaylist(name: String, songs: List<S> = emptyList())
+
+    suspend fun addSongToPlaylist(playlistId: Long, song: S)
 }
 
 interface LocalSongRepository : SongRepository<LocalSong>

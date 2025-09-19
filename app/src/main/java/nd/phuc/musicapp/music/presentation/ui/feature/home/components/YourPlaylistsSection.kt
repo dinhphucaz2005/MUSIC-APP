@@ -1,6 +1,7 @@
 package nd.phuc.musicapp.music.presentation.ui.feature.home.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.Playlist
+import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
@@ -24,12 +28,31 @@ import nd.phuc.core.presentation.theme.MyMusicAppTheme
 @Composable
 private fun YourPlaylistsSectionPreview() {
     MyMusicAppTheme {
-        YourPlaylistsSection()
+        YourPlaylistsSection(
+
+            playlists = listOf(
+                "Favorites",
+                "Chill Vibes",
+                "Workout Mix",
+                "Road Trip",
+                "Classical Essentials",
+            ).mapIndexed { index, name ->
+                Playlist(
+                    id = index.toLong(),
+                    name = name,
+                    songs = emptyList(),
+                    thumbnailSource = ThumbnailSource.None
+                )
+            }
+        )
     }
 }
 
 @Composable
-fun YourPlaylistsSection() {
+fun YourPlaylistsSection(
+    playlists: List<Playlist<LocalSong>>,
+    onPlaylistClick: (Long) -> Unit = {},
+) {
 
     Column {
         Text(
@@ -42,20 +65,21 @@ fun YourPlaylistsSection() {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(4) { index ->
+            items(playlists.size) { index ->
+                val playlist = playlists[index]
                 Box(
                     modifier = Modifier
                         .width(160.dp)
                         .height(100.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.secondary)
+                        .clickable { onPlaylistClick(playlist.id) }
                 ) {
                     Text(
-                        text = "Playlist ${index + 1}",
+                        text = playlist.name,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }

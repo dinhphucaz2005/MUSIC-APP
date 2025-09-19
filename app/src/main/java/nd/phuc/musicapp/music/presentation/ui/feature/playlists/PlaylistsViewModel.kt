@@ -1,0 +1,65 @@
+package nd.phuc.musicapp.music.presentation.ui.feature.playlists
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.Playlist
+import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
+import javax.inject.Inject
+
+@HiltViewModel
+class PlaylistsViewModel @Inject constructor(
+    private val songRepository: LocalSongRepository,
+) : ViewModel() {
+
+    val allSongs: StateFlow<List<LocalSong>> = songRepository.allSongs
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val playlists: StateFlow<List<Playlist<LocalSong>>> = songRepository.playlist
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+
+    private val _selectedPlaylistId = MutableStateFlow<Long?>(null)
+    val selectedPlaylistId: StateFlow<Long?> = _selectedPlaylistId
+    val playlistSongs: StateFlow<List<LocalSong>> = combine(
+        playlists, _selectedPlaylistId
+    ) { playlists, selectedId ->
+        playlists.find { it.id == selectedId }?.songs ?: emptyList()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    fun addSongToPlaylist(song: LocalSong) {
+        val playlistId = _selectedPlaylistId.value ?: return
+        viewModelScope.launch {
+            songRepository.addSongToPlaylist(playlistId, song)
+        }
+    }
+
+    fun addPlaylist(name: String) {
+        viewModelScope.launch {
+            songRepository.createPlaylist(name)
+        }
+    }
+
+    fun selectPlaylist(playlistId: Long?) {
+        _selectedPlaylistId.value = playlistId
+    }
+}

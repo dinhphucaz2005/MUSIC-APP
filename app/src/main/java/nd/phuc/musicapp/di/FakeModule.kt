@@ -63,6 +63,13 @@ object FakeModule {
         ) {
             // No-op for fake implementation
         }
+
+        override suspend fun addSongToPlaylist(
+            playlistId: Long,
+            song: LocalSong,
+        ) {
+            // No-op for fake implementation
+        }
     }
 
     fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository = songRepository)

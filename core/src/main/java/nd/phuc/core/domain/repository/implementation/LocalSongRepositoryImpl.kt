@@ -45,6 +45,7 @@ internal class LocalSongRepositoryImpl @Inject constructor(
                 songMap.containsKey(it.filePath) && songMap[it.filePath]?.playlistId == playlist.id
             }
             Playlist(
+                id = playlist.id,
                 name = playlist.name,
                 songs = playlistSongs,
                 thumbnailSource = if (playlist.coverUrl != null) {
@@ -87,4 +88,13 @@ internal class LocalSongRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun addSongToPlaylist(playlistId: Long, song: LocalSong) {
+        songDao.addSong(
+            SongEntity(
+                filePath = song.filePath,
+                isFavourite = song.isLiked,
+                playlistId = playlistId,
+            )
+        )
+    }
 }
