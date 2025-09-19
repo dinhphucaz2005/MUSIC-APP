@@ -1,5 +1,8 @@
 package nd.phuc.musicapp
 
+//import androidx.hilt.navigation.compose.hiltViewModel
+//import androidx.navigation.NavController
+//import androidx.navigation.compose.currentBackStackEntryAsState
 import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
@@ -9,9 +12,6 @@ import android.os.IBinder
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,9 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,10 +36,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -51,26 +46,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.MiniPlayerHeight
 import nd.phuc.core.domain.model.NavigationBarHeight
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
+import nd.phuc.core.extension.Route
+import nd.phuc.core.extension.navigateRoute
+import nd.phuc.core.extension.routeComposable
 import nd.phuc.core.presentation.components.BottomSheetMenu
-import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.music.BottomSheetPlayer
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
+import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsScreen
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.util.MediaControllerManager
+import timber.log.Timber
 import javax.inject.Inject
+
+@get:StringRes
+private val Screens.titleId: Int
+    get() = when (this) {
+        Screens.Home -> R.string.home
+        Screens.Playlists -> R.string.playlists
+        Screens.Library -> R.string.library
+    }
+
+@get:DrawableRes
+private val Screens.iconId: Int
+    get() = when (this) {
+        Screens.Home -> R.drawable.ic_home
+        Screens.Playlists -> R.drawable.ic_disc
+        Screens.Library -> R.drawable.ic_disc
+    }
 
 @UnstableApi
 @AndroidEntryPoint
@@ -151,42 +169,31 @@ class MainActivity : FragmentActivity() {
 
 
 @Immutable
-sealed class Screens(
-    @StringRes val titleId: Int,
-    @DrawableRes val iconId: Int,
-) {
-    data object Home : Screens(R.string.home, R.drawable.ic_home)
-    data object Playlists : Screens(R.string.playlists, R.drawable.ic_disc)
+sealed class Screens : Route() {
+    override val route: String = javaClass.simpleName
 
-    companion object {
-        val MainScreens = listOf(Home, Playlists)
-    }
+    data object Home : Screens()
+    data object Playlists : Screens()
+    data object Library : Screens()
 }
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun App() {
     val density = LocalDensity.current
-
     val windowsInsets = WindowInsets.systemBars
     val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
+    val navController = rememberNavController()
 
-    val navigationItems = remember { Screens.MainScreens }
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        initialPageOffsetFraction = 0f,
-        pageCount = { navigationItems.size }
-    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    val active by rememberSaveable { mutableStateOf(false) }
-
-    val shouldShowNavigationBar = remember(pagerState, active) { true }
-
-    val navigationBarHeight by animateDpAsState(
-        targetValue = if (shouldShowNavigationBar) NavigationBarHeight else 0.dp,
-        animationSpec = NavigationBarAnimationSpec,
-        label = ""
-    )
+    val shouldShowNavigationBar = remember(currentRoute) {
+        when (currentRoute) {
+            Screens.Home.route -> true
+            else -> false
+        }
+    }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -199,12 +206,13 @@ fun App() {
             expandedBound = maxHeight,
         )
 
-        LaunchedEffect(pagerState) {
+        LaunchedEffect(navController) {
             playerBottomSheetState.collapseSoft()
         }
 
-        HorizontalPager(
-            state = pagerState,
+        NavHost(
+            navController = navController,
+            startDestination = Screens.Home.route,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -212,12 +220,10 @@ fun App() {
                 )
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
-        ) { page ->
-            val navigationItem = navigationItems[page]
-            when (navigationItem) {
-                Screens.Home -> HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>())
-                Screens.Playlists -> PlaylistsScreen()
-            }
+        ) {
+            routeComposable(Screens.Home) { HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>()) }
+            routeComposable(Screens.Playlists) { PlaylistsScreen() }
+            routeComposable(Screens.Library) { LibraryScreen() }
         }
 
         BottomSheetPlayer(
@@ -231,24 +237,20 @@ fun App() {
         MainNavigationBar(
             modifier = Modifier
                 .offset {
-                    if (navigationBarHeight == 0.dp) {
-                        IntOffset(
-                            x = 0, y = (bottomInset + NavigationBarHeight).roundToPx()
-                        )
-                    } else {
-                        val slideOffset =
-                            (bottomInset + NavigationBarHeight) * playerBottomSheetState.progress.coerceIn(
-                                0f, 1f
-                            )
-                        val hideOffset =
-                            (bottomInset + NavigationBarHeight) * (1 - navigationBarHeight / NavigationBarHeight)
-                        IntOffset(
-                            x = 0, y = (slideOffset + hideOffset).roundToPx()
-                        )
-                    }
+                    IntOffset(
+                        x = 0,
+                        y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
+                            0f,
+                            1f
+                        )).roundToPx()
+                    )
                 },
-            navigationItems = navigationItems,
-            pagerState = pagerState
+            navigationItems = listOf(
+                Screens.Home,
+                Screens.Playlists,
+                Screens.Library,
+            ),
+            navController = navController
         )
 
 
@@ -267,7 +269,7 @@ fun App() {
 private fun BoxWithConstraintsScope.MainNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
-    pagerState: PagerState,
+    navController: NavController,
 ) {
     val coroutineScope = rememberCoroutineScope()
     Row(
@@ -278,20 +280,15 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
             .height(NavigationBarHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        navigationItems.fastForEachIndexed { index, screen ->
+        navigationItems.forEachIndexed { index, screen ->
+            Timber.tag("__PHUC__").d("Rendering item $index: $screen")
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .clickable(
                         onClick = {
                             coroutineScope.launch {
-                                pagerState.animateScrollToPage(
-                                    index,
-                                    animationSpec = tween(
-                                        durationMillis = 600,
-                                        easing = FastOutSlowInEasing
-                                    )
-                                )
+                                navController.navigateRoute(screen)
                             }
                         },
                     ),

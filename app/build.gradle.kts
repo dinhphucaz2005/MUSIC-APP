@@ -73,7 +73,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     //Edit tag audio
     implementation(libs.mp3agic)
-    implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.documentfile)
     // Dagger - Hilt
     api(libs.hilt.android)

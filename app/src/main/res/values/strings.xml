@@ -64,4 +64,5 @@
     </plurals>
     <string name="title_activity_test">TestActivity</string>
     <string name="audio_visualizer">Audio</string>
+    <string name="library">Library</string>
 </resources>
