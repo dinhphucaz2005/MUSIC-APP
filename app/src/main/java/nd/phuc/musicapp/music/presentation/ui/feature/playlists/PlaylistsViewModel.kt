@@ -7,10 +7,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import nd.phuc.core.domain.model.LikedSongsPlaylist
 import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
+import nd.phuc.core.domain.model.Song
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import javax.inject.Inject
 
@@ -33,17 +36,25 @@ class PlaylistsViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    val likedPlaylist: StateFlow<LikedSongsPlaylist<Song>> = songRepository.likedSongs
+        .map { LikedSongsPlaylist<Song>(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LikedSongsPlaylist(emptyList())
+        )
+
 
     private val _selectedPlaylistId = MutableStateFlow<Long?>(null)
     val selectedPlaylistId: StateFlow<Long?> = _selectedPlaylistId
-    val playlistSongs: StateFlow<List<LocalSong>> = combine(
+    val selectedPlaylist: StateFlow<Playlist<LocalSong>?> = combine(
         playlists, _selectedPlaylistId
     ) { playlists, selectedId ->
-        playlists.find { it.id == selectedId }?.songs ?: emptyList()
+        playlists.firstOrNull { it.id == selectedId }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+        initialValue = null
     )
 
     fun addSongToPlaylist(song: LocalSong) {

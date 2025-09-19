@@ -60,6 +60,13 @@ internal class LocalSongRepositoryImpl @Inject constructor(
         }
     }
 
+    override val likedSongs: Flow<List<LocalSong>> = combine(
+        _allSongs,
+        songDao.getLikedSongs()
+    ) { songs, likedSongs ->
+        val likedPaths = likedSongs.map { it.filePath }.toSet()
+        songs.filter { likedPaths.contains(it.filePath) }
+    }
 
     override suspend fun toggleLike(value: LocalSong) = songDao.toggleLike(value.filePath)
 

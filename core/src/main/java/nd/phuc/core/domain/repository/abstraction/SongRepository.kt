@@ -8,6 +8,7 @@ import nd.phuc.core.domain.model.Song
 interface SongRepository<S : Song> {
     val allSongs: Flow<List<S>>
     val playlist: Flow<List<Playlist<S>>>
+    val likedSongs: Flow<List<S>>
 
     suspend fun toggleLike(value: S)
     suspend fun getSongs()

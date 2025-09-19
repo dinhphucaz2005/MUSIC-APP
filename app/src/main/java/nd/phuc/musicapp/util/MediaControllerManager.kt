@@ -3,6 +3,7 @@ package nd.phuc.musicapp.util
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.MainThread
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.session.MediaController
@@ -12,18 +13,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.Song
+import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.musicapp.service.MusicService
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 
 @SuppressLint("UnsafeOptInUsageError")
@@ -74,19 +79,36 @@ class MediaControllerManager @Inject constructor(
     val repeatState: StateFlow<RepeatState> = _repeatState.asStateFlow()
     private val _shuffleState = MutableStateFlow(ShuffleState.OFF)
     val shuffleState: StateFlow<ShuffleState> = _shuffleState.asStateFlow()
-    private val _currentSong = MutableStateFlow(Song.unidentifiedSong())
-    val currentSong: StateFlow<Song> = combine(
-        _currentSong,
+
+    private val _playlist = MutableStateFlow<Pair<Long, List<Any>>?>(null)
+    val playlist: StateFlow<Playlist<LocalSong>?> = combine(
+        _playlist,
         songRepository.allSongs
-    ) { currentSong, allSongs ->
-        if (currentSong is LocalSong) {
-            allSongs.find { it.filePath == currentSong.filePath } ?: currentSong
-        } else {
-            currentSong
+    ) { playlistPair, allSongs ->
+        val (playlistId, songIds) = playlistPair ?: return@combine null
+        val songs = songIds.mapNotNull { id ->
+            allSongs.firstOrNull { it.id == id }
         }
+        Playlist(
+            id = playlistId,
+            name = "Unknown",
+            songs = songs,
+            thumbnailSource = ThumbnailSource.None
+        )
     }.stateIn(
         scope = scope,
-        started = kotlinx.coroutines.flow.SharingStarted.Eagerly,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+    private val _currentSongId: MutableStateFlow<Any?> = MutableStateFlow(null)
+    val currentSong: StateFlow<Song> = combine(
+        _currentSongId,
+        songRepository.allSongs,
+    ) { currentSongId, songs ->
+        songs.firstOrNull { it.id == currentSongId } ?: Song.unidentifiedSong()
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
         initialValue = Song.unidentifiedSong()
     )
     var audioSessionId: StateFlow<Int?> = MutableStateFlow(null)
@@ -121,8 +143,38 @@ class MediaControllerManager @Inject constructor(
     fun play(song: Song) {
         withControllerPlay {
             setMediaItem(song.toMediaItem())
-            _currentSong.value = song
+            prepare()
+            _playlist.value = Pair(Random.nextLong(), listOf(song.id))
+            _currentSongId.value = song.id
         }
+    }
+
+    fun playPlaylist(playlist: Playlist<Song>, index: Int) = withControllerPlay {
+        if (playlist.songs.isEmpty()) return@withControllerPlay
+        if (playlist.id == _playlist.value?.first) {
+            if (index in playlist.songs.indices) {
+                seekTo(index, 0L)
+            }
+        } else {
+            pause()
+            clearMediaItems()
+            setMediaItems(playlist.songs.map { it.toMediaItem() })
+            prepare()
+            seekTo(index, 0L)
+        }
+        _playlist.value = Pair(playlist.id, playlist.songs.map { it.id })
+        _currentSongId.value = playlist.songs.getOrNull(index)?.id
+    }
+
+    override fun onMediaItemTransition(
+        mediaItem: MediaItem?,
+        reason: Int,
+    ) {
+        super.onMediaItemTransition(mediaItem, reason)
+        val currentIndex = controller?.currentMediaItemIndex ?: return
+        val currentPlaylist = _playlist.value ?: return
+        if (currentIndex < 0 || currentIndex >= currentPlaylist.second.size) return
+        _currentSongId.value = currentPlaylist.second[currentIndex]
     }
 
     fun seekToSliderPosition(sliderPosition: Float) {

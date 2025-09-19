@@ -67,7 +67,8 @@ import nd.phuc.musicapp.music.BottomSheetPlayer
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsScreen
+import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistScreen
+import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.util.MediaControllerManager
 import javax.inject.Inject
@@ -184,7 +185,11 @@ fun App() {
 
     val shouldShowNavigationBar = remember(currentRoute) {
         when (currentRoute) {
-            Screens.Home.route -> true
+            Screens.Home.route,
+            Screens.Playlists.route,
+            Screens.Library.route,
+                -> true
+
             else -> false
         }
     }
@@ -216,7 +221,7 @@ fun App() {
                 .background(color = MaterialTheme.colorScheme.background)
         ) {
             routeComposable(Screens.Home) { HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>()) }
-            routeComposable(Screens.Playlists) { PlaylistsScreen() }
+            routeComposable(Screens.Playlists) { PlaylistScreen(playlistsViewModel = hiltViewModel<PlaylistsViewModel>()) }
             routeComposable(Screens.Library) { LibraryScreen() }
         }
 

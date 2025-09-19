@@ -11,6 +11,7 @@ import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
+import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
 
 object FakeModule {
 
@@ -41,13 +42,24 @@ object FakeModule {
         )
     )
 
+    private val localPlaylist = listOf(
+        Playlist(
+            id = 1L,
+            name = "My Favorites",
+            songs = localSongs,
+            thumbnailSource = ThumbnailSource.FromUrl("https://via.placeholder.com/150"),
+        )
+    )
+
     val songRepository = object : LocalSongRepository {
         override val allSongs: Flow<List<LocalSong>> = flow {
             emit(localSongs)
         }
         override val playlist: Flow<List<Playlist<LocalSong>>> = flow {
-            emit(emptyList())
+            emit(localPlaylist)
         }
+        override val likedSongs: Flow<List<LocalSong>>
+            get() = TODO("Not yet implemented")
 
         override suspend fun toggleLike(value: LocalSong) {
             // No-op for fake implementation
@@ -82,6 +94,7 @@ inline fun <reified T : ViewModel> fakeViewModel(): T {
     return if (isPreview) {
         when (T::class) {
             HomeViewModel::class -> FakeModule.provideHomeViewModel()
+            PlaylistsViewModel::class -> PlaylistsViewModel(songRepository = FakeModule.songRepository)
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as T
     } else hiltViewModel<T>()
