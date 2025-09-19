@@ -1,4 +1,4 @@
-package nd.phuc.core.model
+package nd.phuc.core.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 
@@ -8,4 +8,9 @@ sealed class ThumbnailSource {
 
     data class FromUrl(val url: String?) : ThumbnailSource()
     data class FromBitmap(val imageBitmap: ImageBitmap?) : ThumbnailSource()
+
+    data class FilePath(val path: String?) : ThumbnailSource()
+
+
+    data object None : ThumbnailSource()
 }

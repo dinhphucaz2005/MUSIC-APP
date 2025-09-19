@@ -1,4 +1,4 @@
-package nd.phuc.core.model
+package nd.phuc.core.domain.model
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -8,8 +8,7 @@ import androidx.media3.common.MediaMetadata
 import nd.phuc.core.extension.toDurationString
 import java.util.UUID
 
-abstract class Song(
-) {
+sealed class Song {
 
     abstract val isLiked: Boolean
     abstract val id: Any
@@ -29,43 +28,14 @@ abstract class Song(
     companion object {
 
         fun unidentifiedSong(id: String = UUID.randomUUID().toString()): Song {
-            return object : Song() {
-
-                override fun getAudio(): Uri {
-                    return Uri.EMPTY
-                }
-
-                override fun getArtistId(): String? {
-                    return null
-                }
-
-                override val isLiked: Boolean
-                    get() = false
-
-                override val id: String
-                    get() = id
-
-
-                override fun getSongTitle(): String = "No song is playing"
-
-                override fun getSongArtist(): String = "No artist"
-
-                override fun getThumbnail(): ThumbnailSource = ThumbnailSource.FromBitmap(null)
-
-                override fun getDuration(): String = "00:00"
-
-                override fun toMediaItem(): MediaItem {
-                    return MediaItem.Builder().apply {
-                        setUri(Uri.EMPTY)
-                        setMediaMetadata(
-                            MediaMetadata.Builder().apply {
-                                setTitle("No song is playing")
-                                setArtist("No artist")
-                            }.build()
-                        )
-                    }.build()
-                }
-            }
+            return LocalSong(
+                title = "Unknown",
+                artist = "Unknown",
+                filePath = id,
+                thumbnailSource = ThumbnailSource.None,
+                durationMillis = null,
+                isLiked = false
+            )
         }
     }
 

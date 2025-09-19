@@ -8,12 +8,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import nd.phuc.musicapp.music.data.LocalDataSource
-import nd.phuc.musicapp.music.data.RoomDataSource
-import nd.phuc.musicapp.music.data.repository.LocalSongRepositoryImpl
-import nd.phuc.musicapp.music.data.repository.UserRepositoryImpl
-import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
-import nd.phuc.musicapp.music.domain.repository.UserRepository
 import nd.phuc.musicapp.service.MusicService
 import java.io.File
 import javax.inject.Singleton
@@ -55,18 +49,4 @@ object AppModule {
         return sharedPreferences.edit()
     }
 
-
-    @Provides
-    @Singleton
-    fun provideSongRepository(
-        roomDataSource: RoomDataSource, localDataSource: LocalDataSource,
-    ): LocalSongRepository {
-        return LocalSongRepositoryImpl(roomDataSource, localDataSource)
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(sharedPreferences: SharedPreferences): UserRepository {
-        return UserRepositoryImpl(sharedPreferences)
-    }
 }

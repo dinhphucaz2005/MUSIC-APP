@@ -1,4 +1,4 @@
-package nd.phuc.core.model
+package nd.phuc.core.domain.model
 
 import android.net.Uri
 

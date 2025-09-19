@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import nd.phuc.core.model.Song
+import nd.phuc.core.domain.model.Song
 import nd.phuc.core.presentation.components.LazyColumnWithAnimation2
 import nd.phuc.core.presentation.components.SongItemContent
 import nd.phuc.core.presentation.previews.ExtendDevicePreviews

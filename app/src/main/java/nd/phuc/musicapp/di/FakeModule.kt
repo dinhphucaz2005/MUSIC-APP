@@ -5,9 +5,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
-import nd.phuc.core.model.LocalSong
-import nd.phuc.core.model.ThumbnailSource
-import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.Playlist
+import nd.phuc.core.domain.model.ThumbnailSource
+import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 
 object FakeModule {
@@ -42,12 +43,21 @@ object FakeModule {
     val songRepository = object : LocalSongRepository {
         override val allSongs: Flow<List<LocalSong>>
             get() = TODO("Not yet implemented")
+        override val playlist: Flow<List<Playlist<LocalSong>>>
+            get() = TODO("Not yet implemented")
 
         override suspend fun toggleLike(value: LocalSong) {
             TODO("Not yet implemented")
         }
 
         override suspend fun getSongs() {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun createPlaylist(
+            name: String,
+            songs: List<LocalSong>,
+        ) {
             TODO("Not yet implemented")
         }
     }

@@ -1,4 +1,4 @@
-package nd.phuc.core.model
+package nd.phuc.core.domain.model
 
 data class UserSetting(
     var backgroundColor: Long? = null,

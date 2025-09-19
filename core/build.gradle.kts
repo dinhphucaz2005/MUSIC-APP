@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.com.google.devtools.ksp)
 }
 
 android {
@@ -33,6 +34,10 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.ui)
@@ -56,4 +61,13 @@ dependencies {
     api(libs.androidx.media)
     api(libs.bundles.media3)
     api(libs.timber)
+    //Dagger - Hilt
+    api(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    // Kotlinx Serialization
+    api(libs.kotlinx.serialization.json)
 }

@@ -1,12 +1,9 @@
-import org.gradle.internal.impldep.org.testng.remote.RemoteTestNG.isDebug
-
 plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.com.google.devtools.ksp)
-//    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
 }
 
@@ -69,29 +66,16 @@ android {
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
-
-
 dependencies {
+    implementation(project(":core"))
     //ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     //Edit tag audio
     implementation(libs.mp3agic)
-    //Dagger - Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.documentfile)
-
-//    implementation(project(":flutter"))
-    implementation(project(":core"))
+    // Dagger - Hilt
+    api(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }

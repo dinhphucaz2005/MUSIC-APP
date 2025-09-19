@@ -1,21 +1,20 @@
-package nd.phuc.musicapp.di
+package nd.phuc.core.database.di
 
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import nd.phuc.musicapp.music.data.database.AppDAO
-import nd.phuc.musicapp.music.data.RoomDataSource
-import nd.phuc.musicapp.music.data.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import nd.phuc.core.database.AppDatabase
+import nd.phuc.core.database.SongDao
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DatabaseModule {
+internal object DatabaseModule {
 
     @Provides
     @Singleton
@@ -44,11 +43,10 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDao(database: AppDatabase): AppDAO = database.appDAO()
+    fun provideAppDao(database: AppDatabase): SongDao = database.songDao()
 
     @Provides
     @Singleton
-    fun provideRoomDataSource(appDao: AppDAO): RoomDataSource = RoomDataSource(appDao)
-
+    fun providePlaylistDao(database: AppDatabase) = database.playlistDao()
 
 }

@@ -6,10 +6,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import nd.phuc.core.model.LocalSong
-import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,11 +25,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    val songs: StateFlow<List<LocalSong>> = songRepository.allSongs.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    val songs: StateFlow<List<LocalSong>> =
+        songRepository.allSongs
+            .onEach { songs -> Timber.d("Songs: ${songs.size}") }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     val likedSongs: StateFlow<Set<LocalSong>> =
         songRepository.allSongs

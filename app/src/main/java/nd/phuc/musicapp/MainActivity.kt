@@ -57,13 +57,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import nd.phuc.core.model.MiniPlayerHeight
-import nd.phuc.core.model.NavigationBarHeight
+import nd.phuc.core.domain.model.MiniPlayerHeight
+import nd.phuc.core.domain.model.NavigationBarHeight
+import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.NavigationBarAnimationSpec
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
-import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.other.presentation.ui.screen.home.BottomSheetPlayer

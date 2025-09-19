@@ -1,4 +1,4 @@
-package nd.phuc.core.model
+package nd.phuc.core.domain.model
 
 const val PREF_NAME = "app_pref"
 const val PREFERENCE_KEY_COOKIE = "cookie"

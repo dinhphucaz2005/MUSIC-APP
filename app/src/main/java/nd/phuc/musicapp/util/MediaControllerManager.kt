@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import nd.phuc.core.model.LocalSong
-import nd.phuc.core.model.Song
-import nd.phuc.musicapp.music.domain.repository.LocalSongRepository
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.Song
+import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.musicapp.service.MusicService
 import timber.log.Timber
 import javax.inject.Inject

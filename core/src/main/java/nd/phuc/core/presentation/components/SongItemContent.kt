@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import nd.phuc.core.model.DefaultCornerSize
-import nd.phuc.core.model.Song
+import nd.phuc.core.domain.model.DefaultCornerSize
+import nd.phuc.core.domain.model.Song
 
 //import nd.phuc.musicapp.constants.DefaultCornerSize
 //import nd.phuc.musicapp.di.FakeModule

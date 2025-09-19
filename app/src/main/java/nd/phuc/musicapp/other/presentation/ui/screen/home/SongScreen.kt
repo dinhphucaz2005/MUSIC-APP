@@ -49,13 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.sample
 import nd.phuc.core.extension.toDurationString
-import nd.phuc.core.model.DefaultCornerSize
-import nd.phuc.core.model.MiniPlayerHeight
-import nd.phuc.core.model.TopBarHeight
+import nd.phuc.core.domain.model.DefaultCornerSize
+import nd.phuc.core.domain.model.MiniPlayerHeight
+import nd.phuc.core.domain.model.TopBarHeight
 import nd.phuc.core.presentation.components.AnimatedBorder
 import nd.phuc.core.presentation.components.BottomSheet
 import nd.phuc.core.presentation.components.BottomSheetState
@@ -119,9 +118,9 @@ private fun SongScreenContent(
 ) {
 
     val currentSong by mediaControllerManager.currentSong.collectAsStateWithLifecycle()
-    val playerState by mediaControllerManager.playerState.collectAsStateWithLifecycle(MediaControllerManager.PlayerState.PLAYING)
-
-
+    val playerState by mediaControllerManager.playerState.collectAsStateWithLifecycle(
+        MediaControllerManager.PlayerState.PLAYING
+    )
 
     Box(
         Modifier

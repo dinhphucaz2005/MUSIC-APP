@@ -1,22 +1,30 @@
-package nd.phuc.musicapp.helper
+package nd.phuc.core.domain
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import nd.phuc.core.domain.model.LocalSong
+import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.extension.getAuthor
 import nd.phuc.core.extension.getDuration
 import nd.phuc.core.extension.getImageBitmap
 import nd.phuc.core.extension.getTitle
-import nd.phuc.core.model.LocalSong
-import nd.phuc.core.model.ThumbnailSource
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object MediaRetrieverHelper {
-
-    private const val NUMBER_OF_THREADS = 6
+@Singleton
+class LocalDataSource @Inject constructor(
+    private val context: Context,
+) {
+    companion object {
+        private const val NUMBER_OF_THREADS = 6
+    }
 
     private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
     private var lastExtract = System.currentTimeMillis()
@@ -84,9 +92,29 @@ object MediaRetrieverHelper {
         }
     }
 
-    fun get(path: String): LocalSong? {
-        return hashMap[path]
+    private fun getAllLocalFilePaths(context: Context): List<String> {
+        val filePaths = mutableListOf<String>()
+        val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.Audio.Media.DATA)
+        val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
+        val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
+        val cursor = context.contentResolver.query(uri, projection, selection, null, sortOrder)
+
+        cursor?.use {
+            val dataIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            while (it.moveToNext()) {
+                val filePath = it.getString(dataIndex)
+                filePaths.add(filePath)
+            }
+        }
+        return filePaths
     }
+
+
+    suspend fun get(): List<LocalSong> {
+        val paths = getAllLocalFilePaths(context)
+        return extracts(paths)
+    }
+
+    fun getSongByPath(path: String): LocalSong? = hashMap[path]
 }
-
-
