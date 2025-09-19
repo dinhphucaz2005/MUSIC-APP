@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.other.presentation.ui.screen.home
+package nd.phuc.musicapp.music
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateIntAsState

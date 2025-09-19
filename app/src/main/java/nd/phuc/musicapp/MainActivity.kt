@@ -66,7 +66,7 @@ import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
-import nd.phuc.musicapp.other.presentation.ui.screen.home.BottomSheetPlayer
+import nd.phuc.musicapp.music.BottomSheetPlayer
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.util.MediaControllerManager
 import javax.inject.Inject
