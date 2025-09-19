@@ -59,7 +59,6 @@ import nd.phuc.core.domain.model.MiniPlayerHeight
 import nd.phuc.core.domain.model.NavigationBarHeight
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.extension.Route
-import nd.phuc.core.extension.navigateRoute
 import nd.phuc.core.extension.routeComposable
 import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.rememberBottomSheetState
@@ -71,7 +70,6 @@ import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsScreen
 import nd.phuc.musicapp.service.MusicService
 import nd.phuc.musicapp.util.MediaControllerManager
-import timber.log.Timber
 import javax.inject.Inject
 
 @get:StringRes
@@ -133,14 +131,11 @@ class MainActivity : FragmentActivity() {
         super.onStart()
         startService(
             Intent(
-                this,
-                MusicService::class.java
+                this, MusicService::class.java
             )
         )
         bindService(
-            Intent(this, MusicService::class.java),
-            serviceConnection,
-            BIND_AUTO_CREATE
+            Intent(this, MusicService::class.java), serviceConnection, BIND_AUTO_CREATE
         )
     }
 
@@ -157,8 +152,7 @@ class MainActivity : FragmentActivity() {
 
     private fun startMusicService() {
         val musicServiceIntent = Intent(
-            this@MainActivity,
-            MusicService::class.java
+            this@MainActivity, MusicService::class.java
         )
         bindService(musicServiceIntent, serviceConnection, BIND_AUTO_CREATE)
         startService(musicServiceIntent)
@@ -235,29 +229,23 @@ fun App() {
         )
 
         MainNavigationBar(
-            modifier = Modifier
-                .offset {
-                    IntOffset(
-                        x = 0,
-                        y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
-                            0f,
-                            1f
-                        )).roundToPx()
-                    )
-                },
-            navigationItems = listOf(
+            modifier = Modifier.offset {
+                IntOffset(
+                    x = 0, y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
+                        0f, 1f
+                    )).roundToPx()
+                )
+            }, navigationItems = listOf(
                 Screens.Home,
                 Screens.Playlists,
                 Screens.Library,
-            ),
-            navController = navController
+            ), navController = navController
         )
 
 
         val menuState = LocalMenuState.current
         BottomSheetMenu(
-            modifier = Modifier
-                .align(Alignment.BottomCenter),
+            modifier = Modifier.align(Alignment.BottomCenter),
             state = menuState,
             background = MaterialTheme.colorScheme.secondary,
         )
@@ -281,14 +269,29 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         navigationItems.forEachIndexed { index, screen ->
-            Timber.tag("__PHUC__").d("Rendering item $index: $screen")
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .clickable(
                         onClick = {
                             coroutineScope.launch {
-                                navController.navigateRoute(screen)
+                                if (screen == Screens.Home) {
+                                    navController.navigate(Screens.Home.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                } else {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(Screens.Home.route) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
                             }
                         },
                     ),
@@ -303,7 +306,8 @@ private fun BoxWithConstraintsScope.MainNavigationBar(
                     tint = color,
                 )
                 Text(
-                    text = stringResource(screen.titleId), color = color,
+                    text = stringResource(screen.titleId),
+                    color = color,
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp)
                 )
             }
