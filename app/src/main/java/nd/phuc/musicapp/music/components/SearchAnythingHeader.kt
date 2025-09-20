@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.presentation.ui.feature.home.components
+package nd.phuc.musicapp.music.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

@@ -50,4 +50,5 @@ dependencies {
     // Libraries(api)
     api(libs.kotlinx.serialization.json)
     api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.ui.tooling)
 }

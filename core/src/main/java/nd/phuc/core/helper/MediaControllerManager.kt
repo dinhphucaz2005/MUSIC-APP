@@ -1,6 +1,5 @@
 package nd.phuc.core.helper
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.media3.common.MediaItem
@@ -26,13 +25,9 @@ import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.service.MusicService
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.random.Random
 
-@SuppressLint("UnsafeOptInUsageError")
-@Singleton
-class MediaControllerManager @Inject constructor(
+class MediaControllerManager(
     private val songRepository: LocalSongRepository,
 ) {
     enum class PlayerState {

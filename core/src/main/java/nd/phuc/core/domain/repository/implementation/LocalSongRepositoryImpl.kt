@@ -16,9 +16,8 @@ import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import javax.inject.Inject
 
-internal class LocalSongRepositoryImpl @Inject constructor(
+internal class LocalSongRepositoryImpl(
     private val localDataSource: LocalDataSource,
     private val songDao: SongDao,
     private val playlistDao: PlaylistDao,

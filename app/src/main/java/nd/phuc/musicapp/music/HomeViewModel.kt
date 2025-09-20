@@ -1,8 +1,7 @@
-package nd.phuc.musicapp.music.presentation.ui.feature.home
+package nd.phuc.musicapp.music.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -12,10 +11,8 @@ import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val songRepository: LocalSongRepository,
 ) : ViewModel() {
 

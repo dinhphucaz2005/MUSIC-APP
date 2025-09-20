@@ -1,16 +1,15 @@
 package nd.phuc.musicapp
 
 import android.app.Application
-import android.content.SharedPreferences
-import dagger.hilt.android.HiltAndroidApp
+import nd.phuc.core.database.di.databaseModule
+import nd.phuc.core.domain.repository.di.repositoryModule
+import nd.phuc.musicapp.di.appModule
+import nd.phuc.musicapp.music.di.musicModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 import timber.log.Timber
-import javax.inject.Inject
 
-@HiltAndroidApp
 class MyApplication : Application() {
-
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate() {
         super.onCreate()
@@ -19,6 +18,17 @@ class MyApplication : Application() {
             Timber.plant(Timber.DebugTree())
         } else {
             Timber.plant(CrashReportingTree())
+        }
+        startKoin {
+            androidContext(this@MyApplication)
+            modules(
+                listOf(
+                    appModule,
+                    databaseModule,
+                    repositoryModule,
+                    musicModule,
+                )
+            )
         }
 //        CustomYoutube.locale = YouTubeLocale(
 //            gl = "VN", hl = "en"

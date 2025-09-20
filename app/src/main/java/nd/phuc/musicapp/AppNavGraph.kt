@@ -1,61 +1,51 @@
 package nd.phuc.musicapp
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import nd.phuc.core.extension.appHiltViewModel
-import nd.phuc.core.extension.routeComposable
-import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import nd.phuc.musicapp.music.LibraryScreen
+import nd.phuc.musicapp.music.screen.HomeScreen
+import nd.phuc.musicapp.music.playlists.PlaylistScreen
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavGraph(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = Screens.Home,
+fun AppNavGraph(backStack: NavBackStack<NavKey>) {
+    NavDisplay(
+        backStack = backStack,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        routeComposable(
-            route = Screens.Home,
-            enterTransition = { slideInHorizontally { it } + fadeIn() },
-            exitTransition = { slideOutHorizontally { -it / 2 } + fadeOut() },
-            popEnterTransition = { slideInHorizontally { -it / 2 } + fadeIn() },
-            popExitTransition = { slideOutHorizontally { it } + fadeOut() }
-        ) {
-            HomeScreen(homeViewModel = appHiltViewModel<HomeViewModel>())
-        }
+            .background(MaterialTheme.colorScheme.background),
+        entryDecorators = listOf(
+            rememberSavedStateNavEntryDecorator(),
+        ),
+        entryProvider = { key ->
+            if (key is Screens) {
+                return@NavDisplay when (key) {
+                    Screens.Home -> NavEntry(key = Screens.Home) {
+                        HomeScreen(homeViewModel = koinViewModel())
+                    }
 
-        composable(
-            route = Screens.Playlists.route,
-            enterTransition = { slideInHorizontally { it } + fadeIn() },
-            exitTransition = { slideOutHorizontally { -it / 2 } + fadeOut() }
-        ) {
-            PlaylistScreen(playlistsViewModel = appHiltViewModel<PlaylistsViewModel>())
-        }
+                    Screens.Library -> NavEntry(key = Screens.Library) {
+                        LibraryScreen()
+                    }
 
-        composable(
-            route = Screens.Library.route,
-            enterTransition = { fadeIn(tween(300)) },
-            exitTransition = { fadeOut(tween(300)) }
-        ) {
-            LibraryScreen()
+                    Screens.Playlists -> NavEntry(key = Screens.Playlists) {
+                        PlaylistScreen(playlistsViewModel = koinViewModel())
+                    }
+
+                }
+            } else {
+                throw Exception("Unknow Error")
+            }
         }
-    }
+    )
 }

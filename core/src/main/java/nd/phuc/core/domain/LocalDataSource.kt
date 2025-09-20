@@ -15,11 +15,8 @@ import nd.phuc.core.extension.getImageBitmap
 import nd.phuc.core.extension.getTitle
 import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class LocalDataSource @Inject constructor(
+class LocalDataSource(
     private val context: Context,
 ) {
     companion object {

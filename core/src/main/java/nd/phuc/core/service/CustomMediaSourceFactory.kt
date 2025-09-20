@@ -16,18 +16,14 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.extractor.mp3.Mp3Extractor
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor
-//import com.example.innertube.CustomYoutube
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 
-@Singleton
-class CustomMediaSourceFactory @Inject constructor(
-    private val context: Context
+class CustomMediaSourceFactory(
+    private val context: Context,
 ) {
 
 

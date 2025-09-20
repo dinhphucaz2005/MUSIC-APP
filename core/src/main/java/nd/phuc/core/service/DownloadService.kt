@@ -1,27 +1,11 @@
 package nd.phuc.core.service
 
-import android.app.DownloadManager
-import android.app.Service
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Environment
-import android.os.IBinder
-import android.util.Log
-import androidx.media3.common.util.UnstableApi
-import dagger.hilt.android.AndroidEntryPoint
-import io.ktor.client.HttpClient
 //import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.request.head
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpHeaders
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 private data class FileMetadata(
     val mimeType: String? = null,
     val acceptRange: String? = null,
-    val contentLength: Long? = null
+    val contentLength: Long? = null,
 )
 
 

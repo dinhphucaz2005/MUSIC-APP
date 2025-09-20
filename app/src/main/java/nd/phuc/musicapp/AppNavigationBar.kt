@@ -21,7 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.NavigationBarHeight
 
@@ -29,7 +30,7 @@ import nd.phuc.core.domain.model.NavigationBarHeight
 fun AppNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
-    navController: NavController,
+    backStack: NavBackStack<NavKey>,
 ) {
     val coroutineScope = rememberCoroutineScope()
     Row(
@@ -45,23 +46,7 @@ fun AppNavigationBar(
                     .clickable(
                         onClick = {
                             coroutineScope.launch {
-                                if (screen == Screens.Home) {
-                                    navController.navigate(Screens.Home.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                } else {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(Screens.Home.route) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
+                                backStack.add(screen)
                             }
                         },
                     ),

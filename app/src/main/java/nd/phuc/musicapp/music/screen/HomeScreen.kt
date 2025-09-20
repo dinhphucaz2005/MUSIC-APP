@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.presentation.ui.feature.home.screen
+package nd.phuc.musicapp.music.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,8 +10,8 @@ import androidx.media3.common.util.UnstableApi
 import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.di.fakeViewModel
-import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import nd.phuc.musicapp.music.presentation.ui.feature.home.components.YourSongsSection
+import nd.phuc.musicapp.music.home.HomeViewModel
+import nd.phuc.musicapp.music.home.components.YourSongsSection
 
 
 @ExperimentalMaterial3Api

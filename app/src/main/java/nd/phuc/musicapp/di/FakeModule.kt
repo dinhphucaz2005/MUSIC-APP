@@ -2,7 +2,6 @@ package nd.phuc.musicapp.di
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.appHiltViewModel
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -10,8 +9,9 @@ import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
+import nd.phuc.musicapp.music.home.HomeViewModel
+import nd.phuc.musicapp.music.playlists.PlaylistsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 object FakeModule {
 
@@ -84,8 +84,11 @@ object FakeModule {
         }
     }
 
-    fun provideHomeViewModel(): HomeViewModel = HomeViewModel(songRepository = songRepository)
+    fun provideHomeViewModel(): HomeViewModel =
+        HomeViewModel(songRepository = songRepository)
 
+    fun providePlaylistsViewModel(): PlaylistsViewModel =
+        PlaylistsViewModel(songRepository = songRepository)
 }
 
 @Composable
@@ -94,8 +97,10 @@ inline fun <reified T : ViewModel> fakeViewModel(): T {
     return if (isPreview) {
         when (T::class) {
             HomeViewModel::class -> FakeModule.provideHomeViewModel()
-            PlaylistsViewModel::class -> PlaylistsViewModel(songRepository = FakeModule.songRepository)
+            PlaylistsViewModel::class -> FakeModule.providePlaylistsViewModel()
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as T
-    } else appHiltViewModel<T>()
+    } else {
+        koinViewModel()
+    }
 }

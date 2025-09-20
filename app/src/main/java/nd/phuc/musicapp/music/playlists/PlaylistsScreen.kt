@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.presentation.ui.feature.playlists
+package nd.phuc.musicapp.music.playlists
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
