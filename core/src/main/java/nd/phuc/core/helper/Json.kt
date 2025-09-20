@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.util
+package nd.phuc.core.helper
 
 import kotlinx.serialization.json.Json
 

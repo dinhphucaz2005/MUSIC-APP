@@ -63,7 +63,7 @@ import nd.phuc.core.presentation.components.CustomSlider
 import nd.phuc.core.presentation.components.Thumbnail
 import nd.phuc.musicapp.LocalMediaControllerManager
 import nd.phuc.musicapp.R
-import nd.phuc.musicapp.util.MediaControllerManager
+import nd.phuc.core.helper.MediaControllerManager
 
 
 private val MediaControllerManager.PlayerState.resource: Int

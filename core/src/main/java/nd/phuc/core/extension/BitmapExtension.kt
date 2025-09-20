@@ -4,12 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 fun Bitmap.toScaledBitmap(scaleFactor: Float): Bitmap {
     val width = (this.width * scaleFactor).toInt()
     val height = (this.height * scaleFactor).toInt()
-    val resizedBitmap = Bitmap.createScaledBitmap(this, width, height, true)
+    val resizedBitmap = this.scale(width, height)
     val outputStream = ByteArrayOutputStream()
     resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
     val byteArray = outputStream.toByteArray()

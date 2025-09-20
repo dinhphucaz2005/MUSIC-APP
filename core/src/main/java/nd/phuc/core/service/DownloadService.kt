@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.service
+package nd.phuc.core.service
 
 import android.app.DownloadManager
 import android.app.Service

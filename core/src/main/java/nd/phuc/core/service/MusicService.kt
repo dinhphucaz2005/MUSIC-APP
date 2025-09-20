@@ -1,9 +1,14 @@
-package nd.phuc.musicapp.service
+package nd.phuc.core.service
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.annotation.OptIn
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
@@ -12,18 +17,16 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import nd.phuc.core.domain.model.Song
-import nd.phuc.musicapp.helper.NotificationHelper
-import javax.inject.Inject
+import timber.log.Timber
 
 @UnstableApi
-@AndroidEntryPoint
-class MusicService : MediaLibraryService() {
+abstract class MusicService(
+) : MediaLibraryService() {
 
+    open lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     companion object {
         const val ACTION_SHUFFLE = "ACTION_SHUFFLE"
@@ -31,7 +34,11 @@ class MusicService : MediaLibraryService() {
         const val ACTION_PLAY_OR_PAUSE = "ACTION_PLAY"
         const val ACTION_NEXT = "ACTION_NEXT"
         const val ACTION_PREVIOUS = "ACTION_PREVIOUS"
-        private const val TAG = "MusicService"
+
+        private const val NOTIFICATION_ID = 1
+        private const val NOTIFICATION_CHANNEL_NAME = "Music"
+        private const val NOTIFICATION_CHANNEL_DESCRIPTION = "Play music"
+        private const val NOTIFICATION_CHANNEL_ID_NAME = "MUSIC CHANNEL"
     }
 
     private lateinit var player: ExoPlayer
@@ -56,13 +63,12 @@ class MusicService : MediaLibraryService() {
 //        }
 //    }
 
-    @Inject
-    lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
     val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
 
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -109,7 +115,14 @@ class MusicService : MediaLibraryService() {
             .build()
 
         notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.createNotificationChannel(NotificationHelper.createNotificationChannel())
+        notificationManager.createNotificationChannel(
+            NotificationChannelCompat.Builder(
+                NOTIFICATION_CHANNEL_ID_NAME,
+                NotificationManagerCompat.IMPORTANCE_LOW
+            ).setName(NOTIFICATION_CHANNEL_NAME)
+                .setDescription(NOTIFICATION_CHANNEL_DESCRIPTION)
+                .build()
+        )
     }
 
 
@@ -161,7 +174,7 @@ class MusicService : MediaLibraryService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand: ${intent?.action.toString()}")
+        Timber.d("onStartCommand: ${intent?.action.toString()}")
         super.onStartCommand(intent, flags, startId)
         intent?.let {
             when (it.action) {
@@ -197,10 +210,30 @@ class MusicService : MediaLibraryService() {
 
     fun getSession(): MediaLibrarySession = session
 
+    abstract val activity: Class<out Activity>
+
+    @get:DrawableRes
+    abstract val drawable: Int
+
     private fun updateNotification() {
+        val intent = Intent(this@MusicService, activity).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this@MusicService, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        )
+
         startForeground(
-            NotificationHelper.NOTIFICATION_ID,
-            NotificationHelper.createNotification(this, session)
+            NOTIFICATION_ID,
+            NotificationCompat.Builder(this@MusicService, NOTIFICATION_CHANNEL_ID_NAME).apply {
+                setSmallIcon(drawable)
+                setContentIntent(pendingIntent)
+                setStyle(
+                    androidx.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(session.sessionCompatToken)
+                        .setShowCancelButton(true)
+                )
+            }.build()
         )
     }
 
@@ -212,22 +245,7 @@ class MusicService : MediaLibraryService() {
             release()
         }
         session.release()
-        notificationManager.cancel(NotificationHelper.NOTIFICATION_ID)
-    }
-
-    fun downloadCurrentSong() {
-//        val downloadService = Intent(this, DownloadService::class.java)
-////        downloadService.putExtra(DownloadService.URL, getCurrentSong()?.getDownloadUrl())
-////        downloadService.putExtra(DownloadService.FILE_NAME, getCurrentSong()?.getTitle())
-//        startService(downloadService)
-    }
-
-    fun addToNext(song: Song) {
-        player.addMediaItem(player.currentMediaItemIndex + 1, song.toMediaItem())
-    }
-
-    fun addToQueue(song: Song) {
-        player.addMediaItem(song.toMediaItem())
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 
 }

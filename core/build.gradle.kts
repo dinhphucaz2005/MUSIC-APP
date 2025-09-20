@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "nd.phuc.core"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -39,6 +39,9 @@ ksp {
 }
 
 dependencies {
+    api(libs.bundles.media3)
+    implementation(libs.bundles.ktor)
+
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.ui)
     api(libs.androidx.ui.graphics)
@@ -58,15 +61,14 @@ dependencies {
     api(libs.hilt.navigation.compose)
     api(libs.squigglyslider)
     api(libs.androidx.media)
-    api(libs.bundles.media3)
+    api(libs.kotlinx.serialization.json)
     api(libs.timber)
+
     //Dagger - Hilt
-    api(libs.hilt.android)
+    implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    // Kotlinx Serialization
-    api(libs.kotlinx.serialization.json)
 }

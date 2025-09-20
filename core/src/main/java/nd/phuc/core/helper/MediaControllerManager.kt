@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.util
+package nd.phuc.core.helper
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -24,18 +24,111 @@ import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.Song
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import nd.phuc.musicapp.service.MusicService
+import nd.phuc.core.service.MusicService
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
 
-
 @SuppressLint("UnsafeOptInUsageError")
 @Singleton
 class MediaControllerManager @Inject constructor(
     private val songRepository: LocalSongRepository,
-) : Player.Listener {
+) {
+    enum class PlayerState {
+        PLAYING,
+        PAUSED,
+        STOPPED;
+    }
+
+    enum class RepeatState {
+        OFF,
+        ONE,
+        ALL
+    }
+
+    enum class ShuffleState {
+        OFF,
+        ON
+    }
+
+    val playerListener = object : Player.Listener {
+        override fun onMediaItemTransition(
+            mediaItem: MediaItem?,
+            reason: Int,
+        ) {
+            super.onMediaItemTransition(mediaItem, reason)
+            val currentIndex = controller?.currentMediaItemIndex ?: return
+            val currentPlaylist = _playlist.value ?: return
+            if (currentIndex < 0 || currentIndex >= currentPlaylist.second.size) return
+            _currentSongId.value = currentPlaylist.second[currentIndex]
+        }
+
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            reason: Int,
+        ) {
+            Timber.d("onPositionDiscontinuity: $reason")
+            _position.value = controller?.currentPosition ?: 0L
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            Timber.d("onIsPlayingChanged: $isPlaying")
+            _playerState.value = if (isPlaying) {
+                PlayerState.PLAYING
+            } else {
+                PlayerState.PAUSED
+            }
+            _duration.value = controller?.duration ?: 0L
+        }
+
+        // listener for update position
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+            Timber.d("onTimelineChanged: $reason")
+            _position.value = controller?.currentPosition ?: 0L
+            _duration.value = controller?.duration ?: 0L
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            Timber.d("onPlaybackStateChanged: $playbackState")
+            _playerState.value = when (playbackState) {
+                Player.STATE_BUFFERING -> PlayerState.PAUSED
+                Player.STATE_READY -> {
+                    if (controller?.isPlaying == true) {
+                        PlayerState.PLAYING
+                    } else {
+                        PlayerState.PAUSED
+                    }
+                }
+
+                Player.STATE_IDLE -> PlayerState.STOPPED
+                Player.STATE_ENDED -> PlayerState.STOPPED
+                else -> PlayerState.STOPPED
+            }
+            _duration.value = controller?.duration ?: 0L
+
+        }
+
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            Timber.d("onShuffleModeEnabledChanged: $shuffleModeEnabled")
+            _shuffleState.value = if (shuffleModeEnabled) {
+                ShuffleState.ON
+            } else {
+                ShuffleState.OFF
+            }
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            Timber.d("onRepeatModeChanged: $repeatMode")
+            _repeatState.value = when (repeatMode) {
+                Player.REPEAT_MODE_OFF -> RepeatState.OFF
+                Player.REPEAT_MODE_ONE -> RepeatState.ONE
+                Player.REPEAT_MODE_ALL -> RepeatState.ALL
+                else -> RepeatState.OFF
+            }
+        }
+    }
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
@@ -56,9 +149,9 @@ class MediaControllerManager @Inject constructor(
             try {
                 controller = controllerFuture.get().apply {
                     playWhenReady = true
-                    addListener(this@MediaControllerManager)
+                    addListener(playerListener)
                 }
-                controller?.addListener(this)
+                controller?.addListener(playerListener)
                 controller?.let { _position.value = it.currentPosition }
             } catch (e: Exception) {
                 Timber.e(e)
@@ -86,9 +179,7 @@ class MediaControllerManager @Inject constructor(
         songRepository.allSongs
     ) { playlistPair, allSongs ->
         val (playlistId, songIds) = playlistPair ?: return@combine null
-        val songs = songIds.mapNotNull { id ->
-            allSongs.firstOrNull { it.id == id }
-        }
+        val songs = songIds.mapNotNull { id -> allSongs.firstOrNull { it.id == id } }
         Playlist(
             id = playlistId,
             name = "Unknown",
@@ -134,7 +225,7 @@ class MediaControllerManager @Inject constructor(
 
 
     fun dispose() {
-        controller?.removeListener(this)
+        controller?.removeListener(playerListener)
         controller?.release()
         controller = null
     }
@@ -164,17 +255,6 @@ class MediaControllerManager @Inject constructor(
         }
         _playlist.value = Pair(playlist.id, playlist.songs.map { it.id })
         _currentSongId.value = playlist.songs.getOrNull(index)?.id
-    }
-
-    override fun onMediaItemTransition(
-        mediaItem: MediaItem?,
-        reason: Int,
-    ) {
-        super.onMediaItemTransition(mediaItem, reason)
-        val currentIndex = controller?.currentMediaItemIndex ?: return
-        val currentPlaylist = _playlist.value ?: return
-        if (currentIndex < 0 || currentIndex >= currentPlaylist.second.size) return
-        _currentSongId.value = currentPlaylist.second[currentIndex]
     }
 
     fun seekToSliderPosition(sliderPosition: Float) {
@@ -223,89 +303,4 @@ class MediaControllerManager @Inject constructor(
             else -> Player.REPEAT_MODE_OFF
         }
     }
-    /*============Controller actions============*/
-
-    enum class PlayerState {
-        PLAYING,
-        PAUSED,
-        STOPPED;
-    }
-
-    enum class RepeatState {
-        OFF,
-        ONE,
-        ALL
-    }
-
-    enum class ShuffleState {
-        OFF,
-        ON
-    }
-    /*============Overrides for Player.Listener============*/
-
-    override fun onPositionDiscontinuity(
-        oldPosition: Player.PositionInfo,
-        newPosition: Player.PositionInfo,
-        reason: Int,
-    ) {
-        Timber.d("onPositionDiscontinuity: $reason")
-        _position.value = controller?.currentPosition ?: 0L
-    }
-
-    override fun onIsPlayingChanged(isPlaying: Boolean) {
-        Timber.d("onIsPlayingChanged: $isPlaying")
-        _playerState.value = if (isPlaying) {
-            PlayerState.PLAYING
-        } else {
-            PlayerState.PAUSED
-        }
-        _duration.value = controller?.duration ?: 0L
-    }
-
-    // listener for update position
-    override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-        Timber.d("onTimelineChanged: $reason")
-        _position.value = controller?.currentPosition ?: 0L
-        _duration.value = controller?.duration ?: 0L
-    }
-
-    override fun onPlaybackStateChanged(playbackState: Int) {
-        Timber.d("onPlaybackStateChanged: $playbackState")
-        _playerState.value = when (playbackState) {
-            Player.STATE_BUFFERING -> PlayerState.PAUSED
-            Player.STATE_READY -> {
-                if (controller?.isPlaying == true) {
-                    PlayerState.PLAYING
-                } else {
-                    PlayerState.PAUSED
-                }
-            }
-
-            Player.STATE_IDLE -> PlayerState.STOPPED
-            Player.STATE_ENDED -> PlayerState.STOPPED
-            else -> PlayerState.STOPPED
-        }
-        _duration.value = controller?.duration ?: 0L
-
-    }
-
-    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-        Timber.d("onShuffleModeEnabledChanged: $shuffleModeEnabled")
-        _shuffleState.value = if (shuffleModeEnabled) {
-            ShuffleState.ON
-        } else {
-            ShuffleState.OFF
-        }
-    }
-
-    override fun onRepeatModeChanged(repeatMode: Int) {
-        Timber.d("onRepeatModeChanged: $repeatMode")
-        _repeatState.value = when (repeatMode) {
-            Player.REPEAT_MODE_OFF -> RepeatState.OFF
-            Player.REPEAT_MODE_ONE -> RepeatState.ONE
-            Player.REPEAT_MODE_ALL -> RepeatState.ALL
-            else -> RepeatState.OFF
-        }
-    }
-    /*============Overrides for Player.Listener============*/
 }

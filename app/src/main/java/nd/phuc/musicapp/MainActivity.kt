@@ -60,17 +60,17 @@ import nd.phuc.core.domain.model.NavigationBarHeight
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.extension.Route
 import nd.phuc.core.extension.routeComposable
+import nd.phuc.core.helper.MediaControllerManager
 import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
+import nd.phuc.core.service.MusicService
 import nd.phuc.musicapp.music.BottomSheetPlayer
 import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
 import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
-import nd.phuc.musicapp.service.MusicService
-import nd.phuc.musicapp.util.MediaControllerManager
 import javax.inject.Inject
 
 @get:StringRes
@@ -136,7 +136,7 @@ class MainActivity : FragmentActivity() {
             )
         )
         bindService(
-            Intent(this, MusicService::class.java), serviceConnection, BIND_AUTO_CREATE
+            Intent(this, AppMusicService::class.java), serviceConnection, BIND_AUTO_CREATE
         )
     }
 

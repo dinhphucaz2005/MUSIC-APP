@@ -28,63 +28,6 @@ import androidx.compose.ui.unit.sp
 import nd.phuc.core.domain.model.DefaultCornerSize
 import nd.phuc.core.domain.model.Song
 
-//import nd.phuc.musicapp.constants.DefaultCornerSize
-//import nd.phuc.musicapp.di.FakeModule
-//import nd.phuc.core.model.Song
-//import nd.phuc.musicapp.ui.theme.MyMusicAppTheme
-//
-//@Preview
-//@Composable
-//private fun SongItemContentPreview() {
-//    MyMusicAppTheme {
-//        Column {
-//            MiniSongItemContent(FakeModule.localSong)
-//            SongItemContent(
-//                song = FakeModule.localSong,
-//                onSongClick = {}
-//            ) { }
-//        }
-//    }
-//}
-//
-//
-//@Composable
-//fun MiniSongItemContent(song: Song) {
-//    MyListItem(
-//        headlineContent = {
-//            Text(
-//                text = song.getSongTitle(),
-//                style = MaterialTheme.typography.titleMedium,
-//                color = MaterialTheme.colorScheme.primary,
-//                maxLines = 1,
-//                modifier = Modifier.basicMarquee(
-//                    iterations = Int.MAX_VALUE, spacing = MarqueeSpacing.fractionOfContainer(
-//                        1f / 10f
-//                    )
-//                )
-//            )
-//        }, leadingContent = {
-//            Thumbnail(
-//                modifier = Modifier
-//                    .padding(8.dp)
-//                    .clip(RoundedCornerShape(DefaultCornerSize))
-//                    .fillMaxHeight()
-//                    .aspectRatio(1f), thumbnailSource = song.getThumbnail()
-//            )
-//        }, supportingContent = {
-//            Text(
-//                text = song.getSongArtist() + " \u2022 " + song.getDuration(),
-//                style = MaterialTheme.typography.titleSmall,
-//                color = MaterialTheme.colorScheme.tertiary
-//            )
-//        }, modifier = Modifier
-//            .padding(horizontal = 12.dp)
-//            .fillMaxWidth()
-//            .height(60.dp)
-//    )
-//
-//}
-//
 @Composable
 fun SongItemContent(
     modifier: Modifier = Modifier, song: Song,

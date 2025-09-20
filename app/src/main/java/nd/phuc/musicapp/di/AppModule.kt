@@ -3,12 +3,13 @@ package nd.phuc.musicapp.di
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.media3.common.util.UnstableApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.UnstableApi
 import dagger.hilt.components.SingletonComponent
-import nd.phuc.musicapp.service.MusicService
+import nd.phuc.core.service.CustomMediaSourceFactory
+import nd.phuc.musicapp.AppMusicService
 import java.io.File
 import javax.inject.Singleton
 
@@ -31,10 +32,13 @@ object AppModule {
         return File(context.getExternalFilesDir("Music"), "media")
     }
 
+    @androidx.media3.common.util.UnstableApi
     @Provides
     @Singleton
-    fun provideMusicService(): MusicService {
-        return MusicService()
+    fun provideMusicService(
+        customMediaSourceFactory: CustomMediaSourceFactory,
+    ): AppMusicService {
+        return AppMusicService()
     }
 
     @Provides
