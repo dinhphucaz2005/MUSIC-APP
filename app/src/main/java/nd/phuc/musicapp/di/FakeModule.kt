@@ -2,7 +2,7 @@ package nd.phuc.musicapp.di
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.appHiltViewModel
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -97,5 +97,5 @@ inline fun <reified T : ViewModel> fakeViewModel(): T {
             PlaylistsViewModel::class -> PlaylistsViewModel(songRepository = FakeModule.songRepository)
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as T
-    } else hiltViewModel<T>()
+    } else appHiltViewModel<T>()
 }

@@ -1,112 +1,27 @@
 package nd.phuc.musicapp
 
-//import androidx.hilt.navigation.compose.hiltViewModel
-//import androidx.navigation.NavController
-//import androidx.navigation.compose.currentBackStackEntryAsState
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.ConstraintSet
-import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.compose.ExperimentalMotionApi
-import androidx.constraintlayout.compose.MotionLayout
 import androidx.fragment.app.FragmentActivity
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import nd.phuc.core.domain.model.MiniPlayerHeight
-import nd.phuc.core.domain.model.NavigationBarHeight
-import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.extension.Route
-import nd.phuc.core.extension.routeComposable
 import nd.phuc.core.helper.MediaControllerManager
-import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.core.service.MusicService
-import nd.phuc.musicapp.music.BottomSheetPlayer
-import nd.phuc.musicapp.music.presentation.ui.feature.home.HomeViewModel
-import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistScreen
-import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
-import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.absoluteValue
 
-@get:StringRes
-private val Screens.titleId: Int
-    get() = when (this) {
-        Screens.Home -> R.string.home
-        Screens.Playlists -> R.string.playlists
-        Screens.Library -> R.string.library
-    }
-
-@get:DrawableRes
-private val Screens.iconId: Int
-    get() = when (this) {
-        Screens.Home -> R.drawable.ic_home
-        Screens.Playlists -> R.drawable.ic_disc
-        Screens.Library -> R.drawable.ic_disc
-    }
 
 @UnstableApi
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
-
-    @Inject
-    lateinit var songRepository: LocalSongRepository
 
     @Inject
     lateinit var mediaControllerManager: MediaControllerManager
@@ -133,7 +48,22 @@ class MainActivity : FragmentActivity() {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {
-                    MotionBottomSheetScreen()
+                    val navController = rememberNavController()
+                    AppScreen(
+                        bottomNavigationBar = { modifier ->
+                            AppNavigationBar(
+                                modifier = modifier,
+                                navigationItems = listOf(
+                                    Screens.Home,
+                                    Screens.Playlists,
+                                    Screens.Library,
+                                ),
+                                navController = navController
+                            )
+                        }
+                    ) {
+                        AppNavGraph(navController = navController)
+                    }
                 }
             }
         }
@@ -182,226 +112,4 @@ sealed class Screens : Route() {
     data object Home : Screens()
     data object Playlists : Screens()
     data object Library : Screens()
-}
-
-@SuppressLint("UnsafeOptInUsageError")
-@Composable
-fun App() {
-    val density = LocalDensity.current
-    val windowsInsets = WindowInsets.systemBars
-    val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
-    val navController = rememberNavController()
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-    val shouldShowMiniPlayer = remember(currentRoute) {
-        when (currentRoute) {
-            Screens.Home.route,
-            Screens.Playlists.route,
-                -> true
-
-            else -> false
-        }
-    }
-
-
-
-
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        val maxHeight = this.maxHeight
-
-        val playerBottomSheetState = rememberBottomSheetState(
-            dismissedBound = 0.dp,
-            collapsedBound = bottomInset + (if (shouldShowMiniPlayer) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
-            expandedBound = maxHeight,
-        )
-        LaunchedEffect(Unit) {
-            playerBottomSheetState.collapseSoft()
-        }
-        LaunchedEffect(playerBottomSheetState.value) {
-            Timber.i("dismissedBound: ${playerBottomSheetState.dismissedBound}")
-            Timber.i("collapsedBound: ${playerBottomSheetState.collapsedBound}")
-            Timber.i("expandedBound: ${playerBottomSheetState.expandedBound}")
-            Timber.i("value: ${playerBottomSheetState.value}")
-            Timber.i("isDismissed: ${playerBottomSheetState.isDismissed}")
-            Timber.i("isCollapsed: ${playerBottomSheetState.isCollapsed}")
-            Timber.i("isExpanded: ${playerBottomSheetState.isExpanded}")
-            Timber.i("progress: ${playerBottomSheetState.progress}")
-            Timber.i("===============================")
-        }
-
-        val fabBottomOffset by remember {
-            derivedStateOf {
-                if (playerBottomSheetState.isDismissed) 0.dp
-                else MiniPlayerHeight * (playerBottomSheetState.progress.absoluteValue.coerceIn(
-                    0f, 1f
-                ) + 1f)
-            }
-        }
-
-        val fabHorizontalOffset by remember {
-            derivedStateOf {
-                // Dịch sang phải tối đa 80.dp khi expanded
-                (80.dp * playerBottomSheetState.progress.coerceIn(0f, 1f))
-            }
-        }
-
-        val fabAlpha by remember {
-            derivedStateOf {
-                1f - playerBottomSheetState.progress.coerceIn(0f, 1f)
-            }
-        }
-
-
-
-
-        ConstraintLayout {
-            val (navigationBarRef, fabRef, miniPlayerRef, contentRef) = createRefs()
-
-            NavHost(
-                navController = navController,
-                startDestination = Screens.Home.route,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(contentRef) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(navigationBarRef.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        height = Dimension.fillToConstraints
-                    }
-                    .background(color = MaterialTheme.colorScheme.background)) {
-                routeComposable(Screens.Home) { HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>()) }
-                routeComposable(Screens.Playlists) { PlaylistScreen(playlistsViewModel = hiltViewModel<PlaylistsViewModel>()) }
-                routeComposable(Screens.Library) { LibraryScreen() }
-            }
-
-            BottomSheetPlayer(
-                state = playerBottomSheetState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .constrainAs(miniPlayerRef) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    })
-
-            MainNavigationBar(
-                modifier = Modifier
-                    .constrainAs(navigationBarRef) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
-                                0f, 1f
-                            )).roundToPx()
-                        )
-                    }, navigationItems = listOf(
-                    Screens.Home,
-                    Screens.Playlists,
-                    Screens.Library,
-                ), navController = navController
-            )
-
-            FloatingActionButton(
-                onClick = { playerBottomSheetState.expandSoft() },
-                modifier = Modifier
-                    .padding(16.dp)
-                    .offset {
-                        IntOffset(
-                            x = -fabHorizontalOffset.roundToPx(), y = -fabBottomOffset.roundToPx()
-                        )
-                    }
-                    .constrainAs(fabRef) {
-                        bottom.linkTo(navigationBarRef.top)
-                        end.linkTo(parent.end)
-                    }
-                    .graphicsLayer { alpha = fabAlpha }
-                    .size(48.dp)) {
-                Text("Expand")
-            }
-
-        }
-    }
-
-}
-
-@Composable
-private fun MainNavigationBar(
-    modifier: Modifier = Modifier,
-    navigationItems: List<Screens>,
-    navController: NavController,
-) {
-    Row(
-        modifier = modifier
-            .background(Color.Transparent)
-            .fillMaxWidth()
-            .height(NavigationBarHeight), verticalAlignment = Alignment.CenterVertically
-    ) {
-
-    }
-    return
-    val coroutineScope = rememberCoroutineScope()
-    Row(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.secondary)
-            .fillMaxWidth()
-            .height(NavigationBarHeight), verticalAlignment = Alignment.CenterVertically
-    ) {
-        navigationItems.forEachIndexed { index, screen ->
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (screen == Screens.Home) {
-                                    navController.navigate(Screens.Home.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                } else {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(Screens.Home.route) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            }
-                        },
-                    ),
-                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val color = MaterialTheme.colorScheme.primary
-                Icon(
-                    painter = painterResource(screen.iconId),
-                    modifier = Modifier.size(24.dp),
-                    contentDescription = null,
-                    tint = color,
-                )
-                Text(
-                    text = stringResource(screen.titleId),
-                    color = color,
-                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.sp)
-                )
-            }
-        }
-    }
-
 }
