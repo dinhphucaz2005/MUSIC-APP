@@ -15,8 +15,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,17 +36,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.ExperimentalMotionApi
+import androidx.constraintlayout.compose.MotionLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -61,7 +72,6 @@ import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.extension.Route
 import nd.phuc.core.extension.routeComposable
 import nd.phuc.core.helper.MediaControllerManager
-import nd.phuc.core.presentation.components.BottomSheetMenu
 import nd.phuc.core.presentation.components.rememberBottomSheetState
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.core.service.MusicService
@@ -71,7 +81,9 @@ import nd.phuc.musicapp.music.presentation.ui.feature.home.screen.HomeScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.library.LibraryScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistScreen
 import nd.phuc.musicapp.music.presentation.ui.feature.playlists.PlaylistsViewModel
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 @get:StringRes
 private val Screens.titleId: Int
@@ -121,7 +133,7 @@ class MainActivity : FragmentActivity() {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {
-                    App()
+                    MotionBottomSheetScreen()
                 }
             }
         }
@@ -183,95 +195,168 @@ fun App() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val shouldShowNavigationBar = remember(currentRoute) {
+    val shouldShowMiniPlayer = remember(currentRoute) {
         when (currentRoute) {
             Screens.Home.route,
             Screens.Playlists.route,
-            Screens.Library.route,
                 -> true
 
             else -> false
         }
     }
 
+
+
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        val maxHeight = this.maxHeight
+
         val playerBottomSheetState = rememberBottomSheetState(
             dismissedBound = 0.dp,
-            collapsedBound = bottomInset + (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
+            collapsedBound = bottomInset + (if (shouldShowMiniPlayer) NavigationBarHeight else 0.dp) + MiniPlayerHeight,
             expandedBound = maxHeight,
         )
-
-        LaunchedEffect(navController) {
+        LaunchedEffect(Unit) {
             playerBottomSheetState.collapseSoft()
         }
-
-        NavHost(
-            navController = navController,
-            startDestination = Screens.Home.route,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    bottom = (if (shouldShowNavigationBar) NavigationBarHeight else 0.dp) + if (playerBottomSheetState.isDismissed) 0.dp else MiniPlayerHeight
-                )
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
-        ) {
-            routeComposable(Screens.Home) { HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>()) }
-            routeComposable(Screens.Playlists) { PlaylistScreen(playlistsViewModel = hiltViewModel<PlaylistsViewModel>()) }
-            routeComposable(Screens.Library) { LibraryScreen() }
+        LaunchedEffect(playerBottomSheetState.value) {
+            Timber.i("dismissedBound: ${playerBottomSheetState.dismissedBound}")
+            Timber.i("collapsedBound: ${playerBottomSheetState.collapsedBound}")
+            Timber.i("expandedBound: ${playerBottomSheetState.expandedBound}")
+            Timber.i("value: ${playerBottomSheetState.value}")
+            Timber.i("isDismissed: ${playerBottomSheetState.isDismissed}")
+            Timber.i("isCollapsed: ${playerBottomSheetState.isCollapsed}")
+            Timber.i("isExpanded: ${playerBottomSheetState.isExpanded}")
+            Timber.i("progress: ${playerBottomSheetState.progress}")
+            Timber.i("===============================")
         }
 
-        BottomSheetPlayer(
-            state = playerBottomSheetState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .wrapContentHeight(),
-        )
+        val fabBottomOffset by remember {
+            derivedStateOf {
+                if (playerBottomSheetState.isDismissed) 0.dp
+                else MiniPlayerHeight * (playerBottomSheetState.progress.absoluteValue.coerceIn(
+                    0f, 1f
+                ) + 1f)
+            }
+        }
 
-        MainNavigationBar(
-            modifier = Modifier.offset {
-                IntOffset(
-                    x = 0, y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
-                        0f, 1f
-                    )).roundToPx()
-                )
-            }, navigationItems = listOf(
-                Screens.Home,
-                Screens.Playlists,
-                Screens.Library,
-            ), navController = navController
-        )
+        val fabHorizontalOffset by remember {
+            derivedStateOf {
+                // Dịch sang phải tối đa 80.dp khi expanded
+                (80.dp * playerBottomSheetState.progress.coerceIn(0f, 1f))
+            }
+        }
+
+        val fabAlpha by remember {
+            derivedStateOf {
+                1f - playerBottomSheetState.progress.coerceIn(0f, 1f)
+            }
+        }
 
 
-        val menuState = LocalMenuState.current
-        BottomSheetMenu(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            state = menuState,
-            background = MaterialTheme.colorScheme.secondary,
-        )
+
+
+        ConstraintLayout {
+            val (navigationBarRef, fabRef, miniPlayerRef, contentRef) = createRefs()
+
+            NavHost(
+                navController = navController,
+                startDestination = Screens.Home.route,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(contentRef) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(navigationBarRef.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        height = Dimension.fillToConstraints
+                    }
+                    .background(color = MaterialTheme.colorScheme.background)) {
+                routeComposable(Screens.Home) { HomeScreen(homeViewModel = hiltViewModel<HomeViewModel>()) }
+                routeComposable(Screens.Playlists) { PlaylistScreen(playlistsViewModel = hiltViewModel<PlaylistsViewModel>()) }
+                routeComposable(Screens.Library) { LibraryScreen() }
+            }
+
+            BottomSheetPlayer(
+                state = playerBottomSheetState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .constrainAs(miniPlayerRef) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    })
+
+            MainNavigationBar(
+                modifier = Modifier
+                    .constrainAs(navigationBarRef) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = (NavigationBarHeight * playerBottomSheetState.progress.coerceIn(
+                                0f, 1f
+                            )).roundToPx()
+                        )
+                    }, navigationItems = listOf(
+                    Screens.Home,
+                    Screens.Playlists,
+                    Screens.Library,
+                ), navController = navController
+            )
+
+            FloatingActionButton(
+                onClick = { playerBottomSheetState.expandSoft() },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .offset {
+                        IntOffset(
+                            x = -fabHorizontalOffset.roundToPx(), y = -fabBottomOffset.roundToPx()
+                        )
+                    }
+                    .constrainAs(fabRef) {
+                        bottom.linkTo(navigationBarRef.top)
+                        end.linkTo(parent.end)
+                    }
+                    .graphicsLayer { alpha = fabAlpha }
+                    .size(48.dp)) {
+                Text("Expand")
+            }
+
+        }
     }
 
 }
 
 @Composable
-private fun BoxWithConstraintsScope.MainNavigationBar(
+private fun MainNavigationBar(
     modifier: Modifier = Modifier,
     navigationItems: List<Screens>,
     navController: NavController,
 ) {
+    Row(
+        modifier = modifier
+            .background(Color.Transparent)
+            .fillMaxWidth()
+            .height(NavigationBarHeight), verticalAlignment = Alignment.CenterVertically
+    ) {
+
+    }
+    return
     val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = modifier
             .background(MaterialTheme.colorScheme.secondary)
-            .align(Alignment.BottomCenter)
             .fillMaxWidth()
-            .height(NavigationBarHeight),
-        verticalAlignment = Alignment.CenterVertically
+            .height(NavigationBarHeight), verticalAlignment = Alignment.CenterVertically
     ) {
         navigationItems.forEachIndexed { index, screen ->
             Column(
