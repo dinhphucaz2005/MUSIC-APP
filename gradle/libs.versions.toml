@@ -1,54 +1,76 @@
 [versions]
-
 agp = "8.12.3"
-ksp = "2.2.20-2.0.3"
 kotlin = "2.2.20"
+ksp = "2.2.20-2.0.3"
 
+# AndroidX Core
 androidx-core-ktx = "1.17.0"
 androidx-activity-compose = "1.11.0"
 composeBom = "2025.09.00"
 animation = "1.9.1"
-composeColorPickerAndroid = "0.7.0"
 constraintlayoutCompose = "1.1.1"
-datastorePreferencesCoreJvm = "1.1.7"
-documentfile = "1.1.0"
-dragselect = "3.1.0"
-fontawesomecompose = "1.1.0"
-hiltAndroid = "2.57.1"
-hiltAndroidGradlePlugin = "2.57.1"
-hiltCompiler = "2.57.1"
-hiltNavigationComposeVersion = "1.3.0"
-kotlinxSerializationJson = "1.9.0"
-ktor = "3.3.0"
-lifecycle-viewmodel = "2.9.4"
+
+# Material & UI
 material3 = "1.3.2"
-media = "1.7.1"
+composeColorPickerAndroid = "0.7.0"
+fontawesomecompose = "1.1.0"
+squigglyslider = "1.0.0"
+swiperefreshlayout = "1.1.0"
+
+# Lifecycle
+lifecycle-viewmodel = "2.9.4"
+
+# Room
+roomCompiler = "2.8.0"
+
+# Media / Media3
 #Warning: Update version of Media3. This may affect background playback functionality
 #noinspection GradleDependency
 media3 = "1.3.1"
-mp3agic = "0.9.1"
+media = "1.7.1"
+
+# Coil
 coil3 = "3.3.0"
-roomCompiler = "2.8.0"
-squigglyslider = "1.0.0"
-swiperefreshlayout = "1.1.0"
+
+# Ktor
+ktor = "3.3.0"
+kotlinxSerializationJson = "1.9.0"
+
+# Koin
+koin = "4.1.1"
+
+# Others
+datastorePreferencesCoreJvm = "1.1.7"
+documentfile = "1.1.0"
+dragselect = "3.1.0"
+mp3agic = "0.9.1"
 timber = "5.0.1"
+nav3Core = "1.0.0-alpha09"
 [libraries]
-androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
-androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
-# AndroidX Core KTX
+# Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
-androidx-datastore-preferences-core-jvm = { module = "androidx.datastore:datastore-preferences-core-jvm", version.ref = "datastorePreferencesCoreJvm" }
+
 # Lifecycle
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-viewmodel" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel" }
-# Material3
+
+# Material3 & UI
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
-androidx-media = { module = "androidx.media:media", version.ref = "media" }
+compose-color-picker-android = { module = "com.godaddy.android.colorpicker:compose-color-picker-android", version.ref = "composeColorPickerAndroid" }
+fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
+squigglyslider = { module = "me.saket.squigglyslider:squigglyslider", version.ref = "squigglyslider" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+
+# Room
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
+
 # Media3
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
@@ -56,25 +78,20 @@ androidx-media3-session = { module = "androidx.media3:media3-session", version.r
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
 androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
-# Room
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
-# UI Components
-androidx-ui = { module = "androidx.compose.ui:ui" }
-androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
-androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-# Compose Color Picker
-compose-color-picker-android = { module = "com.godaddy.android.colorpicker:compose-color-picker-android", version.ref = "composeColorPickerAndroid" }
-# DragSelect
-dragselect = { module = "com.dragselectcompose:dragselect", version.ref = "dragselect" }
-# Font Awesome
-fontawesomecompose = { module = "com.github.Gurupreet:FontAwesomeCompose", version.ref = "fontawesomecompose" }
-# Hilt
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
-hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroidGradlePlugin" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
+
+# Media (legacy)
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
+
+# Navigation3
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref = "coil3" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
+coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
+
 # Ktor
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
@@ -84,27 +101,49 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-# Coil
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
-coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref = "coil3" }
-coil-network-ktor2 = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
-coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
-coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
-# MP3Agic
+
+# Koin
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+
+
+
+# Others
+androidx-datastore-preferences-core-jvm = { module = "androidx.datastore:datastore-preferences-core-jvm", version.ref = "datastorePreferencesCoreJvm" }
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+dragselect = { module = "com.dragselectcompose:dragselect", version.ref = "dragselect" }
 mp3agic = { module = "com.mpatric:mp3agic", version.ref = "mp3agic" }
-# SquigglySlider
-squigglyslider = { module = "me.saket.squigglyslider:squigglyslider", version.ref = "squigglyslider" }
-# Timber
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
+core = [
+    "androidx-core-ktx",
+    "androidx-animation",
+    "androidx-compose-bom",
+    "androidx-activity-compose",
+    "androidx-constraintlayout-compose",
+]
+lifecycle = [
+    "androidx-lifecycle-runtime-ktx",
+    "androidx-lifecycle-viewmodel-compose",
+    "androidx-lifecycle-viewmodel-ktx"
+]
+material3 = [
+    "androidx-material3",
+    "compose-color-picker-android",
+    "fontawesomecompose",
+    "squigglyslider",
+    "androidx-swiperefreshlayout"
+]
 ktor = [
     "ktor-client-auth",
     "ktor-client-core",
@@ -118,16 +157,39 @@ ktor = [
 coil = [
     "coil-compose",
     "coil-compose-core",
-    "coil-network-ktor2",
     "coil-network-ktor3",
     "coil-mp"
 ]
 
 media3 = [
+    "androidx-media",
     "androidx-media3-ui",
     "androidx-media3-common",
     "androidx-media3-session",
     "androidx-media3-exoplayer",
     "androidx-media3-exoplayer-dash",
     "androidx-media3-datasource-okhttp"
+]
+
+navigation3 = [
+    "androidx-navigation3-runtime",
+    "androidx-navigation3-ui"
+]
+
+room = [
+    "androidx-room-ktx",
+    "androidx-room-runtime",
+]
+
+other = [
+    "androidx-datastore-preferences-core-jvm",
+    "androidx-documentfile",
+    "dragselect",
+    "mp3agic",
+    "timber"
+]
+koin = [
+    "koin-core",
+    "koin-android",
+    "koin-compose",
 ]

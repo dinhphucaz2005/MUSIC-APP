@@ -1,8 +1,4 @@
 buildscript {
-    dependencies {
-//        classpath(libs.google.services)
-        classpath(libs.hilt.android.gradle.plugin)
-    }
     repositories {
         gradlePluginPortal()
         mavenCentral()
