@@ -26,7 +26,7 @@ import timber.log.Timber
 abstract class MusicService(
 ) : MediaLibraryService() {
 
-    open lateinit var customMediaSourceFactory: CustomMediaSourceFactory
+//    open lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     companion object {
         const val ACTION_SHUFFLE = "ACTION_SHUFFLE"
@@ -74,7 +74,9 @@ abstract class MusicService(
 
         player = ExoPlayer
             .Builder(this)
-            .setMediaSourceFactory(customMediaSourceFactory.getInstance())
+//            .setMediaSourceFactory(
+//                customMediaSourceFactory.getMediaSourceFactory()
+//            )
             .build()
 
         val sessionId = player.audioSessionId
@@ -123,6 +125,7 @@ abstract class MusicService(
                 .setDescription(NOTIFICATION_CHANNEL_DESCRIPTION)
                 .build()
         )
+        updateNotification()
     }
 
 
@@ -240,12 +243,12 @@ abstract class MusicService(
 
     override fun onDestroy() {
         super.onDestroy()
-        player.run {
-            clearMediaItems()
-            release()
-        }
+//        player.run {
+//            clearMediaItems()
+//            release()
+//        }
         session.release()
-        notificationManager.cancel(NOTIFICATION_ID)
+//        notificationManager.cancel(NOTIFICATION_ID)
     }
 
 }

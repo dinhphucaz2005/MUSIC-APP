@@ -14,6 +14,7 @@ import nd.phuc.core.helper.MediaControllerManager
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.core.service.MusicService
 import org.koin.android.ext.android.get
+import timber.log.Timber
 
 
 @UnstableApi
@@ -32,6 +33,7 @@ class MainActivity : FragmentActivity() {
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("Service disconnected")
             mediaControllerManager.dispose()
         }
     }

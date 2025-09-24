@@ -15,7 +15,7 @@ val appModule = module {
 
     single<File> { File(androidContext().getExternalFilesDir("Music"), "media") }
 
-    single<CustomMediaSourceFactory> { CustomMediaSourceFactory(context = androidContext()) }
+//    single<CustomMediaSourceFactory> { CustomMediaSourceFactory.getInstance(androidContext()) }
     single<AppMusicService> { AppMusicService() }
 
     single<SharedPreferences> {

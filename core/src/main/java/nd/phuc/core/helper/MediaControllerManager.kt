@@ -5,6 +5,7 @@ import androidx.annotation.MainThread
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
@@ -128,6 +129,8 @@ class MediaControllerManager(
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @UnstableApi
     fun initialize(
         context: Context,
         binder: MusicService.MusicBinder,
@@ -220,9 +223,9 @@ class MediaControllerManager(
 
 
     fun dispose() {
-        controller?.removeListener(playerListener)
-        controller?.release()
-        controller = null
+//        controller?.removeListener(playerListener)
+//        controller?.release()
+//        controller = null
     }
 
     /*============Controller actions============*/

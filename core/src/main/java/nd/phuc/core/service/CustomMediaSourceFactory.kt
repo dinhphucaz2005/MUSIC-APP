@@ -22,6 +22,7 @@ import okhttp3.OkHttpClient
 import java.io.File
 
 
+@Deprecated("Crash App")
 class CustomMediaSourceFactory(
     private val context: Context,
 ) {
