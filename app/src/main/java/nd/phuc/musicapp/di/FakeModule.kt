@@ -9,8 +9,8 @@ import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import nd.phuc.musicapp.music.HomeViewModel
-import nd.phuc.musicapp.music.playlists.PlaylistsViewModel
+import nd.phuc.musicapp.music.viewmodel.HomeViewModel
+import nd.phuc.musicapp.music.viewmodel.PlaylistsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 object FakeModule {

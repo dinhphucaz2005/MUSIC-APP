@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.playlists
+package nd.phuc.musicapp.music.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,14 +22,14 @@ class PlaylistsViewModel(
     val allSongs: StateFlow<List<LocalSong>> = songRepository.allSongs
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
     val playlists: StateFlow<List<Playlist<LocalSong>>> = songRepository.playlist
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
@@ -37,7 +37,7 @@ class PlaylistsViewModel(
         .map { LikedSongsPlaylist<Song>(it) }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = LikedSongsPlaylist(emptyList())
         )
 
@@ -50,7 +50,7 @@ class PlaylistsViewModel(
         playlists.firstOrNull { it.id == selectedId }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Companion.WhileSubscribed(5000),
         initialValue = null
     )
 

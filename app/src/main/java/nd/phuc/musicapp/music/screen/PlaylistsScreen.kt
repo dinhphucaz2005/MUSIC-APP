@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.playlists
+package nd.phuc.musicapp.music.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +23,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import nd.phuc.musicapp.LocalMediaControllerManager
 import nd.phuc.musicapp.di.fakeViewModel
+import nd.phuc.musicapp.music.viewmodel.PlaylistsViewModel
 
 @Preview
 @Composable
@@ -73,7 +74,7 @@ fun PlaylistScreen(
                     // Demo Playlist Item
                     Surface(
                         onClick = { onPlaylistClick("favorites") },
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = Color.White,
                         modifier = Modifier.fillMaxWidth().height(80.dp)
                     ) {

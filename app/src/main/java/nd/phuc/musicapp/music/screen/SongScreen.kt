@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music
+package nd.phuc.musicapp.music.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateIntAsState
@@ -56,7 +56,6 @@ import nd.phuc.core.domain.model.DefaultCornerSize
 import nd.phuc.core.domain.model.MiniPlayerHeight
 import nd.phuc.core.domain.model.TopBarHeight
 import nd.phuc.core.presentation.components.AnimatedBorder
-import nd.phuc.core.presentation.components.BottomSheet
 import nd.phuc.core.presentation.components.BottomSheetState
 import nd.phuc.core.presentation.components.CommonIcon
 import nd.phuc.core.presentation.components.CustomSlider
@@ -86,47 +85,13 @@ private val MediaControllerManager.ShuffleState.resource: Int
         MediaControllerManager.ShuffleState.ON -> R.drawable.ic_shuffle
     }
 
-@Composable
-fun BottomSheetPlayer(
-    state: BottomSheetState,
-    modifier: Modifier = Modifier,
-) {
 
-    val mediaControllerManager = LocalMediaControllerManager.current
-
-    BottomSheet(
-        state = state,
-        modifier = modifier,
-        backgroundColor = MaterialTheme.colorScheme.background,
-        onDismiss = { },
-        collapsedContent = { MiniPlayer(state) }
-    ) {
-        SongScreenContent(
-            onBackClick = state::collapseSoft,
-            mediaControllerManager = mediaControllerManager
-        )
-    }
-}
-
-
+@SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun SongScreen(
     onBackClick: () -> Unit,
-) {
-    val mediaControllerManager = LocalMediaControllerManager.current
-    SongScreenContent(
-        onBackClick = onBackClick,
-        mediaControllerManager = mediaControllerManager
-    )
-}
-
-@SuppressLint("FlowOperatorInvokedInComposition")
-@OptIn(FlowPreview::class)
-@Composable
-fun SongScreenContent(
-    onBackClick: () -> Unit,
     mediaControllerManager: MediaControllerManager,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
 
     val currentSong by mediaControllerManager.currentSong.collectAsStateWithLifecycle()
@@ -331,7 +296,7 @@ fun PlayerControls(
 @Composable
 fun MiniPlayer(
     onExpand: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val mediaControllerManager = LocalMediaControllerManager.current
 

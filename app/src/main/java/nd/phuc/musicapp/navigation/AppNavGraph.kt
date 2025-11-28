@@ -1,4 +1,4 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -11,10 +11,10 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import nd.phuc.musicapp.music.LibraryScreen
-import nd.phuc.musicapp.music.playlists.PlaylistDetailScreen
+import nd.phuc.musicapp.music.screen.LibraryScreen
+import nd.phuc.musicapp.music.screen.PlaylistDetailScreen
 import nd.phuc.musicapp.music.screen.HomeScreen
-import nd.phuc.musicapp.music.playlists.PlaylistScreen
+import nd.phuc.musicapp.music.screen.PlaylistScreen
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalAnimationApi::class)

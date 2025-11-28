@@ -1,4 +1,4 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.log
 
 import timber.log.Timber
 

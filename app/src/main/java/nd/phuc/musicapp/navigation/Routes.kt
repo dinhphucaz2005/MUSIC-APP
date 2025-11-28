@@ -1,4 +1,4 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

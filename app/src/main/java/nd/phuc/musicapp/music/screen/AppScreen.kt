@@ -1,4 +1,4 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.music.screen
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
@@ -30,8 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.NavigationBarHeight
 import nd.phuc.core.domain.model.UnknownSong
-import nd.phuc.musicapp.music.MiniPlayer
-import nd.phuc.musicapp.music.SongScreenContent
+import nd.phuc.musicapp.LocalMediaControllerManager
 
 enum class MiniPlayerState { Dismissed, Collapsed, Expanded }
 
@@ -129,7 +128,7 @@ fun AppScreen(
 
                 // Expanded state: Show full SongScreenContent
                 if (progress > 0f) {
-                    SongScreenContent(
+                    SongScreen(
                         onBackClick = {
                             coroutineScope.launch {
                                 state.animateTo(MiniPlayerState.Collapsed)

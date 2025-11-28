@@ -4,6 +4,7 @@ import android.app.Application
 import nd.phuc.core.database.di.databaseModule
 import nd.phuc.core.domain.repository.di.repositoryModule
 import nd.phuc.musicapp.di.appModule
+import nd.phuc.musicapp.log.CrashReportingTree
 import nd.phuc.musicapp.music.di.musicModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin

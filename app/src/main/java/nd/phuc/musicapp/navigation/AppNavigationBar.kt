@@ -1,4 +1,4 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import nd.phuc.core.domain.model.NavigationBarHeight
+import nd.phuc.musicapp.R
 
 @Composable
 fun AppNavigationBar(

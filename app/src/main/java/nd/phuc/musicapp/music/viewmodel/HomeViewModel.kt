@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music
+package nd.phuc.musicapp.music.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,10 +24,10 @@ class HomeViewModel(
 
     val songs: StateFlow<List<LocalSong>> =
         songRepository.allSongs
-            .onEach { songs -> Timber.d("Songs: ${songs.size}") }
+            .onEach { songs -> Timber.Forest.d("Songs: ${songs.size}") }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.Companion.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
 
@@ -36,8 +36,7 @@ class HomeViewModel(
             .map { songs -> songs.filter { it.isLiked }.toSet() }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
+                started = SharingStarted.Companion.WhileSubscribed(5000),
                 initialValue = emptySet()
             )
 }
-

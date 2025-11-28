@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music
+package nd.phuc.musicapp.music.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

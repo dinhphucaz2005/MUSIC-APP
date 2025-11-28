@@ -1,10 +1,13 @@
-package nd.phuc.musicapp
+package nd.phuc.musicapp.music.service
 
 import android.app.Activity
+import androidx.media3.common.util.UnstableApi
 import nd.phuc.core.service.MusicService
+import nd.phuc.musicapp.MainActivity
+import nd.phuc.musicapp.R
 import timber.log.Timber
 
-@androidx.media3.common.util.UnstableApi
+@UnstableApi
 open class AppMusicService() : MusicService() {
     override val activity: Class<out Activity> = MainActivity::class.java
     override val drawable: Int = R.drawable.icon

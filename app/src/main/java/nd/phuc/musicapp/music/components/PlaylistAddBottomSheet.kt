@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.playlists.components
+package nd.phuc.musicapp.music.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

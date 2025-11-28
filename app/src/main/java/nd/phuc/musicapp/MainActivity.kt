@@ -22,6 +22,11 @@ import org.koin.android.ext.android.get
 import timber.log.Timber
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import nd.phuc.musicapp.music.screen.AppScreen
+import nd.phuc.musicapp.navigation.AppNavGraph
+import nd.phuc.musicapp.navigation.AppNavigationBar
+import nd.phuc.musicapp.navigation.Screens
+import nd.phuc.musicapp.music.service.AppMusicService
 
 
 @UnstableApi

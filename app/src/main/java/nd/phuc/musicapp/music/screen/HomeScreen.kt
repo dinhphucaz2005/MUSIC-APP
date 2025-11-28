@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.di.fakeViewModel
-import nd.phuc.musicapp.music.HomeViewModel
+import nd.phuc.musicapp.music.viewmodel.HomeViewModel
 import nd.phuc.musicapp.music.home.components.YourSongsSection
 import nd.phuc.musicapp.LocalMediaControllerManager
 
