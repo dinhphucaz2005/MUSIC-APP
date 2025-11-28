@@ -6,34 +6,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
-import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.di.fakeViewModel
-import nd.phuc.musicapp.music.home.HomeViewModel
+import nd.phuc.musicapp.music.HomeViewModel
 import nd.phuc.musicapp.music.home.components.YourSongsSection
+import nd.phuc.musicapp.LocalMediaControllerManager
 
 
 @ExperimentalMaterial3Api
 @UnstableApi
-@ExtendDevicePreviews
+@Preview
 @Composable
 private fun Preview() {
     MyMusicAppTheme {
-        HomeScreen(homeViewModel = fakeViewModel<HomeViewModel>())
+        HomeScreen(
+            homeViewModel = fakeViewModel<HomeViewModel>(),
+            onNavigateToPlayer = {}
+        )
     }
 }
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel,
+    onNavigateToPlayer: () -> Unit,
 ) {
+    val mediaControllerManager = LocalMediaControllerManager.current
     val songs by homeViewModel.songs.collectAsState()
 
     YourSongsSection(
         songs = songs,
-        modifier = modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        onSongClick = { song ->
+            mediaControllerManager.play(song)
+            onNavigateToPlayer()
+        }
     )
 
 }

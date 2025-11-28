@@ -71,7 +71,7 @@ abstract class MusicService(
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-
+        Timber.d("MusicService created")
         player = ExoPlayer
             .Builder(this)
 //            .setMediaSourceFactory(

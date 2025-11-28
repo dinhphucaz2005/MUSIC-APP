@@ -77,6 +77,7 @@ private val Screens.titleId: Int
         Screens.Home -> R.string.home
         Screens.Playlists -> R.string.playlists
         Screens.Library -> R.string.library
+        is Screens.PlaylistDetail -> R.string.playlist_detail
     }
 
 @get:DrawableRes
@@ -85,4 +86,5 @@ private val Screens.iconId: Int
         Screens.Home -> R.drawable.ic_home
         Screens.Playlists -> R.drawable.ic_disc
         Screens.Library -> R.drawable.ic_disc
+        is Screens.PlaylistDetail -> R.drawable.ic_disc
     }

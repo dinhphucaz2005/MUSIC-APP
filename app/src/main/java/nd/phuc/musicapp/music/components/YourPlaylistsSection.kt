@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.home.components
+package nd.phuc.musicapp.music.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,10 +21,8 @@ import androidx.compose.ui.unit.dp
 import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.ThumbnailSource
-import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
-@ExtendDevicePreviews
 @Composable
 private fun YourPlaylistsSectionPreview() {
     MyMusicAppTheme {

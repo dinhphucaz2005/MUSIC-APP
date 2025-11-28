@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.home.components
+package nd.phuc.musicapp.music.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,12 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import nd.phuc.musicapp.R
-import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
-@ExtendDevicePreviews
+@Preview
 @Composable
 private fun SearchAnythingHeaderPreview() {
     MyMusicAppTheme {
@@ -29,7 +29,7 @@ private fun SearchAnythingHeaderPreview() {
 
 @Composable
 fun SearchAnythingHeader(
-    onSearchClick: () -> Unit = {}
+    onSearchClick: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier

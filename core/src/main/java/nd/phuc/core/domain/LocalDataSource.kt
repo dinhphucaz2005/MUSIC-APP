@@ -27,7 +27,10 @@ class LocalDataSource(
     private var lastExtract = System.currentTimeMillis()
 
     suspend fun extracts(filePaths: List<String>): List<LocalSong> {
-        if (filePaths.isEmpty()) return emptyList()
+        if (filePaths.isEmpty()) {
+            Timber.d("extracts: received empty filePaths list")
+            return emptyList()
+        }
         return withContext(Dispatchers.IO) {
             val chunkSize = (filePaths.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
 
@@ -54,6 +57,8 @@ class LocalDataSource(
 
             lastExtract = System.currentTimeMillis() // Update lastExtract time
 
+            Timber.d("extracts: extracted ${songs.size} songs from ${filePaths.size} paths")
+
             songs
         }
     }
@@ -63,6 +68,7 @@ class LocalDataSource(
         return try {
             val file = File(path)
             if (!file.exists()) { // File not found
+                Timber.w("extract: file not found: $path")
                 hashMap.remove(path)
                 return null
             }
@@ -95,7 +101,12 @@ class LocalDataSource(
         val projection = arrayOf(MediaStore.Audio.Media.DATA)
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
-        val cursor = context.contentResolver.query(uri, projection, selection, null, sortOrder)
+        val cursor = try {
+            context.contentResolver.query(uri, projection, selection, null, sortOrder)
+        } catch (e: Exception) {
+            Timber.e(e, "getAllLocalFilePaths: query failed")
+            null
+        }
 
         cursor?.use {
             val dataIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
@@ -103,7 +114,13 @@ class LocalDataSource(
                 val filePath = it.getString(dataIndex)
                 filePaths.add(filePath)
             }
+        } ?: Timber.w("getAllLocalFilePaths: cursor is null - no results or query failed")
+
+        Timber.d("getAllLocalFilePaths: found ${filePaths.size} audio file paths")
+        if (filePaths.isNotEmpty()) {
+            filePaths.take(5).forEach { Timber.d("sample path: $it") }
         }
+
         return filePaths
     }
 

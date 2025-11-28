@@ -12,13 +12,18 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import nd.phuc.musicapp.music.LibraryScreen
+import nd.phuc.musicapp.music.playlists.PlaylistDetailScreen
 import nd.phuc.musicapp.music.screen.HomeScreen
 import nd.phuc.musicapp.music.playlists.PlaylistScreen
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavGraph(backStack: NavBackStack<NavKey>) {
+fun AppNavGraph(
+    backStack: NavBackStack<NavKey>,
+    onNavigate: (Screens) -> Unit,
+    onBack: () -> Unit
+) {
     NavDisplay(
         backStack = backStack,
         modifier = Modifier
@@ -31,7 +36,10 @@ fun AppNavGraph(backStack: NavBackStack<NavKey>) {
             if (key is Screens) {
                 return@NavDisplay when (key) {
                     Screens.Home -> NavEntry(key = Screens.Home) {
-                        HomeScreen(homeViewModel = koinViewModel())
+                        HomeScreen(
+                            homeViewModel = koinViewModel(),
+                            onNavigateToPlayer = { /* Player is now an overlay in AppScreen */ }
+                        )
                     }
 
                     Screens.Library -> NavEntry(key = Screens.Library) {
@@ -39,8 +47,23 @@ fun AppNavGraph(backStack: NavBackStack<NavKey>) {
                     }
 
                     Screens.Playlists -> NavEntry(key = Screens.Playlists) {
-                        PlaylistScreen(playlistsViewModel = koinViewModel())
+                        PlaylistScreen(
+                            playlistsViewModel = koinViewModel(),
+                            onPlaylistClick = { playlistId ->
+                                onNavigate(Screens.PlaylistDetail(playlistId))
+                            }
+                        )
                     }
+
+                    is Screens.PlaylistDetail -> NavEntry(key = key) {
+                        PlaylistDetailScreen(
+                            playlistId = key.playlistId,
+                            onBackClick = onBack,
+                            onNavigateToPlayer = { /* Player is now an overlay in AppScreen */ },
+                            playlistsViewModel = koinViewModel()
+                        )
+                    }
+
 
                 }
             } else {
@@ -49,3 +72,5 @@ fun AppNavGraph(backStack: NavBackStack<NavKey>) {
         }
     )
 }
+
+

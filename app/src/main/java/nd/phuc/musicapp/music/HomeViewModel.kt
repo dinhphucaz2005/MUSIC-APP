@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.home
+package nd.phuc.musicapp.music
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

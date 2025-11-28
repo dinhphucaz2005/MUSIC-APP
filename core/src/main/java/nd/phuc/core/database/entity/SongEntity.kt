@@ -5,6 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Song
+import nd.phuc.core.domain.model.UnknownSong
 import nd.phuc.core.domain.model.YoutubeSong
 
 @Entity(
@@ -31,6 +32,7 @@ internal data class SongEntity(
                 )
 
                 is YoutubeSong -> TODO()
+                UnknownSong -> throw IllegalArgumentException("Cannot convert UnknownSong to SongEntity")
             }
         }
     }

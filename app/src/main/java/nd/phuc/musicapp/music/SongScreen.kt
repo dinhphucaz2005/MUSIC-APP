@@ -102,19 +102,31 @@ fun BottomSheetPlayer(
         collapsedContent = { MiniPlayer(state) }
     ) {
         SongScreenContent(
-            state = state,
+            onBackClick = state::collapseSoft,
             mediaControllerManager = mediaControllerManager
         )
     }
 }
 
 
+@Composable
+fun SongScreen(
+    onBackClick: () -> Unit,
+) {
+    val mediaControllerManager = LocalMediaControllerManager.current
+    SongScreenContent(
+        onBackClick = onBackClick,
+        mediaControllerManager = mediaControllerManager
+    )
+}
+
 @SuppressLint("FlowOperatorInvokedInComposition")
 @OptIn(FlowPreview::class)
 @Composable
-private fun SongScreenContent(
-    state: BottomSheetState,
+fun SongScreenContent(
+    onBackClick: () -> Unit,
     mediaControllerManager: MediaControllerManager,
+    modifier: Modifier = Modifier
 ) {
 
     val currentSong by mediaControllerManager.currentSong.collectAsStateWithLifecycle()
@@ -123,7 +135,7 @@ private fun SongScreenContent(
     )
 
     Box(
-        Modifier
+        modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
@@ -154,7 +166,7 @@ private fun SongScreenContent(
             ) {
                 CommonIcon(
                     icon = R.drawable.ic_back,
-                    onClick = state::collapseSoft
+                    onClick = onBackClick
                 )
 
                 Spacer(Modifier.weight(1f))
@@ -313,6 +325,90 @@ fun PlayerControls(
         )
 
 
+    }
+}
+
+@Composable
+fun MiniPlayer(
+    onExpand: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val mediaControllerManager = LocalMediaControllerManager.current
+
+    val currentSong by mediaControllerManager.currentSong.collectAsStateWithLifecycle()
+    val playerState by mediaControllerManager.playerState.collectAsStateWithLifecycle()
+
+
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(8.dp)
+            .clickable(onClick = onExpand),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Thumbnail(
+            Modifier
+                .clip(RoundedCornerShape(DefaultCornerSize))
+                .height(48.dp)
+                .aspectRatio(1f),
+            thumbnailSource = currentSong.getThumbnail()
+        )
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp),
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Text(
+                text = currentSong.getSongTitle(),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .basicMarquee(
+                        iterations = Int.MAX_VALUE,
+                        spacing = MarqueeSpacing.fractionOfContainer(1f / 10f)
+                    ),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp, color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = currentSong.getSongArtist(),
+                modifier = Modifier.padding(start = 8.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp, color = MaterialTheme.colorScheme.primary,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        }
+
+        IconButton(onClick = mediaControllerManager::toggleLikedCurrentSong) {
+            Icon(
+                imageVector = if (currentSong.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = null, tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Icon(
+            painter = painterResource(playerState.resource),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .height(32.dp)
+                .aspectRatio(1f)
+                .clickable {
+                    mediaControllerManager.togglePlayPause()
+                }, tint = MaterialTheme.colorScheme.primary
+        )
+
+        IconButton(onClick = mediaControllerManager::playNextSong) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null, tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

@@ -24,22 +24,35 @@ sealed class Song {
     abstract fun toMediaItem(): MediaItem
 
     abstract fun getArtistId(): String?
-
-    companion object {
-
-        fun unidentifiedSong(id: String = UUID.randomUUID().toString()): Song {
-            return LocalSong(
-                title = "Unknown",
-                artist = "Unknown",
-                filePath = id,
-                thumbnailSource = ThumbnailSource.None,
-                durationMillis = null,
-                isLiked = false
-            )
-        }
-    }
-
     abstract fun getAudio(): Uri
+}
+
+data object UnknownSong : Song() {
+    override fun getAudio(): Uri = Uri.EMPTY
+    override val isLiked: Boolean
+        get() = false
+    override val id: String
+        get() = "Unknown"
+
+    override fun getSongTitle(): String = "Unknown"
+
+    override fun getSongArtist(): String = "Unknown"
+
+    override fun getThumbnail(): ThumbnailSource = ThumbnailSource.None
+
+    override fun getDuration(): String = "0:00"
+
+    override fun toMediaItem(): MediaItem = MediaItem.Builder().apply {
+        setUri(Uri.EMPTY)
+        setMediaMetadata(
+            MediaMetadata.Builder().apply {
+                setTitle(getSongTitle())
+                setArtist(getSongArtist())
+            }.build()
+        )
+    }.build()
+
+    override fun getArtistId(): String? = null
 }
 
 data class LocalSong(

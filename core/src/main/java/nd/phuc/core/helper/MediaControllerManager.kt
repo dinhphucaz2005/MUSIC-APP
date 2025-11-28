@@ -23,6 +23,7 @@ import nd.phuc.core.domain.model.LocalSong
 import nd.phuc.core.domain.model.Playlist
 import nd.phuc.core.domain.model.Song
 import nd.phuc.core.domain.model.ThumbnailSource
+import nd.phuc.core.domain.model.UnknownSong
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.service.MusicService
 import timber.log.Timber
@@ -135,6 +136,7 @@ class MediaControllerManager(
         context: Context,
         binder: MusicService.MusicBinder,
     ) {
+        Timber.i("Initializing MediaControllerManager")
         controllerFuture =
             binder.service.getSession().token.let {
                 MediaController
@@ -142,7 +144,6 @@ class MediaControllerManager(
                     .buildAsync()
             }
         audioSessionId = binder.service.audioSessionId
-        Timber.d("init")
         controllerFuture.addListener({
             try {
                 controller = controllerFuture.get().apply {
@@ -194,11 +195,11 @@ class MediaControllerManager(
         _currentSongId,
         songRepository.allSongs,
     ) { currentSongId, songs ->
-        songs.firstOrNull { it.id == currentSongId } ?: Song.unidentifiedSong()
+        songs.firstOrNull { it.id == currentSongId } ?: UnknownSong
     }.stateIn(
         scope = scope,
         started = SharingStarted.Eagerly,
-        initialValue = Song.unidentifiedSong()
+        initialValue = UnknownSong
     )
     var audioSessionId: StateFlow<Int?> = MutableStateFlow(null)
         private set

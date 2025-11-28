@@ -12,12 +12,10 @@ import androidx.compose.ui.unit.dp
 import nd.phuc.core.domain.model.Song
 import nd.phuc.core.presentation.components.LazyColumnWithAnimation2
 import nd.phuc.core.presentation.components.SongItemContent
-import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 import nd.phuc.musicapp.LocalMediaControllerManager
 import nd.phuc.musicapp.LocalMenuState
 
-@ExtendDevicePreviews
 @Composable
 private fun YourSongsSectionPreview() {
     MyMusicAppTheme {
@@ -27,6 +25,7 @@ private fun YourSongsSectionPreview() {
             YourSongsSection(
                 songs = listOf(
                 ),
+                onSongClick = {}
             )
         }
     }
@@ -37,6 +36,7 @@ private fun YourSongsSectionPreview() {
 fun YourSongsSection(
     songs: List<Song>,
     modifier: Modifier = Modifier,
+    onSongClick: (Song) -> Unit
 ) {
 
     val mediaControllerManager = LocalMediaControllerManager.current
@@ -51,7 +51,7 @@ fun YourSongsSection(
             modifier = itemModifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
-            onSongClick = { mediaControllerManager.play(item) },
+            onSongClick = { onSongClick(item) },
             onMoreChoice = {
                 menuState.show {
                     Box(

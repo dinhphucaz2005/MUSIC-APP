@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.music.home.components
+package nd.phuc.musicapp.music.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import nd.phuc.core.presentation.previews.ExtendDevicePreviews
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
 
-@ExtendDevicePreviews
 @Composable
 private fun RecentlyPlayedSectionPreview() {
     MyMusicAppTheme {

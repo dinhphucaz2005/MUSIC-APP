@@ -12,4 +12,7 @@ sealed class Screens() : NavKey {
 
     @Serializable
     object Library : Screens()
+
+    @Serializable
+    data class PlaylistDetail(val playlistId: String) : Screens()
 }
