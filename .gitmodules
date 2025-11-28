@@ -1,3 +1,0 @@
-[submodule "third-party/aio_module"]
-	path = third-party/aio_module
-	url = git@github.com:dinhphucaz2005/aio_module.git
