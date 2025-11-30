@@ -1,4 +1,4 @@
-package nd.phuc.core.service
+package nd.phuc.core.service.music
 
 import android.app.Activity
 import android.app.PendingIntent
@@ -10,23 +10,19 @@ import androidx.annotation.OptIn
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.media3.common.C
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 @UnstableApi
 abstract class MusicService(
 ) : MediaLibraryService() {
 
-//    open lateinit var customMediaSourceFactory: CustomMediaSourceFactory
+    open lateinit var customMediaSourceFactory: CustomMediaSourceFactory
 
     companion object {
         const val ACTION_SHUFFLE = "ACTION_SHUFFLE"
@@ -53,35 +49,16 @@ abstract class MusicService(
             get() = this@MusicService
     }
 
-//    private val _currentSongFlow = MutableStateFlow(Song.unidentifiedSong())
-//    val currentSongFlow: StateFlow<Song> = _currentSongFlow.asStateFlow()
-
-//    private fun updateCurrentSong(index: Int) {
-//        serviceScope.launch {
-//            val song = queueFlow.value?.songs?.getOrNull(index) ?: Song.unidentifiedSong()
-//            _currentSongFlow.emit(song)
-//        }
-//    }
-
-
-    private val _audioSessionId: MutableStateFlow<Int?> = MutableStateFlow(null)
-    val audioSessionId: StateFlow<Int?> = _audioSessionId.asStateFlow()
-
-
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
         Timber.d("MusicService created")
         player = ExoPlayer
             .Builder(this)
-//            .setMediaSourceFactory(
-//                customMediaSourceFactory.getMediaSourceFactory()
-//            )
+            .setMediaSourceFactory(
+                customMediaSourceFactory.getInstance()
+            )
             .build()
-
-        val sessionId = player.audioSessionId
-
-        if (sessionId != C.AUDIO_SESSION_ID_UNSET) _audioSessionId.value = sessionId
 
         player.apply {
             playWhenReady = true

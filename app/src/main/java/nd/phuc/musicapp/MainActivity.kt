@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
 import nd.phuc.core.helper.MediaControllerManager
 import nd.phuc.core.presentation.theme.MyMusicAppTheme
-import nd.phuc.core.service.MusicService
+import nd.phuc.core.service.music.MusicService
 import org.koin.android.ext.android.get
 import timber.log.Timber
 import android.content.pm.PackageManager

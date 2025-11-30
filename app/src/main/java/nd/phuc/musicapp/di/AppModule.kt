@@ -14,8 +14,6 @@ val appModule = module {
 
     single<File> { File(androidContext().getExternalFilesDir("Music"), "media") }
 
-    single<AppMusicService> { AppMusicService() }
-
     single<SharedPreferences> {
         androidContext().getSharedPreferences(
             "music_app_pref",

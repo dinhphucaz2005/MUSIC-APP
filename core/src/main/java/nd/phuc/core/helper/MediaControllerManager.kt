@@ -25,7 +25,7 @@ import nd.phuc.core.domain.model.Song
 import nd.phuc.core.domain.model.ThumbnailSource
 import nd.phuc.core.domain.model.UnknownSong
 import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import nd.phuc.core.service.MusicService
+import nd.phuc.core.service.music.MusicService
 import timber.log.Timber
 import kotlin.random.Random
 
@@ -143,7 +143,6 @@ class MediaControllerManager(
                     .Builder(context, it)
                     .buildAsync()
             }
-        audioSessionId = binder.service.audioSessionId
         controllerFuture.addListener({
             try {
                 controller = controllerFuture.get().apply {
@@ -201,8 +200,6 @@ class MediaControllerManager(
         started = SharingStarted.Eagerly,
         initialValue = UnknownSong
     )
-    var audioSessionId: StateFlow<Int?> = MutableStateFlow(null)
-        private set
     private val _position = MutableStateFlow(0L)
     val position: StateFlow<Long> = _position.asStateFlow()
     private val _duration = MutableStateFlow(0L)

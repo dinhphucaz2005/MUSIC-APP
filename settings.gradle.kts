@@ -16,6 +16,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Music App"
+rootProject.name = "My-Music-App"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core")

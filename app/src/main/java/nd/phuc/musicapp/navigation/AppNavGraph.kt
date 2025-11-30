@@ -15,6 +15,7 @@ import nd.phuc.musicapp.music.screen.LibraryScreen
 import nd.phuc.musicapp.music.screen.PlaylistDetailScreen
 import nd.phuc.musicapp.music.screen.HomeScreen
 import nd.phuc.musicapp.music.screen.PlaylistScreen
+import nd.phuc.musicapp.navigation.Screens.*
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -22,7 +23,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AppNavGraph(
     backStack: NavBackStack<NavKey>,
     onNavigate: (Screens) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     NavDisplay(
         backStack = backStack,
@@ -35,27 +36,24 @@ fun AppNavGraph(
         entryProvider = { key ->
             if (key is Screens) {
                 return@NavDisplay when (key) {
-                    Screens.Home -> NavEntry(key = Screens.Home) {
+                    Home -> NavEntry(key = key) {
                         HomeScreen(
                             homeViewModel = koinViewModel(),
-                            onNavigateToPlayer = { /* Player is now an overlay in AppScreen */ }
-                        )
+                            onNavigateToPlayer = { /* Player is now an overlay in AppScreen */ })
                     }
 
-                    Screens.Library -> NavEntry(key = Screens.Library) {
+                    Library -> NavEntry(key = key) {
                         LibraryScreen()
                     }
 
-                    Screens.Playlists -> NavEntry(key = Screens.Playlists) {
+                    Playlists -> NavEntry(key = key) {
                         PlaylistScreen(
-                            playlistsViewModel = koinViewModel(),
-                            onPlaylistClick = { playlistId ->
-                                onNavigate(Screens.PlaylistDetail(playlistId))
-                            }
-                        )
+                            playlistsViewModel = koinViewModel(), onPlaylistClick = { playlistId ->
+                                onNavigate(PlaylistDetail(playlistId))
+                            })
                     }
 
-                    is Screens.PlaylistDetail -> NavEntry(key = key) {
+                    is PlaylistDetail -> NavEntry(key = key) {
                         PlaylistDetailScreen(
                             playlistId = key.playlistId,
                             onBackClick = onBack,
@@ -69,8 +67,7 @@ fun AppNavGraph(
             } else {
                 throw Exception("Unknow Error")
             }
-        }
-    )
+        })
 }
 
 

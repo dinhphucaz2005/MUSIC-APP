@@ -1,4 +1,4 @@
-package nd.phuc.core.service
+package nd.phuc.core.service.music
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -21,8 +21,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.io.File
 
-
-@Deprecated("Crash App")
 class CustomMediaSourceFactory(
     private val context: Context,
 ) {
@@ -99,7 +97,10 @@ class CustomMediaSourceFactory(
     @SuppressLint("UnsafeOptInUsageError")
     fun getInstance(): MediaSource.Factory =
         DefaultMediaSourceFactory(createDataSourceFactory(context)) {
-            @Suppress("DEPRECATION")
-            arrayOf(MatroskaExtractor(), FragmentedMp4Extractor(), Mp3Extractor())
+            @Suppress("DEPRECATION") arrayOf(
+                MatroskaExtractor(),
+                FragmentedMp4Extractor(),
+                Mp3Extractor()
+            )
         }
 }
