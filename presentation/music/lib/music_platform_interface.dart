@@ -24,11 +24,14 @@ abstract class MusicPlatform extends PlatformInterface {
   }
 
   void loadLocalSongs();
-  Future<void> playAtIndex(int index) {
-    throw UnimplementedError('playAtIndex has not been implemented.');
-  }
 
-  Stream<dynamic> get songStream {
-    throw UnimplementedError('songStream has not been implemented.');
-  }
+  Future<void> playAtIndex(int index);
+
+  Stream<dynamic> get songStream;
+
+  Stream<dynamic> get playerStateStream;
+
+  Future<void> playOrPause();
+
+  Future<void> playSong(String path);
 }

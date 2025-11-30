@@ -46,6 +46,10 @@ object LocalSongExtractor {
 
     private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
 
+    fun getCachedSong(filePath: String): LocalSong? {
+        return hashMap[filePath]
+    }
+
     fun extracts(
         context: Context,
         filePaths: List<String>,

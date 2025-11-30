@@ -1,7 +1,13 @@
 package nd.phuc.music
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
+import android.os.IBinder
+import android.util.Log
+import androidx.core.content.ContextCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -17,6 +23,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import nd.phuc.music.model.LocalSong
+import nd.phuc.music.model.ThumbnailSource
 
 class MusicPlugin(
 ) : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
@@ -34,10 +41,40 @@ class MusicPlugin(
 
     private lateinit var channel: MethodChannel
     private lateinit var eventChannel: EventChannel
+    private lateinit var playerEventChannel: EventChannel
     private var applicationContext: Context? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val songEventChannel = Channel<Map<String, Any?>>(Channel.BUFFERED)
+    private val playerStateChannel = Channel<Map<String, Any?>>(Channel.BUFFERED)
+
+    private val playerStateReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == MusicService.ACTION_PLAYER_STATE_CHANGED) {
+                val stateMap = mapOf(
+                    "isPlaying" to intent.getBooleanExtra(
+                        MusicService.ACTION_PLAYER_STATE_CHANGED_IS_PLAYING,
+                        false
+                    ),
+                    "title" to intent.getStringExtra(
+                        MusicService.ACTION_PLAYER_STATE_CHANGED_TITLE
+                    ),
+                    "artist" to intent.getStringExtra(
+                        MusicService.ACTION_PLAYER_STATE_CHANGED_ARTIST
+                    ),
+                    "duration" to intent.getLongExtra(
+                        MusicService.ACTION_PLAYER_STATE_CHANGED_DURATION,
+                        0L
+                    ),
+                    "position" to intent.getLongExtra(
+                        MusicService.ACTION_PLAYER_STATE_CHANGED_POSITION,
+                        0L
+                    )
+                )
+                playerStateChannel.trySend(stateMap)
+            }
+        }
+    }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "music")
@@ -46,8 +83,36 @@ class MusicPlugin(
         eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "music_events")
         eventChannel.setStreamHandler(this)
 
+        playerEventChannel =
+            EventChannel(flutterPluginBinding.binaryMessenger, "music_player_events")
+        playerEventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                scope.launch {
+                    playerStateChannel.receiveAsFlow().collect { state ->
+                        events?.success(state)
+                    }
+                }
+            }
+
+            override fun onCancel(arguments: Any?) {}
+        })
+
         applicationContext = flutterPluginBinding.applicationContext
         LocalSongExtractor.initialize(applicationContext!!)
+
+        val filter = android.content.IntentFilter(MusicService.ACTION_PLAYER_STATE_CHANGED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            applicationContext?.registerReceiver(
+                playerStateReceiver, filter, Context.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            ContextCompat.registerReceiver(
+                applicationContext!!,
+                playerStateReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -68,26 +133,40 @@ class MusicPlugin(
                     context = ctx,
                     filePaths = emptyList(),
                     onSongExtracted = { result ->
-                        if (result is ExtractLocalSongResult.Success) {
-                            val song = result.song
-                            accumulatedSongs.add(song)
+                        when (result) {
+                            is ExtractLocalSongResult.Success -> {
+                                val song = result.song
+                                accumulatedSongs.add(song)
 
-                            val songMap = mapOf(
-                                "title" to song.title,
-                                "artist" to song.artist,
-                                "filePath" to song.filePath,
-                                "duration" to song.durationMillis,
-                                "thumbnailPath" to when (val thumb = song.thumbnailSource) {
-                                    is nd.phuc.music.model.ThumbnailSource.FilePath -> thumb.path
-                                    is nd.phuc.music.model.ThumbnailSource.FromUrl -> thumb.url
-                                    else -> null
-                                }
-                            )
-                            songEventChannel.trySend(mapOf("type" to "add", "song" to songMap))
-                        } else if (result is ExtractLocalSongResult.NotFound) {
-                            songEventChannel.trySend(mapOf("type" to "remove", "id" to result.path))
-                        } else if (result is ExtractLocalSongResult.Finished) {
-                            songEventChannel.trySend(mapOf("type" to "finish"))
+                                val songMap = mapOf(
+                                    "title" to song.title,
+                                    "artist" to song.artist,
+                                    "filePath" to song.filePath,
+                                    "duration" to song.durationMillis,
+                                    "thumbnailPath" to when (val thumb = song.thumbnailSource) {
+                                        is ThumbnailSource.FilePath -> thumb.path
+                                        is ThumbnailSource.FromUrl -> thumb.url
+                                        else -> null
+                                    }
+                                )
+                                songEventChannel.trySend(mapOf("type" to "add", "song" to songMap))
+                            }
+
+                            is ExtractLocalSongResult.NotFound -> {
+                                songEventChannel.trySend(
+                                    mapOf(
+                                        "type" to "remove", "id" to result.path
+                                    )
+                                )
+                            }
+
+                            is ExtractLocalSongResult.Finished -> {
+                                songEventChannel.trySend(mapOf("type" to "finish"))
+                            }
+
+                            is ExtractLocalSongResult.Error -> {}
+                            ExtractLocalSongResult.Idle -> {}
+                            ExtractLocalSongResult.InProgress -> {}
                         }
                     },
                 )
@@ -95,72 +174,67 @@ class MusicPlugin(
             }
 
             "startService" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                ctx.startForegroundServiceCompat(intent)
+                val intent = Intent(ctx, serviceClass)
+                ctx.startForegroundService(intent)
                 result.success(null)
             }
 
             "stopService" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
+                val intent = Intent(ctx, serviceClass)
                 ctx.stopService(intent)
                 result.success(null)
             }
 
             "playOrPause" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_PLAY_OR_PAUSE
-                ctx.startService(intent)
+                MediaControllerManager.togglePlayPause()
                 result.success(null)
             }
 
             "next" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_NEXT
-                ctx.startService(intent)
+                MediaControllerManager.playNextSong()
                 result.success(null)
             }
 
             "previous" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_PREVIOUS
-                ctx.startService(intent)
+                MediaControllerManager.playPreviousSong()
                 result.success(null)
             }
 
             "toggleShuffle" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_SHUFFLE
-                ctx.startService(intent)
+                MediaControllerManager.toggleShuffle()
                 result.success(null)
             }
 
             "toggleRepeat" -> {
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_REPEAT
-                ctx.startService(intent)
+                MediaControllerManager.toggleRepeat()
                 result.success(null)
             }
 
             "playAtIndex" -> {
-                val index = call.argument<Int>("index") ?: 0
-                val intent = Intent(ctx, serviceClass::class.java)
-                intent.action = MusicService.ACTION_PLAY_OR_PAUSE
-                intent.putExtra("index", index)
-                ctx.startService(intent)
-                result.success(null)
+                throw NotImplementedError("playAtIndex is not implemented yet")
+            }
+
+            "playSong" -> {
+                val filePath = call.argument<String>("path") ?: ""
+                val song = LocalSongExtractor.getCachedSong(filePath)
+                if (song != null) {
+                    MediaControllerManager.play(song)
+                    result.success(null)
+                } else {
+                    result.error("SONG_NOT_FOUND", "Song not found for path: $filePath", null)
+                }
             }
 
             else -> result.notImplemented()
         }
     }
 
-    private fun Context.startForegroundServiceCompat(intent: Intent) {
-        this.startForegroundService(intent)
-    }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        applicationContext?.unregisterReceiver(playerStateReceiver)
         channel.setMethodCallHandler(null)
         eventChannel.setStreamHandler(null)
+        playerEventChannel.setStreamHandler(null)
         scope.cancel()
         applicationContext = null
     }

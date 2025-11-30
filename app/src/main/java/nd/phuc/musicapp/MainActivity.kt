@@ -28,8 +28,6 @@ class MainActivity : FlutterFragmentActivity() {
         MusicPlugin.registerWith(AppMusicService::class.java)
     }
 
-    var mediaControllerManager: MediaControllerManager = MediaControllerManager()
-
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
@@ -37,7 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Timber.i("Service connected")
             val binder = service as MusicService.MusicBinder
-            mediaControllerManager.initialize(
+            MediaControllerManager.initialize(
                 context = this@MainActivity,
                 binder = binder,
             )
@@ -45,7 +43,7 @@ class MainActivity : FlutterFragmentActivity() {
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Timber.i("Service disconnected")
-            mediaControllerManager.dispose()
+            MediaControllerManager.dispose()
         }
     }
 
@@ -129,7 +127,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaControllerManager.dispose()
+        MediaControllerManager.dispose()
     }
 
 

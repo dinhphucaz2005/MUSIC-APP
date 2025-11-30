@@ -18,22 +18,47 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 
+enum class MusicServiceAction {
+    SHUFFLE,
+    REPEAT,
+    PLAY_OR_PAUSE,
+    NEXT,
+    PREVIOUS,
+    PLAY,
+}
+
+enum class ActionPlayParameter {
+    FILE_PATH
+}
+
 abstract class MusicService(
 ) : MediaLibraryService() {
 
 
     companion object {
         const val TAG = "MusicService"
-        const val ACTION_SHUFFLE = "ACTION_SHUFFLE"
-        const val ACTION_REPEAT = "ACTION_REPEAT"
-        const val ACTION_PLAY_OR_PAUSE = "ACTION_PLAY"
-        const val ACTION_NEXT = "ACTION_NEXT"
-        const val ACTION_PREVIOUS = "ACTION_PREVIOUS"
+
 
         private const val NOTIFICATION_ID = 1
         private const val NOTIFICATION_CHANNEL_NAME = "Music"
         private const val NOTIFICATION_CHANNEL_DESCRIPTION = "Play music"
         private const val NOTIFICATION_CHANNEL_ID_NAME = "music_channel"
+        const val ACTION_PLAYER_STATE_CHANGED = "nd.phuc.music.PLAYER_STATE_CHANGED"
+        const val ACTION_PLAYER_STATE_CHANGED_IS_PLAYING = "isPlaying"
+        const val ACTION_PLAYER_STATE_CHANGED_TITLE = "title"
+        const val ACTION_PLAYER_STATE_CHANGED_ARTIST = "artist"
+        const val ACTION_PLAYER_STATE_CHANGED_DURATION = "duration"
+        const val ACTION_PLAYER_STATE_CHANGED_POSITION = "position"
+    }
+
+    private fun sendPlayerStateBroadcast() {
+        val intent = Intent(ACTION_PLAYER_STATE_CHANGED)
+        intent.putExtra(ACTION_PLAYER_STATE_CHANGED_IS_PLAYING, player.isPlaying)
+        intent.putExtra(ACTION_PLAYER_STATE_CHANGED_TITLE, player.mediaMetadata.title ?: "")
+        intent.putExtra(ACTION_PLAYER_STATE_CHANGED_ARTIST, player.mediaMetadata.artist ?: "")
+        intent.putExtra(ACTION_PLAYER_STATE_CHANGED_DURATION, player.duration)
+        intent.putExtra(ACTION_PLAYER_STATE_CHANGED_POSITION, player.currentPosition)
+        sendBroadcast(intent)
     }
 
     private lateinit var player: ExoPlayer
@@ -51,9 +76,7 @@ abstract class MusicService(
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "MusicService created")
-        player = ExoPlayer
-            .Builder(this)
-            .build()
+        player = ExoPlayer.Builder(this).build()
 
         player.apply {
             playWhenReady = true
@@ -72,29 +95,28 @@ abstract class MusicService(
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     super.onIsPlayingChanged(isPlaying)
                     updateMusicWidget()
+                    sendPlayerStateBroadcast()
                 }
 
                 override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                     super.onMediaMetadataChanged(mediaMetadata)
                     updateNotification()
                     updateMusicWidget()
-//                    updateCurrentSong(player.currentMediaItemIndex)
+                    sendPlayerStateBroadcast()
                 }
             })
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
         }
 
-        session = MediaLibrarySession
-            .Builder(this, player, object : MediaLibrarySession.Callback {})
-            .build()
+        session =
+            MediaLibrarySession.Builder(this, player, object : MediaLibrarySession.Callback {})
+                .build()
 
         notificationManager = NotificationManagerCompat.from(this)
         notificationManager.createNotificationChannel(
             NotificationChannelCompat.Builder(
-                NOTIFICATION_CHANNEL_ID_NAME,
-                NotificationManagerCompat.IMPORTANCE_LOW
-            ).setName(NOTIFICATION_CHANNEL_NAME)
-                .setDescription(NOTIFICATION_CHANNEL_DESCRIPTION)
+                NOTIFICATION_CHANNEL_ID_NAME, NotificationManagerCompat.IMPORTANCE_LOW
+            ).setName(NOTIFICATION_CHANNEL_NAME).setDescription(NOTIFICATION_CHANNEL_DESCRIPTION)
                 .build()
         )
         updateNotification()
@@ -153,46 +175,40 @@ abstract class MusicService(
         super.onStartCommand(intent, flags, startId)
 
         intent?.let {
-            // handle queue / control extras
-            val queue = it.getStringArrayListExtra("queue")
-            val indexExtra = it.getIntExtra("index", -1)
-            val seekTo = it.getIntExtra("seekTo", -1)
-
-            if (queue != null && queue.isNotEmpty()) {
-                val items = queue.map { uri -> MediaItem.fromUri(uri) }
-                player.setMediaItems(items)
-                val startIndex = if (indexExtra >= 0) indexExtra else 0
-                player.prepare()
-                player.seekTo(startIndex, 0)
-                player.play()
-            }
-
-            if (seekTo >= 0) {
-                player.seekTo(seekTo.toLong())
-            }
-
-            when (it.action) {
-                ACTION_SHUFFLE -> {
+            val action = MusicServiceAction.entries.find { action ->
+                action.name == it.action
+            } ?: return@let
+            when (action) {
+                MusicServiceAction.SHUFFLE -> {
                     player.shuffleModeEnabled = !player.shuffleModeEnabled
                 }
 
-                ACTION_REPEAT -> {
+                MusicServiceAction.REPEAT -> {
                     player.repeatMode = (player.repeatMode + 1) % 3
                 }
 
-                ACTION_PLAY_OR_PAUSE -> {
+                MusicServiceAction.PLAY_OR_PAUSE -> {
                     if (player.isPlaying) player.pause() else player.play()
                 }
 
-                ACTION_NEXT -> {
+                MusicServiceAction.NEXT -> {
                     player.seekToNext()
                 }
 
-                ACTION_PREVIOUS -> {
+                MusicServiceAction.PREVIOUS -> {
                     player.seekToPrevious()
                 }
-            }
 
+                MusicServiceAction.PLAY -> {
+                    val filePath = it.getStringExtra(ActionPlayParameter.FILE_PATH.name)
+                    filePath?.let { path ->
+                        val mediaItem = MediaItem.fromUri(path)
+                        player.setMediaItem(mediaItem)
+                        player.prepare()
+                        player.play()
+                    }
+                }
+            }
         }
 
         updateNotification()
@@ -225,8 +241,7 @@ abstract class MusicService(
                 setContentIntent(pendingIntent)
                 setStyle(
                     androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(session.sessionCompatToken)
-                        .setShowCancelButton(true)
+                        .setMediaSession(session.sessionCompatToken).setShowCancelButton(true)
                 )
             }.build()
         )

@@ -17,10 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import nd.phuc.music.model.Song
 
-class MediaControllerManager {
-    companion object {
-        private const val TAG = "MediaControllerManager"
-    }
+object MediaControllerManager {
+    private const val TAG = "MediaControllerManager"
 
     enum class PlayerState {
         PLAYING, PAUSED, STOPPED;
