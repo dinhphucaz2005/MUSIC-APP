@@ -1,58 +1,46 @@
+import nd.phuc.musicapp.NiaBuildType
+
 plugins {
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
-    alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.ndphuc.android.application)
+    alias(libs.plugins.ndphuc.android.application.compose)
+    alias(libs.plugins.ndphuc.android.application.flavors)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "nd.phuc.musicapp"
-    compileSdk = 36
-
-    buildFeatures {
-        buildConfig = true
-    }
-
     defaultConfig {
         applicationId = "nd.phuc.musicapp"
-        minSdk = 26
-        maxSdk = 34
         versionCode = 1
-        versionName = "1.0"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        versionName = "1.0.0"
     }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = NiaBuildType.DEBUG.applicationIdSuffix
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = providers.gradleProperty("minifyWithR8")
+                .map(String::toBooleanStrict).getOrElse(true)
+            applicationIdSuffix = NiaBuildType.RELEASE.applicationIdSuffix
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
+
+            signingConfig = signingConfigs.named("debug").get()
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    buildFeatures {
-        viewBinding = true
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
+
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-        jniLibs {
-            useLegacyPackaging = true
+            excludes.add("/META-INF/{AL2.0,LGPL2.1}")
         }
     }
+    namespace = "nd.phuc.musicapp"
 }
 
 dependencies {
     implementation(projects.core)
+    implementation(projects.flutter)
 }

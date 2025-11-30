@@ -1,41 +1,35 @@
 package nd.phuc.musicapp
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.util.UnstableApi
-import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
-import nd.phuc.core.domain.repository.abstraction.LocalSongRepository
-import nd.phuc.core.helper.MediaControllerManager
-import nd.phuc.core.presentation.theme.MyMusicAppTheme
-import nd.phuc.core.service.music.MusicService
-import org.koin.android.ext.android.get
+import nd.phuc.music.MediaControllerManager
 import timber.log.Timber
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.ContextCompat
-import nd.phuc.musicapp.music.screen.AppScreen
-import nd.phuc.musicapp.navigation.AppNavGraph
-import nd.phuc.musicapp.navigation.AppNavigationBar
-import nd.phuc.musicapp.navigation.Screens
-import nd.phuc.musicapp.music.service.AppMusicService
+import io.flutter.embedding.android.FlutterFragmentActivity
+import io.flutter.embedding.engine.FlutterEngine
+import nd.phuc.music.MusicPlugin
+import nd.phuc.music.MusicService
 
 
-@UnstableApi
-class MainActivity : FragmentActivity() {
+class MainActivity : FlutterFragmentActivity() {
 
-    var mediaControllerManager: MediaControllerManager =
-        MediaControllerManager(songRepository = get())
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MusicPlugin.registerWith(AppMusicService::class.java)
+    }
 
-    private val songRepository: LocalSongRepository = get()
+    var mediaControllerManager: MediaControllerManager = MediaControllerManager()
+
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
@@ -64,9 +58,11 @@ class MainActivity : FragmentActivity() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 Timber.i("Permission granted")
-                lifecycleScope.launch {
-                    songRepository.getSongs()
-                }
+                /*
+                                lifecycleScope.launch {
+                                    songRepository.getSongs()
+                                }
+                */
                 startMusicService()
             } else {
                 Timber.i("Permission denied")
@@ -74,43 +70,43 @@ class MainActivity : FragmentActivity() {
         }
 
 
-        setContent {
-            MyMusicAppTheme {
-                CompositionLocalProvider(
-                    LocalMediaControllerManager provides mediaControllerManager,
-                ) {
-                    val backStack = rememberNavBackStack(Screens.Home)
-                    AppScreen(
-                        bottomNavigationBar = { modifier ->
-                            AppNavigationBar(
-                                modifier = modifier, navigationItems = listOf(
-                                    Screens.Home,
-                                    Screens.Playlists,
-                                    Screens.Library,
-                                ), backStack = backStack
-                            )
-                        }) {
-                        AppNavGraph(backStack = backStack, onNavigate = { screen ->
-                            backStack.add(screen)
-                        }, onBack = {
-                            if (backStack.size > 1) {
-                                backStack.removeAt(backStack.lastIndex)
-                            }
-                        })
-                    }
-                }
-            }
-        }
+//        setContent {
+//            MyMusicAppTheme {
+//                CompositionLocalProvider(
+//                    LocalMediaControllerManager provides mediaControllerManager,
+//                ) {
+//                    val backStack = rememberNavBackStack(Screens.Home)
+//                    AppScreen(
+//                        bottomNavigationBar = { modifier ->
+//                            AppNavigationBar(
+//                                modifier = modifier, navigationItems = listOf(
+//                                    Screens.Home,
+//                                    Screens.Playlists,
+//                                    Screens.Library,
+//                                ), backStack = backStack
+//                            )
+//                        }) {
+//                        AppNavGraph(backStack = backStack, onNavigate = { screen ->
+//                            backStack.add(screen)
+//                        }, onBack = {
+//                            if (backStack.size > 1) {
+//                                backStack.removeAt(backStack.lastIndex)
+//                            }
+//                        })
+//                    }
+//                }
+//            }
+//        }
     }
 
 
     override fun onStart() {
         super.onStart()
         val permission =
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                android.Manifest.permission.READ_MEDIA_AUDIO
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_AUDIO
             } else {
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE
             }
 
         if (ContextCompat.checkSelfPermission(
@@ -118,7 +114,7 @@ class MainActivity : FragmentActivity() {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             lifecycleScope.launch {
-                songRepository.getSongs()
+//                songRepository.getSongs()
             }
             startMusicService()
         } else {

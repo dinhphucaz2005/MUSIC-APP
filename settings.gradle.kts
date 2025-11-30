@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -20,3 +21,6 @@ rootProject.name = "My-Music-App"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core")
+// Flutter module
+include(":presentation")
+apply(from = file("./presentation/.android/include_flutter.groovy"))

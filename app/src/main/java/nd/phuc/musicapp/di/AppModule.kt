@@ -3,7 +3,7 @@ package nd.phuc.musicapp.di
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import nd.phuc.musicapp.music.service.AppMusicService
+import nd.phuc.core.service.music.CustomMediaSourceFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import java.io.File
@@ -16,10 +16,15 @@ val appModule = module {
 
     single<SharedPreferences> {
         androidContext().getSharedPreferences(
-            "music_app_pref",
-            Context.MODE_PRIVATE
+            "music_app_pref", Context.MODE_PRIVATE
         )
     }
 
     single<SharedPreferences.Editor> { get<SharedPreferences>().edit() }
+
+    single<CustomMediaSourceFactory> {
+        CustomMediaSourceFactory(
+            context = androidContext(),
+        )
+    }
 }
