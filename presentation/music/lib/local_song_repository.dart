@@ -1,4 +1,4 @@
-import 'package:music/local_song.dart';
+import 'package:music/song.dart';
 import 'package:music/music_platform_interface.dart';
 import 'package:rxdart/rxdart.dart';
 

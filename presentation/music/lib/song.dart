@@ -1,11 +1,16 @@
 typedef JsonObject = Map<String, dynamic>;
 
-enum LocalSongStatus { deleted, modified, unchanged, unknown }
-
-class LocalSong {
-  final String path;
+sealed class Song {
   final String title;
   final String artist;
+
+  Song({required this.title, required this.artist});
+}
+
+enum LocalSongStatus { deleted, modified, unchanged, unknown }
+
+class LocalSong extends Song {
+  final String path;
   final String thumbnailPath;
   final int durationMillis;
   final LocalSongStatus status;
@@ -26,12 +31,11 @@ class LocalSong {
   }
 
   LocalSong({
+    required super.title,
+    required super.artist,
     required this.path,
-    required this.title,
-    required this.artist,
     required this.thumbnailPath,
     required this.durationMillis,
     required this.status,
   });
 }
-

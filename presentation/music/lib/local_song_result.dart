@@ -1,4 +1,4 @@
-import 'package:music/local_song.dart';
+import 'package:music/song.dart';
 
 sealed class LocalSongResult {
   const LocalSongResult();

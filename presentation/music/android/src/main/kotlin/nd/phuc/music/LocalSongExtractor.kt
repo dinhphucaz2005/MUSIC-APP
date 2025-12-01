@@ -81,6 +81,11 @@ object LocalSongExtractor {
                             onSongExtracted(ExtractLocalSongResult.NotFound(path))
                             return@forEach
                         }
+                        val localSong = hashMap[path]
+                        if (localSong != null) {
+                            onSongExtracted(ExtractLocalSongResult.Success(localSong))
+                            return@forEach
+                        }
                         extract(retriever, file).let {
                             hashMap[path] = it.let { result ->
                                 when (result) {
@@ -129,7 +134,13 @@ object LocalSongExtractor {
             }
 
 
-            val thumbnailPath = cacheThumbnail(tempSong, thumbnailDir)
+            val thumbnailPath = cacheThumbnail(
+                tempSong.copy(
+                    thumbnailSource = ThumbnailSource.FromByteArray(
+                        retriever.getThumbnailByteArray()
+                    )
+                ), thumbnailDir
+            )
             val thumbnailSource = if (thumbnailPath != null) {
                 ThumbnailSource.FilePath(thumbnailPath)
             } else {
