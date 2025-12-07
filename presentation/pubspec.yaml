@@ -1,17 +1,18 @@
 name: presentation
 publish_to: none
-version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.2
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  domain:
-    path: domain
   music:
     path: music
+  shadcn_flutter: ^0.0.47
+  shared_preferences: ^2.2.2
+  share_plus: ^7.2.1
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

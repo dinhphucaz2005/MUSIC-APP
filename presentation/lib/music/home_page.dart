@@ -1,15 +1,19 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:music/local_song_repository.dart';
-import 'package:music/media_controller_manager.dart';
-import 'package:music/song.dart';
+import 'package:presentation/music/domain/local_song_repository.dart';
+import 'package:presentation/music/domain/media_controller_manager.dart';
+import 'package:presentation/music/domain/song.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'pages/playlists_page.dart';
 import 'pages/songs_page.dart';
+import 'pages/artists_page.dart';
+import 'pages/favorites_page.dart';
 import 'widgets/full_player.dart';
 import 'widgets/mini_player.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final VoidCallback? onToggleTheme;
+
+  const HomePage({super.key, this.onToggleTheme});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -23,6 +27,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late Animation<double> _animation;
   double _dragOffset = 0.0;
   bool _isDragging = false;
+
+  final List<_NavItem> _navItems = [
+    _NavItem(icon: Icons.music_note_rounded, label: 'Songs'),
+    _NavItem(icon: Icons.person_rounded, label: 'Artists'),
+    _NavItem(icon: Icons.favorite_rounded, label: 'Favorites'),
+    _NavItem(icon: Icons.playlist_play_rounded, label: 'Playlists'),
+  ];
 
   @override
   void initState() {
@@ -77,13 +88,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return SongsPage(repository: _repository, mediaController: _mediaController);
+      case 1:
+        return ArtistsPage(repository: _repository, mediaController: _mediaController);
+      case 2:
+        return FavoritesPage(repository: _repository, mediaController: _mediaController);
+      case 3:
+        return PlaylistsPage(repository: _repository, mediaController: _mediaController);
+      default:
+        return SongsPage(repository: _repository, mediaController: _mediaController);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      SongsPage(repository: _repository, mediaController: _mediaController),
-      const PlaylistsPage(),
-    ];
     final screenHeight = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
 
     return StreamBuilder<PlayerState>(
       stream: _mediaController.subject,
@@ -93,27 +116,84 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         final song = playerState?.currentSong;
 
         return Scaffold(
-          body: Stack(
+          child: Stack(
             children: [
-              // Main content
+              // Main content with bottom navigation
               Column(
                 children: [
-                  Expanded(child: pages[_currentIndex]),
-                  if (hasPlayer) const SizedBox(height: 72), // Space for mini player
+                  // Page content
+                  Expanded(child: _buildPage(_currentIndex)),
+
+                  // Space for mini player if needed
+                  if (hasPlayer) const SizedBox(height: 72),
+
+                  // Bottom Navigation Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.card,
+                      border: Border(
+                        top: BorderSide(color: theme.colorScheme.border, width: 1),
+                      ),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: List.generate(_navItems.length, (index) {
+                            final item = _navItems[index];
+                            final isSelected = index == _currentIndex;
+
+                            return GestureDetector(
+                              onTap: () => setState(() => _currentIndex = index),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      item.icon,
+                                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      item.label,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
-              // Draggable Player (Mini to Full transition)
+              // Draggable Player
               if (hasPlayer)
                 AnimatedBuilder(
                   animation: _animation,
                   builder: (context, child) {
                     final progress = _animation.value;
                     final isFullyCollapsed = progress == 0;
+                    final bottomNavHeight = 72.0 + MediaQuery.of(context).padding.bottom;
 
                     return Stack(
                       children: [
-                        // Background blur and overlay (full screen)
+                        // Background overlay
                         if (progress > 0)
                           Positioned.fill(
                             child: GestureDetector(
@@ -138,7 +218,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         Positioned(
                           left: 0,
                           right: 0,
-                          bottom: 0,
+                          bottom: isFullyCollapsed ? bottomNavHeight : 0,
                           height: isFullyCollapsed ? 72 : screenHeight,
                           child: GestureDetector(
                             onVerticalDragUpdate: (details) => _onVerticalDragUpdate(details, screenHeight),
@@ -146,14 +226,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             onTap: isFullyCollapsed ? _expandPlayer : null,
                             child: Container(
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Theme.of(context).cardColor,
-                                    Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                                  ],
-                                ),
+                                color: theme.colorScheme.card,
                                 borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(20 - 10 * progress),
                                 ),
@@ -171,7 +244,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 ),
                                 child: Stack(
                                   children: [
-                                    // Mini Player (visible when collapsed)
+                                    // Mini Player
                                     if (progress < 1)
                                       Positioned(
                                         left: 0,
@@ -194,7 +267,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                         ),
                                       ),
 
-                                    // Full Player (visible when expanded)
+                                    // Full Player
                                     if (progress > 0)
                                       Positioned.fill(
                                         child: Opacity(
@@ -224,7 +297,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                         ),
                                       ),
 
-                                    // Drag indicator (visible when expanded)
+                                    // Drag indicator
                                     if (progress > 0.3)
                                       Positioned(
                                         top: 12,
@@ -237,7 +310,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                               width: 40,
                                               height: 4,
                                               decoration: BoxDecoration(
-                                                color: Colors.grey[400],
+                                                color: theme.colorScheme.muted,
                                                 borderRadius: BorderRadius.circular(2),
                                               ),
                                             ),
@@ -256,25 +329,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
             ],
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: hasPlayer ? Colors.transparent : null,
-            elevation: hasPlayer ? 0 : 8,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.music_note), label: 'Songs'),
-              BottomNavigationBarItem(icon: Icon(Icons.playlist_play), label: 'Playlists'),
-            ],
-          ),
         );
       },
     );
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+
+  _NavItem({required this.icon, required this.label});
 }

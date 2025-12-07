@@ -1,7 +1,9 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
-class FullPlayer extends StatelessWidget {
+enum RepeatMode { off, one, all }
+
+class FullPlayer extends StatefulWidget {
   final String title;
   final String artist;
   final String? thumbnailPath;
@@ -13,6 +15,12 @@ class FullPlayer extends StatelessWidget {
   final VoidCallback onNext;
   final Function(double) onSeek;
   final VoidCallback? onClose;
+  final VoidCallback? onShuffle;
+  final VoidCallback? onRepeat;
+  final VoidCallback? onQueue;
+  final VoidCallback? onLyrics;
+  final bool isShuffleEnabled;
+  final RepeatMode repeatMode;
 
   const FullPlayer({
     super.key,
@@ -27,85 +35,94 @@ class FullPlayer extends StatelessWidget {
     required this.onNext,
     required this.onSeek,
     this.onClose,
+    this.onShuffle,
+    this.onRepeat,
+    this.onQueue,
+    this.onLyrics,
+    this.isShuffleEnabled = false,
+    this.repeatMode = RepeatMode.off,
   });
 
-  Widget _buildThumbnail() {
-    if (thumbnailPath == null || thumbnailPath!.isEmpty) {
+  @override
+  State<FullPlayer> createState() => _FullPlayerState();
+}
+
+class _FullPlayerState extends State<FullPlayer> {
+  Widget _buildThumbnail(ThemeData theme) {
+    const size = 300.0;
+    
+    if (widget.thumbnailPath == null || widget.thumbnailPath!.isEmpty) {
       return Container(
-        width: double.infinity,
-        height: 320,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400, Colors.deepPurple.shade600],
+            colors: [
+              theme.colorScheme.primary.withValues(alpha: 0.3),
+              theme.colorScheme.primary.withValues(alpha: 0.6),
+            ],
           ),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Center(child: Icon(Icons.music_note, color: Colors.white.withValues(alpha: 0.8), size: 100)),
+        child: Icon(
+          Icons.music_note_rounded,
+          color: theme.colorScheme.primaryForeground.withValues(alpha: 0.8),
+          size: 100,
+        ),
       );
     }
 
-    if (thumbnailPath!.startsWith('/')) {
+    if (widget.thumbnailPath!.startsWith('/')) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.file(
-          File(thumbnailPath!),
-          width: double.infinity,
-          height: 320,
+          File(widget.thumbnailPath!),
+          width: size,
+          height: size,
           fit: BoxFit.cover,
-          errorBuilder:
-              (_, __, ___) => Container(
-                width: double.infinity,
-                height: 320,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.grey.shade300, Colors.grey.shade400],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(Icons.broken_image, color: Colors.grey[600], size: 80),
-              ),
+          errorBuilder: (_, __, ___) => _buildPlaceholder(theme, size),
         ),
       );
     }
 
-    if (thumbnailPath!.startsWith('http')) {
+    if (widget.thumbnailPath!.startsWith('http')) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.network(
-          thumbnailPath!,
-          width: double.infinity,
-          height: 320,
+          widget.thumbnailPath!,
+          width: size,
+          height: size,
           fit: BoxFit.cover,
-          errorBuilder:
-              (_, __, ___) => Container(
-                width: double.infinity,
-                height: 320,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.grey.shade300, Colors.grey.shade400],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(Icons.broken_image, color: Colors.grey[600], size: 80),
-              ),
+          errorBuilder: (_, __, ___) => _buildPlaceholder(theme, size),
         ),
       );
     }
 
+    return _buildPlaceholder(theme, size);
+  }
+
+  Widget _buildPlaceholder(ThemeData theme, double size) {
     return Container(
-      width: double.infinity,
-      height: 320,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.red.shade300, Colors.red.shade400]),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.muted,
+            theme.colorScheme.muted.withValues(alpha: 0.7),
+          ],
+        ),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Icon(Icons.error, color: Colors.white, size: 80),
+      child: Icon(
+        Icons.broken_image_rounded,
+        color: theme.colorScheme.mutedForeground,
+        size: 80,
+      ),
     );
   }
 
@@ -116,73 +133,108 @@ class FullPlayer extends StatelessWidget {
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  IconData _getRepeatIcon() {
+    switch (widget.repeatMode) {
+      case RepeatMode.one:
+        return Icons.repeat_one_rounded;
+      case RepeatMode.all:
+      case RepeatMode.off:
+        return Icons.repeat_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Theme.of(context).scaffoldBackgroundColor, Theme.of(context).primaryColor.withValues(alpha: 0.15)],
+          colors: [
+            theme.colorScheme.background,
+            theme.colorScheme.card,
+          ],
         ),
       ),
       child: SafeArea(
         child: Column(
           children: [
-            // Header with drag indicator and close button
+            // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 40), // Balance
-                  Container(width: 50, height: 5, decoration: BoxDecoration(color: Colors.grey[400], borderRadius: BorderRadius.circular(3))),
-                  if (onClose != null)
-                    IconButton(
-                      icon: const Icon(Icons.keyboard_arrow_down, size: 32),
-                      onPressed: onClose,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                  if (widget.onClose != null)
+                    IconButton.ghost(
+                      icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
+                      onPressed: widget.onClose,
                     )
                   else
                     const SizedBox(width: 40),
+                  
+                  Text(
+                    'NOW PLAYING',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.5,
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                  ),
+                  
+                  IconButton.ghost(
+                    icon: const Icon(Icons.queue_music_rounded),
+                    onPressed: widget.onQueue,
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-
-            // Album art with shadow and rounded corners
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Hero(
-                tag: 'album_art',
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 30, offset: const Offset(0, 15))],
+            
+            const Spacer(flex: 1),
+            
+            // Album art with shadow
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
                   ),
-                  child: _buildThumbnail(),
-                ),
+                ],
               ),
+              child: _buildThumbnail(theme),
             ),
-            const SizedBox(height: 40),
-
+            
+            const Spacer(flex: 1),
+            
             // Song info
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 children: [
                   Text(
-                    title,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.foreground,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    artist,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    widget.artist,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.colorScheme.mutedForeground,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -190,103 +242,167 @@ class FullPlayer extends StatelessWidget {
                 ],
               ),
             ),
+            
             const SizedBox(height: 32),
-
+            
             // Progress bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 children: [
-                  SliderTheme(
-                    data: SliderThemeData(
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                      activeTrackColor: Theme.of(context).primaryColor,
-                      inactiveTrackColor: Colors.grey[300],
-                      thumbColor: Theme.of(context).primaryColor,
-                      overlayColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                    ),
-                    child: Slider(
-                      value: position.toDouble().clamp(0, duration.toDouble()),
-                      max: duration.toDouble() > 0 ? duration.toDouble() : 1,
-                      onChanged: onSeek,
-                    ),
+                  Slider(
+                    value: SliderValue.single(widget.position.toDouble().clamp(0, widget.duration.toDouble())),
+                    min: 0,
+                    max: widget.duration.toDouble() > 0 ? widget.duration.toDouble() : 1,
+                    onChanged: (value) => widget.onSeek(value.value),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(_formatDuration(position), style: TextStyle(fontSize: 13, color: Colors.grey[700], fontWeight: FontWeight.w500)),
-                        Text(_formatDuration(duration), style: TextStyle(fontSize: 13, color: Colors.grey[700], fontWeight: FontWeight.w500)),
-                      ],
-                    ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatDuration(widget.position),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.colorScheme.mutedForeground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        _formatDuration(widget.duration),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.colorScheme.mutedForeground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
-
-            // Controls with better styling
+            
+            const SizedBox(height: 24),
+            
+            // Controls
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Previous button
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: onPrevious,
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(Icons.skip_previous_rounded, size: 40, color: Theme.of(context).primaryColor),
-                      ),
+                  // Shuffle
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.shuffle_rounded,
+                      color: widget.isShuffleEnabled 
+                          ? theme.colorScheme.primary 
+                          : theme.colorScheme.mutedForeground,
                     ),
+                    onPressed: widget.onShuffle,
                   ),
-                  // Play/Pause button with elevation
+                  
+                  // Previous
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.skip_previous_rounded,
+                      size: 36,
+                      color: theme.colorScheme.foreground,
+                    ),
+                    onPressed: widget.onPrevious,
+                  ),
+                  
+                  // Play/Pause
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withValues(alpha: 0.8)],
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.primary.withValues(alpha: 0.8),
+                        ],
                       ),
                       boxShadow: [
-                        BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8)),
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
                       ],
                     ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: onPlayPause,
-                        customBorder: const CircleBorder(),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          child: Icon(isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.white, size: 40),
-                        ),
+                    child: IconButton.ghost(
+                      icon: Icon(
+                        widget.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        color: theme.colorScheme.primaryForeground,
+                        size: 36,
                       ),
+                      onPressed: widget.onPlayPause,
                     ),
                   ),
-                  // Next button
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: onNext,
-                      customBorder: const CircleBorder(),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(Icons.skip_next_rounded, size: 40, color: Theme.of(context).primaryColor),
-                      ),
+                  
+                  // Next
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.skip_next_rounded,
+                      size: 36,
+                      color: theme.colorScheme.foreground,
                     ),
+                    onPressed: widget.onNext,
+                  ),
+                  
+                  // Repeat
+                  IconButton.ghost(
+                    icon: Icon(
+                      _getRepeatIcon(),
+                      color: widget.repeatMode != RepeatMode.off 
+                          ? theme.colorScheme.primary 
+                          : theme.colorScheme.mutedForeground,
+                    ),
+                    onPressed: widget.onRepeat,
                   ),
                 ],
               ),
             ),
-            const Spacer(),
+            
+            const SizedBox(height: 24),
+            
+            // Extra controls
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.lyrics_rounded,
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                    onPressed: widget.onLyrics,
+                  ),
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.favorite_border_rounded,
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                    onPressed: () {
+                      // TODO: Toggle favorite
+                    },
+                  ),
+                  IconButton.ghost(
+                    icon: Icon(
+                      Icons.share_rounded,
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                    onPressed: () {
+                      // TODO: Share song
+                    },
+                  ),
+                ],
+              ),
+            ),
+            
+            const Spacer(flex: 1),
           ],
         ),
       ),

@@ -14,8 +14,8 @@ buildscript {
     }
 
     dependencies {
-        classpath(libs.gradle)
-        classpath(libs.kotlin.gradlePlugin)
+        classpath("com.android.tools.build:gradle:8.13.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.21")
     }
 }
 
@@ -28,15 +28,15 @@ allprojects {
 
 android {
     namespace = "nd.phuc.music"
-    compileSdk = libs.versions.complie.sdk.get().toInt()
+    compileSdk = 36
 
     defaultConfig {
-        minSdk = libs.versions.min.sdk.get().toInt()
+        minSdk = 24
     }
 
     compileOptions {
-        sourceCompatibility = libs.versions.java.version.get().let { JavaVersion.toVersion(it) }
-        targetCompatibility = libs.versions.java.version.get().let { JavaVersion.toVersion(it) }
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     sourceSets {
@@ -46,5 +46,11 @@ android {
 }
 
 dependencies {
-    implementation(libs.bundles.media3)
+    implementation("androidx.media:media:1.7.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-common:1.3.1")
+    implementation("androidx.media3:media3-session:1.3.1")
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
+    implementation("androidx.media3:media3-datasource-okhttp:1.3.1")
 }

@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 class AnimatedEqualizer extends StatefulWidget {
   final Color color;
@@ -131,13 +131,13 @@ class _EqualizerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final glowPaint =
         Paint()
-          ..color = color.withOpacity(0.25)
+          ..color = color.withValues(alpha: 0.25)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
 
     final grad =
         Paint()
           ..shader = LinearGradient(
-            colors: [color.withOpacity(0.95), color.withOpacity(0.6)],
+            colors: [color.withValues(alpha: 0.95), color.withValues(alpha: 0.6)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
