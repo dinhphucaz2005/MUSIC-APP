@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:presentation/music/domain/song.dart';
+import 'package:music/song.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'animated_equalizer.dart';
 

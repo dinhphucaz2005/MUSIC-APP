@@ -1,5 +1,6 @@
-import 'package:presentation/music/domain/local_song_repository.dart';
-import 'package:presentation/music/domain/media_controller_manager.dart';
+import 'package:music/local_song_repository.dart';
+import 'package:music/media_controller_manager.dart';
+import 'package:presentation/music/widgets/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 class PlaylistsPage extends StatefulWidget {
@@ -18,13 +19,7 @@ class PlaylistsPage extends StatefulWidget {
 
 class _PlaylistsPageState extends State<PlaylistsPage> {
   final List<Playlist> _playlists = [
-    Playlist(
-      id: '1',
-      name: 'Favorites',
-      songCount: 0,
-      imageUrl: null,
-      isSystem: true,
-    ),
+    Playlist(id: '1', name: 'Favorites', songCount: 0, isSystem: true),
   ];
 
   void _createPlaylist() {
@@ -51,8 +46,6 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     name: controller.text.trim(),
                     songCount: 0,
-                    imageUrl: null,
-                    isSystem: false,
                   ));
                 });
                 Navigator.pop(context);
@@ -65,7 +58,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
     );
   }
 
-  void _showPlaylistOptions(BuildContext context, Playlist playlist) {
+  void _showPlaylistOptions(Playlist playlist) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -73,37 +66,22 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            GestureDetector(
+            _OptionTile(
+              icon: Icons.edit_rounded,
+              label: 'Rename',
               onTap: () {
                 Navigator.pop(context);
                 _renamePlaylist(playlist);
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  children: [
-                    const Icon(Icons.edit_rounded),
-                    const SizedBox(width: 12),
-                    const Text('Rename'),
-                  ],
-                ),
-              ),
             ),
-            GestureDetector(
+            _OptionTile(
+              icon: Icons.delete_rounded,
+              label: 'Delete',
+              isDestructive: true,
               onTap: () {
                 Navigator.pop(context);
                 _confirmDelete(playlist);
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_rounded, color: Colors.red),
-                    const SizedBox(width: 12),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -139,13 +117,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                 setState(() {
                   final index = _playlists.indexWhere((p) => p.id == playlist.id);
                   if (index != -1) {
-                    _playlists[index] = Playlist(
-                      id: playlist.id,
-                      name: controller.text.trim(),
-                      songCount: playlist.songCount,
-                      imageUrl: playlist.imageUrl,
-                      isSystem: playlist.isSystem,
-                    );
+                    _playlists[index] = playlist.copyWith(name: controller.text.trim());
                   }
                 });
                 Navigator.pop(context);
@@ -171,9 +143,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
           ),
           Button.destructive(
             onPressed: () {
-              setState(() {
-                _playlists.removeWhere((p) => p.id == playlist.id);
-              });
+              setState(() => _playlists.removeWhere((p) => p.id == playlist.id));
               Navigator.pop(context);
             },
             child: const Text('Delete'),
@@ -185,8 +155,6 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       headers: [
         AppBar(
@@ -200,39 +168,14 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         ),
       ],
       child: _playlists.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.playlist_play_rounded,
-                    size: 80,
-                    color: theme.colorScheme.mutedForeground,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'No playlists yet',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.mutedForeground,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create your first playlist',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.colorScheme.mutedForeground.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Button.primary(
-                    onPressed: _createPlaylist,
-                    leading: const Icon(Icons.add_rounded),
-                    child: const Text('Create Playlist'),
-                  ),
-                ],
+          ? EmptyState(
+              icon: Icons.playlist_play_rounded,
+              title: 'No playlists yet',
+              subtitle: 'Create your first playlist',
+              action: Button.primary(
+                onPressed: _createPlaylist,
+                leading: const Icon(Icons.add_rounded),
+                child: const Text('Create Playlist'),
               ),
             )
           : ListView.builder(
@@ -244,67 +187,65 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: Card(
-                    child: GestureDetector(
-                      onTap: () {
-                        showToast(
-                          context: context,
-                          builder: (context, overlay) => SurfaceCard(
-                            child: Basic(
-                              title: Text('Opening ${playlist.name}...'),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: Colors.primaries[colorIndex].withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                playlist.isSystem ? Icons.favorite_rounded : Icons.playlist_play_rounded,
-                                color: Colors.primaries[colorIndex],
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    playlist.name,
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
-                                  ),
-                                  Text(
-                                    '${playlist.songCount} songs',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: theme.colorScheme.mutedForeground,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (!playlist.isSystem)
-                              IconButton.ghost(
-                                icon: const Icon(Icons.more_vert_rounded),
-                                onPressed: () => _showPlaylistOptions(context, playlist),
-                              ),
-                          ],
-                        ),
-                      ),
+                  child: ListTileCard(
+                    margin: EdgeInsets.zero,
+                    leading: SquareAvatar(
+                      icon: playlist.isSystem ? Icons.favorite_rounded : Icons.playlist_play_rounded,
+                      backgroundColor: Colors.primaries[colorIndex].withValues(alpha: 0.2),
+                      iconColor: Colors.primaries[colorIndex],
                     ),
+                    title: playlist.name,
+                    subtitle: '${playlist.songCount} songs',
+                    trailing: playlist.isSystem
+                        ? null
+                        : IconButton.ghost(
+                            icon: const Icon(Icons.more_vert_rounded),
+                            onPressed: () => _showPlaylistOptions(playlist),
+                          ),
+                    onTap: () {
+                      showToast(
+                        context: context,
+                        builder: (context, overlay) => SurfaceCard(
+                          child: Basic(title: Text('Opening ${playlist.name}...')),
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
+    );
+  }
+}
+
+class _OptionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDestructive;
+
+  const _OptionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDestructive ? Colors.red : null;
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 12),
+            Text(label, style: TextStyle(color: color)),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -323,4 +264,14 @@ class Playlist {
     this.imageUrl,
     this.isSystem = false,
   });
+
+  Playlist copyWith({String? name, int? songCount}) {
+    return Playlist(
+      id: id,
+      name: name ?? this.name,
+      songCount: songCount ?? this.songCount,
+      imageUrl: imageUrl,
+      isSystem: isSystem,
+    );
+  }
 }

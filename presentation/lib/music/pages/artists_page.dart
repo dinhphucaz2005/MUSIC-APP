@@ -1,6 +1,7 @@
-import 'package:presentation/music/domain/local_song_repository.dart';
-import 'package:presentation/music/domain/media_controller_manager.dart';
-import 'package:presentation/music/domain/song.dart';
+import 'package:music/local_song_repository.dart';
+import 'package:music/media_controller_manager.dart';
+import 'package:music/song.dart';
+import 'package:presentation/music/widgets/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 class ArtistsPage extends StatefulWidget {
@@ -47,8 +48,6 @@ class _ArtistsPageState extends State<ArtistsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       headers: [
         AppBar(
@@ -64,33 +63,10 @@ class _ArtistsPageState extends State<ArtistsPage> {
         ),
       ],
       child: _artists.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.person_rounded,
-                    size: 80,
-                    color: theme.colorScheme.mutedForeground,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No artists found',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: theme.colorScheme.mutedForeground,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Load songs to see artists',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.colorScheme.mutedForeground.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
+          ? const EmptyState(
+              icon: Icons.person_rounded,
+              title: 'No artists found',
+              subtitle: 'Load songs to see artists',
             )
           : ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -99,9 +75,14 @@ class _ArtistsPageState extends State<ArtistsPage> {
                 final artistName = _artists.keys.elementAt(index);
                 final songs = _artists[artistName]!;
 
-                return _ArtistTile(
-                  artistName: artistName,
-                  songCount: songs.length,
+                return ListTileCard(
+                  leading: CircleAvatar(text: artistName),
+                  title: artistName,
+                  subtitle: '${songs.length} songs',
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: Theme.of(context).colorScheme.mutedForeground,
+                  ),
                   onTap: () => _openArtistDetail(artistName, songs),
                 );
               },
@@ -130,7 +111,10 @@ class _ArtistsPageState extends State<ArtistsPage> {
                   },
                   child: Row(
                     children: [
-                      Text('${index + 1}', style: TextStyle(color: Theme.of(context).colorScheme.mutedForeground)),
+                      Text(
+                        '${index + 1}',
+                        style: TextStyle(color: Theme.of(context).colorScheme.mutedForeground),
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -139,7 +123,10 @@ class _ArtistsPageState extends State<ArtistsPage> {
                             Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
                             Text(
                               _formatDuration(song.durationMillis),
-                              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.mutedForeground),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.mutedForeground,
+                              ),
                               maxLines: 1,
                             ),
                           ],
@@ -176,80 +163,5 @@ class _ArtistsPageState extends State<ArtistsPage> {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-}
-
-class _ArtistTile extends StatelessWidget {
-  final String artistName;
-  final int songCount;
-  final VoidCallback onTap;
-
-  const _ArtistTile({
-    required this.artistName,
-    required this.songCount,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Card(
-        padding: EdgeInsets.zero,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      artistName.isNotEmpty ? artistName[0].toUpperCase() : '?',
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        artistName,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        '$songCount songs',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.colorScheme.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: theme.colorScheme.mutedForeground,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

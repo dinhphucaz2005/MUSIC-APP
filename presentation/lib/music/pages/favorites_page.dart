@@ -1,7 +1,7 @@
-import 'package:presentation/music/domain/local_song_repository.dart';
-import 'package:presentation/music/domain/media_controller_manager.dart';
-import 'package:presentation/music/domain/song.dart';
-import 'package:presentation/music/widgets/song_item.dart';
+import 'package:music/local_song_repository.dart';
+import 'package:music/media_controller_manager.dart';
+import 'package:music/song.dart';
+import 'package:presentation/music/widgets/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +21,6 @@ class FavoritesPage extends StatefulWidget {
 
 class _FavoritesPageState extends State<FavoritesPage> {
   List<LocalSong> _favoriteSongs = [];
-  Set<String> _favoritePaths = {}; // ignore: unused_field
   bool _isLoading = true;
 
   @override
@@ -40,7 +39,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
       if (mounted) {
         setState(() {
-          _favoritePaths = favoritePaths.toSet();
           _favoriteSongs = favorites;
           _isLoading = false;
         });
@@ -64,8 +62,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       headers: [
         AppBar(
@@ -96,34 +92,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _favoriteSongs.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.favorite_rounded,
-                        size: 80,
-                        color: theme.colorScheme.mutedForeground,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No favorites yet',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: theme.colorScheme.mutedForeground,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Tap the heart icon on songs to add them here',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.mutedForeground.withValues(alpha: 0.7),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+              ? const EmptyState(
+                  icon: Icons.favorite_rounded,
+                  title: 'No favorites yet',
+                  subtitle: 'Tap the heart icon on songs to add them here',
                 )
               : StreamBuilder<PlayerState>(
                   stream: widget.mediaController.subject,

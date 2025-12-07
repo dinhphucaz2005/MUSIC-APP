@@ -1,8 +1,8 @@
-import 'package:presentation/music/domain/local_song_repository.dart';
-import 'package:presentation/music/domain/media_controller_manager.dart';
-import 'package:presentation/music/domain/song.dart';
+import 'package:music/local_song_repository.dart';
+import 'package:music/media_controller_manager.dart';
+import 'package:music/song.dart';
+import 'package:presentation/music/widgets/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
-import 'package:presentation/music/widgets/song_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SongsPage extends StatefulWidget {
@@ -65,8 +65,6 @@ class _SongsPageState extends State<SongsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       headers: [
         AppBar(
@@ -82,15 +80,10 @@ class _SongsPageState extends State<SongsPage> {
       child: Column(
         children: [
           // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              placeholder: const Text('Search songs, artists...'),
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
-            ),
+          SearchBar(
+            controller: _searchController,
+            placeholder: 'Search songs, artists...',
+            onChanged: (value) => setState(() => _searchQuery = value),
           ),
 
           // Songs List
@@ -107,70 +100,23 @@ class _SongsPageState extends State<SongsPage> {
                 }
 
                 if (allSongs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.music_note_rounded,
-                            size: 64,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'No songs found',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.foreground,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Load your local music library to get started',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: theme.colorScheme.mutedForeground,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        Button.primary(
-                          onPressed: () => widget.repository.loadLocalSongs(),
-                          leading: const Icon(Icons.refresh_rounded),
-                          child: const Text('Load Songs'),
-                        ),
-                      ],
+                  return EmptyState(
+                    icon: Icons.music_note_rounded,
+                    title: 'No songs found',
+                    subtitle: 'Load your local music library to get started',
+                    showIconBackground: true,
+                    action: Button.primary(
+                      onPressed: () => widget.repository.loadLocalSongs(),
+                      leading: const Icon(Icons.refresh_rounded),
+                      child: const Text('Load Songs'),
                     ),
                   );
                 }
 
                 if (songs.isEmpty && _searchQuery.isNotEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search_off_rounded,
-                          size: 64,
-                          color: theme.colorScheme.mutedForeground,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No results for "$_searchQuery"',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: theme.colorScheme.mutedForeground,
-                          ),
-                        ),
-                      ],
-                    ),
+                  return EmptyState(
+                    icon: Icons.search_off_rounded,
+                    title: 'No results for "$_searchQuery"',
                   );
                 }
 
@@ -187,21 +133,7 @@ class _SongsPageState extends State<SongsPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    '${songs.length} songs',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
+                                CountBadge(count: songs.length, suffix: 'songs'),
                                 const Spacer(),
                                 if (state.isLoading)
                                   const SizedBox(
@@ -217,11 +149,7 @@ class _SongsPageState extends State<SongsPage> {
                         // Songs list
                         Expanded(
                           child: ListView.builder(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              bottom: 100,
-                            ),
+                            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
                             itemCount: songs.length,
                             itemBuilder: (context, index) {
                               final song = songs[index];

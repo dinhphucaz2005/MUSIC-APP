@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'package:presentation/music/domain/local_song_repository.dart';
-import 'package:presentation/music/domain/media_controller_manager.dart';
-import 'package:presentation/music/domain/song.dart';
+import 'package:music/local_song_repository.dart';
+import 'package:music/media_controller_manager.dart';
+import 'package:music/song.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'pages/playlists_page.dart';
 import 'pages/songs_page.dart';
