@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
 import 'package:presentation/music/widgets/widgets.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+
 
 class PlaylistsPage extends StatefulWidget {
   final LocalSongRepository repository;
@@ -30,15 +31,17 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         title: const Text('Create Playlist'),
         content: TextField(
           controller: controller,
-          placeholder: const Text('Enter playlist name'),
+          decoration: const InputDecoration(
+            hintText: 'Enter playlist name',
+          ),
           autofocus: true,
         ),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          Button.primary(
+          ElevatedButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
                 setState(() {
@@ -86,7 +89,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
           ],
         ),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
@@ -103,15 +106,17 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         title: const Text('Rename Playlist'),
         content: TextField(
           controller: controller,
-          placeholder: const Text('Enter new name'),
+          decoration: const InputDecoration(
+            hintText: 'Enter new name',
+          ),
           autofocus: true,
         ),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          Button.primary(
+          ElevatedButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
                 setState(() {
@@ -137,11 +142,15 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         title: const Text('Delete Playlist'),
         content: Text('Are you sure you want to delete "${playlist.name}"?'),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          Button.destructive(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
             onPressed: () {
               setState(() => _playlists.removeWhere((p) => p.id == playlist.id));
               Navigator.pop(context);
@@ -156,26 +165,24 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      headers: [
-        AppBar(
-          title: const Text('Playlists'),
-          trailing: [
-            IconButton.ghost(
-              icon: const Icon(Icons.add_rounded),
-              onPressed: _createPlaylist,
-            ),
-          ],
-        ),
-      ],
-      child: _playlists.isEmpty
+      appBar: AppBar(
+        title: const Text('Playlists'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_rounded),
+            onPressed: _createPlaylist,
+          ),
+        ],
+      ),
+      body: _playlists.isEmpty
           ? EmptyState(
               icon: Icons.playlist_play_rounded,
               title: 'No playlists yet',
               subtitle: 'Create your first playlist',
-              action: Button.primary(
+              action: ElevatedButton.icon(
                 onPressed: _createPlaylist,
-                leading: const Icon(Icons.add_rounded),
-                child: const Text('Create Playlist'),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Create Playlist'),
               ),
             )
           : ListView.builder(
@@ -189,25 +196,29 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: ListTileCard(
                     margin: EdgeInsets.zero,
-                    leading: SquareAvatar(
-                      icon: playlist.isSystem ? Icons.favorite_rounded : Icons.playlist_play_rounded,
-                      backgroundColor: Colors.primaries[colorIndex].withValues(alpha: 0.2),
-                      iconColor: Colors.primaries[colorIndex],
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.primaries[colorIndex].withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        playlist.isSystem ? Icons.favorite_rounded : Icons.playlist_play_rounded,
+                        color: Colors.primaries[colorIndex],
+                      ),
                     ),
                     title: playlist.name,
                     subtitle: '${playlist.songCount} songs',
                     trailing: playlist.isSystem
                         ? null
-                        : IconButton.ghost(
+                        : IconButton(
                             icon: const Icon(Icons.more_vert_rounded),
                             onPressed: () => _showPlaylistOptions(playlist),
                           ),
                     onTap: () {
-                      showToast(
-                        context: context,
-                        builder: (context, overlay) => SurfaceCard(
-                          child: Basic(title: Text('Opening ${playlist.name}...')),
-                        ),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Opening ${playlist.name}...')),
                       );
                     },
                   ),

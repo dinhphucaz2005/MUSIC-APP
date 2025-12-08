@@ -9,7 +9,6 @@ dependencies:
     sdk: flutter
   music:
     path: music
-  shadcn_flutter: ^0.0.47
   shared_preferences: ^2.2.2
   share_plus: ^7.2.1
   rxdart: ^0.28.0

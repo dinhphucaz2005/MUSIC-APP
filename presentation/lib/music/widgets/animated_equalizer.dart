@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 
 class AnimatedEqualizer extends StatefulWidget {
   final Color color;
@@ -47,6 +47,12 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTicker
     final duration = Duration(milliseconds: max(300, (1500 / widget.speed).round()));
 
     _controller = AnimationController(vsync: this, duration: duration)..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override

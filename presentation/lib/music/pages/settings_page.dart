@@ -1,4 +1,4 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -43,19 +43,18 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
-      headers: [
-        AppBar(
-          title: const Text('Settings'),
-        ),
-      ],
-      child: ListView(
+      appBar: AppBar(
+        title: const Text('Settings'),
+      ),
+      body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Appearance Section
           _SectionHeader(title: 'Appearance'),
           Card(
+            clipBehavior: Clip.antiAlias,
             child: _SettingsTile(
               icon: Icons.dark_mode_rounded,
               title: 'Dark Mode',
@@ -70,9 +69,9 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Playback Section
           _SectionHeader(title: 'Playback'),
           Card(
@@ -84,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: _audioQuality,
                   onTap: () => _showQualityPicker(),
                 ),
-                Divider(color: theme.colorScheme.border),
+                Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.swap_horiz_rounded,
                   title: 'Crossfade',
@@ -98,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 if (_crossfadeEnabled) ...[
-                  Divider(color: theme.colorScheme.border),
+                  Divider(color: theme.colorScheme.primaryContainer),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -107,12 +106,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: Slider(
-                            value: SliderValue.single(_crossfadeDuration.toDouble()),
+                            value: _crossfadeDuration.toDouble(),
                             min: 1,
                             max: 12,
                             divisions: 11,
                             onChanged: (value) {
-                              setState(() => _crossfadeDuration = value.value.round());
+                              setState(() => _crossfadeDuration = value.round());
                               _saveSettings();
                             },
                           ),
@@ -124,12 +123,13 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Storage Section
           _SectionHeader(title: 'Storage'),
           Card(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _SettingsTile(
@@ -138,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: 'Free up storage space',
                   onTap: () => _showClearCacheConfirmation(),
                 ),
-                Divider(color: theme.colorScheme.border),
+                Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.folder_rounded,
                   title: 'Music Folders',
@@ -150,12 +150,13 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // About Section
           _SectionHeader(title: 'About'),
           Card(
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _SettingsTile(
@@ -163,7 +164,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: 'Version',
                   subtitle: '1.0.0',
                 ),
-                Divider(color: theme.colorScheme.border),
+                Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.code_rounded,
                   title: 'View Source',
@@ -175,7 +176,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
-          
           const SizedBox(height: 100),
         ],
       ),
@@ -207,9 +207,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: quality == _audioQuality 
-                                ? Theme.of(context).colorScheme.primary 
-                                : Theme.of(context).colorScheme.mutedForeground,
+                            color: quality == _audioQuality ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer,
                             width: 2,
                           ),
                         ),
@@ -235,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
@@ -251,21 +249,19 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text('Clear Cache'),
         content: const Text('This will clear all cached images and temporary files. Continue?'),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          Button.destructive(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
             onPressed: () {
-              // TODO: Implement cache clearing
               Navigator.pop(context);
-              showToast(
-                context: context,
-                builder: (context, overlay) => const SurfaceCard(
-                  child: Basic(
-                    title: Text('Cache cleared successfully'),
-                  ),
-                ),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Cache cleared successfully')),
               );
             },
             child: const Text('Clear'),
@@ -284,7 +280,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
@@ -317,7 +313,7 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -346,7 +342,7 @@ class _SettingsTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 13,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                   ),
                 ],
@@ -356,7 +352,7 @@ class _SettingsTile extends StatelessWidget {
             if (onTap != null && trailing == null)
               Icon(
                 Icons.chevron_right_rounded,
-                color: theme.colorScheme.mutedForeground,
+                color: theme.colorScheme.primaryContainer,
               ),
           ],
         ),

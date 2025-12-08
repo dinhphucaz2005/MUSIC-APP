@@ -1,4 +1,4 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 
 /// A reusable count badge widget
 class CountBadge extends StatelessWidget {
@@ -66,7 +66,7 @@ class DurationBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: isHighlighted
             ? theme.colorScheme.primary.withValues(alpha: 0.1)
-            : theme.colorScheme.muted,
+            : theme.colorScheme.primary,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -76,7 +76,7 @@ class DurationBadge extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: isHighlighted
               ? theme.colorScheme.primary
-              : theme.colorScheme.mutedForeground,
+              : theme.colorScheme.primaryContainer,
         ),
       ),
     );

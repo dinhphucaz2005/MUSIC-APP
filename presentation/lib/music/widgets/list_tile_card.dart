@@ -1,4 +1,4 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 
 /// A reusable list tile card with avatar, title, subtitle, and trailing
 class ListTileCard extends StatelessWidget {
@@ -7,8 +7,8 @@ class ListTileCard extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final EdgeInsets? padding;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
 
   const ListTileCard({
     super.key,
@@ -27,12 +27,21 @@ class ListTileCard extends StatelessWidget {
 
     return Padding(
       padding: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Card(
-        padding: EdgeInsets.zero,
-        child: GestureDetector(
+      child: Material(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
           onTap: onTap,
-          child: Padding(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
             padding: padding ?? const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.primary,
+                width: 1,
+              ),
+            ),
             child: Row(
               children: [
                 if (leading != null) ...[
@@ -45,7 +54,10 @@ class ListTileCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primaryContainer,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -54,7 +66,7 @@ class ListTileCard extends StatelessWidget {
                           subtitle!,
                           style: TextStyle(
                             fontSize: 13,
-                            color: theme.colorScheme.mutedForeground,
+                            color: theme.colorScheme.primaryContainer,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -73,14 +85,14 @@ class ListTileCard extends StatelessWidget {
 }
 
 /// A circular avatar with optional image or text
-class CircleAvatar extends StatelessWidget {
+class ShadcnCircleAvatar extends StatelessWidget {
   final double size;
   final String? text;
   final Color? backgroundColor;
   final Color? textColor;
   final IconData? icon;
 
-  const CircleAvatar({
+  const ShadcnCircleAvatar({
     super.key,
     this.size = 48,
     this.text,
@@ -119,14 +131,14 @@ class CircleAvatar extends StatelessWidget {
 }
 
 /// A square avatar with rounded corners
-class SquareAvatar extends StatelessWidget {
+class ShadcnSquareAvatar extends StatelessWidget {
   final double size;
   final IconData icon;
   final Color? backgroundColor;
   final Color? iconColor;
   final double borderRadius;
 
-  const SquareAvatar({
+  const ShadcnSquareAvatar({
     super.key,
     this.size = 56,
     required this.icon,

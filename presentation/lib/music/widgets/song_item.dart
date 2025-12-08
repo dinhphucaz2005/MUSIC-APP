@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:music/song.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'animated_equalizer.dart';
 
 class SongItem extends StatelessWidget {
@@ -23,14 +23,20 @@ class SongItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      child: GestureDetector(
+    return Material(
+      color: theme.colorScheme.primaryContainer,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
-            border: isPlaying ? Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.3), width: 1.5) : null,
+            border: Border.all(
+              color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.3) : theme.colorScheme.primaryContainer,
+              width: isPlaying ? 1.5 : 1,
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(12),
@@ -87,7 +93,7 @@ class SongItem extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: isPlaying ? FontWeight.bold : FontWeight.w600,
                         fontSize: 15,
-                        color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.foreground,
+                        color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -97,7 +103,7 @@ class SongItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.8) : theme.colorScheme.mutedForeground,
+                        color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.8) : theme.colorScheme.primaryContainer,
                       ),
                     ),
                   ],
@@ -108,7 +114,7 @@ class SongItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.1) : theme.colorScheme.muted,
+                  color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.1) : theme.colorScheme.primary,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -116,7 +122,7 @@ class SongItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
+                    color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
                   ),
                 ),
               ),
@@ -125,13 +131,12 @@ class SongItem extends StatelessWidget {
 
               // Favorite button
               if (onFavoriteToggle != null)
-                IconButton.ghost(
+                IconButton(
                   icon: Icon(
                     isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    color: isFavorite ? Colors.red : theme.colorScheme.mutedForeground,
+                    color: isFavorite ? Colors.red : theme.colorScheme.primaryContainer,
                     size: 20,
                   ),
-                  density: ButtonDensity.compact,
                   onPressed: onFavoriteToggle,
                 ),
             ],
@@ -186,15 +191,15 @@ class SongItem extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.muted,
-            theme.colorScheme.muted.withValues(alpha: 0.7),
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
         Icons.music_note_rounded,
-        color: theme.colorScheme.mutedForeground,
+        color: theme.colorScheme.primaryContainer,
         size: 24,
       ),
     );

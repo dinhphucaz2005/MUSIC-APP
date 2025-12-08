@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
 import 'package:music/song.dart';
 import 'package:presentation/music/widgets/widgets.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SongsPage extends StatefulWidget {
@@ -66,21 +67,19 @@ class _SongsPageState extends State<SongsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      headers: [
-        AppBar(
-          title: const Text('My Music'),
-          trailing: [
-            IconButton.ghost(
-              icon: const Icon(Icons.refresh_rounded),
-              onPressed: () => widget.repository.loadLocalSongs(),
-            ),
-          ],
-        ),
-      ],
-      child: Column(
+      appBar: AppBar(
+        title: const Text('My Music'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: () => widget.repository.loadLocalSongs(),
+          ),
+        ],
+      ),
+      body: Column(
         children: [
           // Search Bar
-          SearchBar(
+          SearchBarWidget(
             controller: _searchController,
             placeholder: 'Search songs, artists...',
             onChanged: (value) => setState(() => _searchQuery = value),
@@ -105,10 +104,10 @@ class _SongsPageState extends State<SongsPage> {
                     title: 'No songs found',
                     subtitle: 'Load your local music library to get started',
                     showIconBackground: true,
-                    action: Button.primary(
+                    action: ElevatedButton.icon(
                       onPressed: () => widget.repository.loadLocalSongs(),
-                      leading: const Icon(Icons.refresh_rounded),
-                      child: const Text('Load Songs'),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('Load Songs'),
                     ),
                   );
                 }

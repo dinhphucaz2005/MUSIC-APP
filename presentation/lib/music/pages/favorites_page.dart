@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
 import 'package:music/song.dart';
 import 'package:presentation/music/widgets/widgets.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -63,33 +64,31 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      headers: [
-        AppBar(
-          title: const Text('Favorites'),
-          trailing: [
-            if (_favoriteSongs.isNotEmpty) ...[
-              IconButton.ghost(
-                icon: const Icon(Icons.shuffle_rounded),
-                onPressed: () {
-                  final shuffled = List<LocalSong>.from(_favoriteSongs)..shuffle();
-                  if (shuffled.isNotEmpty) {
-                    widget.mediaController.playSong(shuffled.first);
-                  }
-                },
-              ),
-              IconButton.ghost(
-                icon: const Icon(Icons.play_arrow_rounded),
-                onPressed: () {
-                  if (_favoriteSongs.isNotEmpty) {
-                    widget.mediaController.playSong(_favoriteSongs.first);
-                  }
-                },
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text('Favorites'),
+        actions: [
+          if (_favoriteSongs.isNotEmpty) ...[
+            IconButton(
+              icon: const Icon(Icons.shuffle_rounded),
+              onPressed: () {
+                final shuffled = List<LocalSong>.from(_favoriteSongs)..shuffle();
+                if (shuffled.isNotEmpty) {
+                  widget.mediaController.playSong(shuffled.first);
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.play_arrow_rounded),
+              onPressed: () {
+                if (_favoriteSongs.isNotEmpty) {
+                  widget.mediaController.playSong(_favoriteSongs.first);
+                }
+              },
+            ),
           ],
-        ),
-      ],
-      child: _isLoading
+        ],
+      ),
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _favoriteSongs.isEmpty
               ? const EmptyState(

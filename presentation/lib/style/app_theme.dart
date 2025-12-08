@@ -1,6 +1,6 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 
-/// App theme configuration for shadcn_flutter
+/// App theme configuration for Material Design with shadcn-style colors
 class AppTheme {
   AppTheme._();
 
@@ -12,86 +12,206 @@ class AppTheme {
   /// Dark theme configuration
   static ThemeData darkTheme() {
     return ThemeData(
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        background: Color(0xFF09090B),
-        foreground: Color(0xFFFAFAFA),
-        card: Color(0xFF18181B),
-        cardForeground: Color(0xFFFAFAFA),
-        popover: Color(0xFF18181B),
-        popoverForeground: Color(0xFFFAFAFA),
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: const ColorScheme.dark(
         primary: Color(0xFF6366F1),
-        primaryForeground: Color(0xFFFAFAFA),
+        onPrimary: Color(0xFFFAFAFA),
         secondary: Color(0xFF27272A),
-        secondaryForeground: Color(0xFFFAFAFA),
-        muted: Color(0xFF27272A),
-        mutedForeground: Color(0xFFA1A1AA),
-        accent: Color(0xFF27272A),
-        accentForeground: Color(0xFFFAFAFA),
-        destructive: Color(0xFFEF4444),
-        destructiveForeground: Color(0xFFFAFAFA),
-        border: Color(0xFF27272A),
-        input: Color(0xFF27272A),
-        ring: Color(0xFF6366F1),
-        chart1: Color(0xFF6366F1),
-        chart2: Color(0xFF8B5CF6),
-        chart3: Color(0xFFF472B6),
-        chart4: Color(0xFF22D3EE),
-        chart5: Color(0xFF22C55E),
-        // Sidebar colors
-        sidebar: Color(0xFF18181B),
-        sidebarForeground: Color(0xFFFAFAFA),
-        sidebarPrimary: Color(0xFF6366F1),
-        sidebarPrimaryForeground: Color(0xFFFAFAFA),
-        sidebarAccent: Color(0xFF27272A),
-        sidebarAccentForeground: Color(0xFFFAFAFA),
-        sidebarBorder: Color(0xFF27272A),
-        sidebarRing: Color(0xFF6366F1),
+        onSecondary: Color(0xFFFAFAFA),
+        surface: Color(0xFF09090B),
+        onSurface: Color(0xFFFAFAFA),
+        surfaceContainerHighest: Color(0xFF18181B),
+        error: Color(0xFFEF4444),
+        onError: Color(0xFFFAFAFA),
+        outline: Color(0xFF27272A),
       ),
-      radius: 0.75,
+      scaffoldBackgroundColor: const Color(0xFF09090B),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF18181B),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFF27272A), width: 1),
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF09090B),
+        foregroundColor: Color(0xFFFAFAFA),
+        elevation: 0,
+        centerTitle: true,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF27272A),
+        thickness: 1,
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: const Color(0xFF6366F1),
+        inactiveTrackColor: const Color(0xFF27272A),
+        thumbColor: const Color(0xFF6366F1),
+        overlayColor: const Color(0xFF6366F1).withValues(alpha: 0.2),
+        trackHeight: 4,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF6366F1);
+          }
+          return const Color(0xFFA1A1AA);
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF6366F1).withValues(alpha: 0.5);
+          }
+          return const Color(0xFF27272A);
+        }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF27272A),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF27272A)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF27272A)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+        ),
+        hintStyle: const TextStyle(color: Color(0xFFA1A1AA)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: const Color(0xFF18181B),
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF27272A)),
+        ),
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFFAFAFA),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFF18181B),
+        contentTextStyle: const TextStyle(color: Color(0xFFFAFAFA)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: Color(0xFF27272A)),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: Color(0xFF6366F1),
+      ),
     );
   }
 
   /// Light theme configuration
   static ThemeData lightTheme() {
     return ThemeData(
-      colorScheme: const ColorScheme(
-        brightness: Brightness.light,
-        background: Color(0xFFFFFFFF),
-        foreground: Color(0xFF09090B),
-        card: Color(0xFFFFFFFF),
-        cardForeground: Color(0xFF09090B),
-        popover: Color(0xFFFFFFFF),
-        popoverForeground: Color(0xFF09090B),
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: const ColorScheme.light(
         primary: Color(0xFF6366F1),
-        primaryForeground: Color(0xFFFAFAFA),
+        onPrimary: Color(0xFFFAFAFA),
         secondary: Color(0xFFF4F4F5),
-        secondaryForeground: Color(0xFF18181B),
-        muted: Color(0xFFF4F4F5),
-        mutedForeground: Color(0xFF71717A),
-        accent: Color(0xFFF4F4F5),
-        accentForeground: Color(0xFF18181B),
-        destructive: Color(0xFFEF4444),
-        destructiveForeground: Color(0xFFFAFAFA),
-        border: Color(0xFFE4E4E7),
-        input: Color(0xFFE4E4E7),
-        ring: Color(0xFF6366F1),
-        chart1: Color(0xFF6366F1),
-        chart2: Color(0xFF8B5CF6),
-        chart3: Color(0xFFF472B6),
-        chart4: Color(0xFF22D3EE),
-        chart5: Color(0xFF22C55E),
-        // Sidebar colors
-        sidebar: Color(0xFFF4F4F5),
-        sidebarForeground: Color(0xFF09090B),
-        sidebarPrimary: Color(0xFF6366F1),
-        sidebarPrimaryForeground: Color(0xFFFAFAFA),
-        sidebarAccent: Color(0xFFE4E4E7),
-        sidebarAccentForeground: Color(0xFF18181B),
-        sidebarBorder: Color(0xFFE4E4E7),
-        sidebarRing: Color(0xFF6366F1),
+        onSecondary: Color(0xFF18181B),
+        surface: Color(0xFFFFFFFF),
+        onSurface: Color(0xFF09090B),
+        surfaceContainerHighest: Color(0xFFFFFFFF),
+        error: Color(0xFFEF4444),
+        onError: Color(0xFFFAFAFA),
+        outline: Color(0xFFE4E4E7),
       ),
-      radius: 0.75,
+      scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+      cardTheme: CardThemeData(
+        color: const Color(0xFFFFFFFF),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFFE4E4E7), width: 1),
+        ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFFFFFFFF),
+        foregroundColor: Color(0xFF09090B),
+        elevation: 0,
+        centerTitle: true,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFFE4E4E7),
+        thickness: 1,
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: const Color(0xFF6366F1),
+        inactiveTrackColor: const Color(0xFFE4E4E7),
+        thumbColor: const Color(0xFF6366F1),
+        overlayColor: const Color(0xFF6366F1).withValues(alpha: 0.2),
+        trackHeight: 4,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF6366F1);
+          }
+          return const Color(0xFF71717A);
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF6366F1).withValues(alpha: 0.5);
+          }
+          return const Color(0xFFE4E4E7);
+        }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFFF4F4F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFE4E4E7)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFE4E4E7)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+        ),
+        hintStyle: const TextStyle(color: Color(0xFF71717A)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: const Color(0xFFFFFFFF),
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE4E4E7)),
+        ),
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF09090B),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: const Color(0xFFFFFFFF),
+        contentTextStyle: const TextStyle(color: Color(0xFF09090B)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: Color(0xFFE4E4E7)),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: Color(0xFF6366F1),
+      ),
     );
   }
 
@@ -132,11 +252,9 @@ extension ThemeContextExtension on BuildContext {
 
   Color get primaryColor => colorScheme.primary;
 
-  Color get backgroundColor => colorScheme.background;
+  Color get backgroundColor => colorScheme.surface;
 
-  Color get surfaceColor => colorScheme.card;
+  Color get surfaceColor => colorScheme.surfaceContainerHighest;
 
-  Color get textColor => colorScheme.foreground;
-
-  Color get mutedColor => colorScheme.mutedForeground;
+  Color get textColor => colorScheme.onSurface;
 }

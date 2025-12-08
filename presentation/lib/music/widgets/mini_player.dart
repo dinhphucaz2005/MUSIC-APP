@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
+
 
 class MiniPlayer extends StatelessWidget {
   final String title;
@@ -27,12 +28,12 @@ class MiniPlayer extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: theme.colorScheme.muted,
+          color: theme.colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           Icons.music_note_rounded,
-          color: theme.colorScheme.mutedForeground,
+          color: theme.colorScheme.primaryContainer,
           size: 24,
         ),
       );
@@ -50,10 +51,10 @@ class MiniPlayer extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: theme.colorScheme.muted,
+              color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.broken_image, color: theme.colorScheme.mutedForeground),
+            child: Icon(Icons.broken_image, color: theme.colorScheme.primaryContainer),
           ),
         ),
       );
@@ -71,10 +72,10 @@ class MiniPlayer extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: theme.colorScheme.muted,
+              color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.broken_image, color: theme.colorScheme.mutedForeground),
+            child: Icon(Icons.broken_image, color: theme.colorScheme.primaryContainer),
           ),
         ),
       );
@@ -84,7 +85,7 @@ class MiniPlayer extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: theme.colorScheme.muted,
+        color: theme.colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(Icons.error, color: Colors.red[400]),
@@ -100,10 +101,10 @@ class MiniPlayer extends StatelessWidget {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: theme.colorScheme.card,
+          color: theme.colorScheme.primaryContainer,
           border: Border(
             top: BorderSide(
-              color: theme.colorScheme.border,
+              color: theme.colorScheme.primary,
               width: 1,
             ),
           ),
@@ -151,7 +152,7 @@ class MiniPlayer extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
-                        color: theme.colorScheme.foreground,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -161,7 +162,7 @@ class MiniPlayer extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13,
-                        color: theme.colorScheme.mutedForeground,
+                        color: theme.colorScheme.primaryContainer,
                       ),
                     ),
                   ],
@@ -170,9 +171,9 @@ class MiniPlayer extends StatelessWidget {
               const SizedBox(width: 12),
               
               // Play/Pause button
-              Button.primary(
+              IconButton.filled(
                 onPressed: onPlayPause,
-                child: Icon(
+                icon: Icon(
                   isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   size: 28,
                 ),

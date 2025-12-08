@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
 import 'package:music/song.dart';
 import 'package:presentation/music/widgets/widgets.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+
 
 class ArtistsPage extends StatefulWidget {
   final LocalSongRepository repository;
@@ -48,21 +49,21 @@ class _ArtistsPageState extends State<ArtistsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      headers: [
-        AppBar(
-          title: const Text('Artists'),
-          trailing: [
-            IconButton.ghost(
-              icon: const Icon(Icons.search_rounded),
-              onPressed: () {
-                // TODO: Implement artist search
-              },
-            ),
-          ],
-        ),
-      ],
-      child: _artists.isEmpty
+      appBar: AppBar(
+        title: const Text('Artists'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () {
+              // TODO: Implement artist search
+            },
+          ),
+        ],
+      ),
+      body: _artists.isEmpty
           ? const EmptyState(
               icon: Icons.person_rounded,
               title: 'No artists found',
@@ -76,12 +77,18 @@ class _ArtistsPageState extends State<ArtistsPage> {
                 final songs = _artists[artistName]!;
 
                 return ListTileCard(
-                  leading: CircleAvatar(text: artistName),
+                  leading: CircleAvatar(
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    child: Text(
+                      artistName.isNotEmpty ? artistName[0].toUpperCase() : '?',
+                      style: TextStyle(color: theme.colorScheme.primary),
+                    ),
+                  ),
                   title: artistName,
                   subtitle: '${songs.length} songs',
                   trailing: Icon(
                     Icons.chevron_right_rounded,
-                    color: Theme.of(context).colorScheme.mutedForeground,
+                    color: theme.colorScheme.primaryContainer,
                   ),
                   onTap: () => _openArtistDetail(artistName, songs),
                 );
@@ -113,7 +120,7 @@ class _ArtistsPageState extends State<ArtistsPage> {
                     children: [
                       Text(
                         '${index + 1}',
-                        style: TextStyle(color: Theme.of(context).colorScheme.mutedForeground),
+                        style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -125,7 +132,7 @@ class _ArtistsPageState extends State<ArtistsPage> {
                               _formatDuration(song.durationMillis),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context).colorScheme.mutedForeground,
+                                color: Theme.of(context).colorScheme.primaryContainer,
                               ),
                               maxLines: 1,
                             ),
@@ -140,11 +147,11 @@ class _ArtistsPageState extends State<ArtistsPage> {
           ),
         ),
         actions: [
-          Button.outline(
+          OutlinedButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Close'),
           ),
-          Button.primary(
+          ElevatedButton(
             onPressed: () {
               if (songs.isNotEmpty) {
                 widget.mediaController.playSong(songs.first);

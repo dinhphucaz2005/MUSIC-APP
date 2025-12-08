@@ -1,4 +1,4 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:presentation/style/app_theme.dart';
 
 import 'music/home_page.dart';
@@ -26,7 +26,7 @@ class _MusicAppState extends State<MusicApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ShadcnApp(
+    return MaterialApp(
       title: 'Music App',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,

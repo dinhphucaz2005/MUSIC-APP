@@ -1,8 +1,8 @@
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
 import 'package:music/song.dart';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'pages/playlists_page.dart';
 import 'pages/songs_page.dart';
 import 'pages/artists_page.dart';
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         final song = playerState?.currentSong;
 
         return Scaffold(
-          child: Stack(
+          body: Stack(
             children: [
               // Main content with bottom navigation
               Column(
@@ -130,9 +130,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   // Bottom Navigation Bar
                   Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.card,
+                      color: theme.colorScheme.primary,
                       border: Border(
-                        top: BorderSide(color: theme.colorScheme.border, width: 1),
+                        top: BorderSide(color: theme.colorScheme.primary, width: 1),
                       ),
                     ),
                     child: SafeArea(
@@ -158,7 +158,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   children: [
                                     Icon(
                                       item.icon,
-                                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
+                                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
                                       size: 24,
                                     ),
                                     const SizedBox(height: 4),
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
+                                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
                                       ),
                                     ),
                                   ],
@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             onTap: isFullyCollapsed ? _expandPlayer : null,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.card,
+                                color: theme.colorScheme.primary,
                                 borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(20 - 10 * progress),
                                 ),
@@ -310,7 +310,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                               width: 40,
                                               height: 4,
                                               decoration: BoxDecoration(
-                                                color: theme.colorScheme.muted,
+                                                color: theme.colorScheme.primary,
                                                 borderRadius: BorderRadius.circular(2),
                                               ),
                                             ),

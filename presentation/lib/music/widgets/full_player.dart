@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
+
 
 enum RepeatMode { off, one, all }
 
@@ -68,7 +69,7 @@ class _FullPlayerState extends State<FullPlayer> {
         ),
         child: Icon(
           Icons.music_note_rounded,
-          color: theme.colorScheme.primaryForeground.withValues(alpha: 0.8),
+          color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
           size: 100,
         ),
       );
@@ -112,15 +113,15 @@ class _FullPlayerState extends State<FullPlayer> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.muted,
-            theme.colorScheme.muted.withValues(alpha: 0.7),
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Icon(
         Icons.broken_image_rounded,
-        color: theme.colorScheme.mutedForeground,
+        color: theme.colorScheme.primaryContainer,
         size: 80,
       ),
     );
@@ -153,8 +154,8 @@ class _FullPlayerState extends State<FullPlayer> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            theme.colorScheme.background,
-            theme.colorScheme.card,
+            theme.colorScheme.surface,
+            theme.colorScheme.primaryContainer,
           ],
         ),
       ),
@@ -168,7 +169,7 @@ class _FullPlayerState extends State<FullPlayer> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (widget.onClose != null)
-                    IconButton.ghost(
+                    IconButton(
                       icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
                       onPressed: widget.onClose,
                     )
@@ -181,11 +182,11 @@ class _FullPlayerState extends State<FullPlayer> {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                   ),
                   
-                  IconButton.ghost(
+                  IconButton(
                     icon: const Icon(Icons.queue_music_rounded),
                     onPressed: widget.onQueue,
                   ),
@@ -222,7 +223,7 @@ class _FullPlayerState extends State<FullPlayer> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.foreground,
+                      color: theme.colorScheme.primary,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
@@ -233,7 +234,7 @@ class _FullPlayerState extends State<FullPlayer> {
                     widget.artist,
                     style: TextStyle(
                       fontSize: 16,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
@@ -251,10 +252,10 @@ class _FullPlayerState extends State<FullPlayer> {
               child: Column(
                 children: [
                   Slider(
-                    value: SliderValue.single(widget.position.toDouble().clamp(0, widget.duration.toDouble())),
+                    value: widget.position.toDouble().clamp(0, widget.duration.toDouble()),
                     min: 0,
                     max: widget.duration.toDouble() > 0 ? widget.duration.toDouble() : 1,
-                    onChanged: (value) => widget.onSeek(value.value),
+                    onChanged: widget.onSeek,
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -264,7 +265,7 @@ class _FullPlayerState extends State<FullPlayer> {
                         _formatDuration(widget.position),
                         style: TextStyle(
                           fontSize: 13,
-                          color: theme.colorScheme.mutedForeground,
+                          color: theme.colorScheme.primaryContainer,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -272,7 +273,7 @@ class _FullPlayerState extends State<FullPlayer> {
                         _formatDuration(widget.duration),
                         style: TextStyle(
                           fontSize: 13,
-                          color: theme.colorScheme.mutedForeground,
+                          color: theme.colorScheme.primaryContainer,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -291,22 +292,22 @@ class _FullPlayerState extends State<FullPlayer> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Shuffle
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.shuffle_rounded,
                       color: widget.isShuffleEnabled 
                           ? theme.colorScheme.primary 
-                          : theme.colorScheme.mutedForeground,
+                          : theme.colorScheme.primaryContainer,
                     ),
                     onPressed: widget.onShuffle,
                   ),
                   
                   // Previous
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.skip_previous_rounded,
                       size: 36,
-                      color: theme.colorScheme.foreground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                     onPressed: widget.onPrevious,
                   ),
@@ -331,10 +332,10 @@ class _FullPlayerState extends State<FullPlayer> {
                         ),
                       ],
                     ),
-                    child: IconButton.ghost(
+                    child: IconButton(
                       icon: Icon(
                         widget.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                        color: theme.colorScheme.primaryForeground,
+                        color: theme.colorScheme.onPrimary,
                         size: 36,
                       ),
                       onPressed: widget.onPlayPause,
@@ -342,22 +343,22 @@ class _FullPlayerState extends State<FullPlayer> {
                   ),
                   
                   // Next
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.skip_next_rounded,
                       size: 36,
-                      color: theme.colorScheme.foreground,
+                      color: theme.colorScheme.primary,
                     ),
                     onPressed: widget.onNext,
                   ),
                   
                   // Repeat
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       _getRepeatIcon(),
                       color: widget.repeatMode != RepeatMode.off 
                           ? theme.colorScheme.primary 
-                          : theme.colorScheme.mutedForeground,
+                          : theme.colorScheme.primaryContainer,
                     ),
                     onPressed: widget.onRepeat,
                   ),
@@ -373,26 +374,26 @@ class _FullPlayerState extends State<FullPlayer> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.lyrics_rounded,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                     onPressed: widget.onLyrics,
                   ),
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.favorite_border_rounded,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                     onPressed: () {
                       // TODO: Toggle favorite
                     },
                   ),
-                  IconButton.ghost(
+                  IconButton(
                     icon: Icon(
                       Icons.share_rounded,
-                      color: theme.colorScheme.mutedForeground,
+                      color: theme.colorScheme.primaryContainer,
                     ),
                     onPressed: () {
                       // TODO: Share song

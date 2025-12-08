@@ -1,4 +1,4 @@
-import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter/material.dart';
 
 /// A reusable empty state widget with icon, title, subtitle, and optional action
 class EmptyState extends StatelessWidget {
@@ -22,7 +22,7 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveIconColor = iconColor ?? theme.colorScheme.mutedForeground;
+    final effectiveIconColor = iconColor ?? theme.colorScheme.primaryContainer;
 
     return Center(
       child: Padding(
@@ -47,7 +47,7 @@ class EmptyState extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: theme.colorScheme.foreground,
+                color: theme.colorScheme.primary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -57,7 +57,7 @@ class EmptyState extends StatelessWidget {
                 subtitle!,
                 style: TextStyle(
                   fontSize: 14,
-                  color: theme.colorScheme.mutedForeground,
+                  color: theme.colorScheme.primaryContainer,
                 ),
                 textAlign: TextAlign.center,
               ),
