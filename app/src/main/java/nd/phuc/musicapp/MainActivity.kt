@@ -56,11 +56,6 @@ class MainActivity : FlutterFragmentActivity() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 Timber.i("Permission granted")
-                /*
-                                lifecycleScope.launch {
-                                    songRepository.getSongs()
-                                }
-                */
                 startMusicService()
             } else {
                 Timber.i("Permission denied")
@@ -100,20 +95,16 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onStart() {
         super.onStart()
-        val permission =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                Manifest.permission.READ_MEDIA_AUDIO
-            } else {
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            }
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
 
         if (ContextCompat.checkSelfPermission(
                 this, permission
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            lifecycleScope.launch {
-//                songRepository.getSongs()
-            }
             startMusicService()
         } else {
             requestPermissionLauncher.launch(permission)
