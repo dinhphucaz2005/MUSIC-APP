@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late Animation<double> _animation;
   double _dragOffset = 0.0;
   bool _isDragging = false;
+  double _lastDragValue = 0.0;
 
   final List<_NavItem> _navItems = [
     _NavItem(icon: Icons.music_note_rounded, label: 'Songs'),
@@ -40,12 +41,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350),
     );
     _animation = CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeInOutCubicEmphasized,
-      reverseCurve: Curves.easeInOutCubicEmphasized,
+      curve: Curves.easeInOutCubic,
+      reverseCurve: Curves.easeInOutCubic,
     );
   }
 
@@ -56,22 +57,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   void _expandPlayer() {
-    _animationController.forward();
+    _animationController.animateTo(1.0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _collapsePlayer() {
-    _animationController.reverse();
+    _animationController.animateTo(0.0,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInCubic,
+    );
   }
 
   void _onVerticalDragUpdate(DragUpdateDetails details, double screenHeight) {
     if (!_isDragging) {
-      setState(() => _isDragging = true);
+      setState(() {
+        _isDragging = true;
+        _lastDragValue = _animationController.value;
+      });
     }
 
+    // Cải thiện sensitivity và smoothness
+    final delta = -details.primaryDelta! / (screenHeight * 0.8);
+    final newValue = (_lastDragValue + delta).clamp(0.0, 1.0);
+
+    _animationController.value = newValue;
     setState(() {
-      _dragOffset -= details.primaryDelta! / screenHeight;
-      _dragOffset = _dragOffset.clamp(0.0, 1.0);
-      _animationController.value = _dragOffset;
+      _dragOffset = newValue;
     });
   }
 
@@ -79,12 +92,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() => _isDragging = false);
 
     final velocity = details.primaryVelocity ?? 0;
-    final shouldExpand = velocity < -300 || (_dragOffset > 0.5 && velocity >= -300);
+    final normalizedVelocity = velocity / screenHeight;
+
+    // Improved threshold logic với velocity consideration
+    final shouldExpand = normalizedVelocity < -0.3 ||
+                        (_dragOffset > 0.4 && normalizedVelocity >= -0.3);
 
     if (shouldExpand) {
-      _expandPlayer();
+      _animationController.animateTo(1.0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+      );
     } else {
-      _collapsePlayer();
+      _animationController.animateTo(0.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInCubic,
+      );
     }
   }
 
@@ -130,9 +153,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   // Bottom Navigation Bar
                   Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
+                      color: theme.colorScheme.surface,
                       border: Border(
-                        top: BorderSide(color: theme.colorScheme.primary, width: 1),
+                        top: BorderSide(color: theme.colorScheme.outline, width: 1),
                       ),
                     ),
                     child: SafeArea(
@@ -158,7 +181,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   children: [
                                     Icon(
                                       item.icon,
-                                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
+                                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                       size: 24,
                                     ),
                                     const SizedBox(height: 4),
@@ -167,7 +190,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
+                                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                       ),
                                     ),
                                   ],

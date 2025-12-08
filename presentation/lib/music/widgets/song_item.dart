@@ -23,123 +23,101 @@ class SongItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Material(
-      color: theme.colorScheme.primaryContainer,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      decoration: BoxDecoration(
+        color: isPlaying ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.3) : theme.colorScheme.primaryContainer,
-              width: isPlaying ? 1.5 : 1,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Thumbnail
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: isPlaying
-                          ? [
-                              BoxShadow(
-                                color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: _buildThumbnail(song.thumbnailPath, theme),
+        border: Border.all(
+          color: isPlaying ? Colors.white.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Thumbnail/Equalizer
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
-                  if (isPlaying)
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Center(
-                        child: AnimatedEqualizer(
-                          color: Colors.white,
-                          size: 28,
-                          barCount: 5,
+                  child: isPlaying
+                      ? const Center(
+                          child: AnimatedEqualizer(
+                            color: Colors.white,
+                            size: 24,
+                            barCount: 4,
+                            speed: 1.2,
+                            spacing: 1.5,
+                          ),
+                        )
+                      : _buildThumbnail(song.thumbnailPath, theme),
+                ),
+                const SizedBox(width: 14),
+
+                // Song info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        song.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: isPlaying ? FontWeight.w700 : FontWeight.w600,
+                          fontSize: 15,
+                          color: isPlaying ? Colors.white : Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 14),
+                      const SizedBox(height: 4),
+                      Text(
+                        song.artist,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-              // Song info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Duration and favorite
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      song.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: isPlaying ? FontWeight.bold : FontWeight.w600,
-                        fontSize: 15,
-                        color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.primary,
+                    if (song.durationMillis > 0)
+                      Text(
+                        _formatDuration(song.durationMillis),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      song.artist,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.8) : theme.colorScheme.primaryContainer,
+                    if (onFavoriteToggle != null) ...[
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: onFavoriteToggle,
+                        child: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          size: 18,
+                          color: isFavorite ? Colors.red[400] : Colors.white.withValues(alpha: 0.6),
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
-              ),
-
-              // Duration badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isPlaying ? theme.colorScheme.primary.withValues(alpha: 0.1) : theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _formatDuration(song.durationMillis),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: isPlaying ? theme.colorScheme.primary : theme.colorScheme.primaryContainer,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Favorite button
-              if (onFavoriteToggle != null)
-                IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    color: isFavorite ? Colors.red : theme.colorScheme.primaryContainer,
-                    size: 20,
-                  ),
-                  onPressed: onFavoriteToggle,
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -199,7 +177,7 @@ class SongItem extends StatelessWidget {
       ),
       child: Icon(
         Icons.music_note_rounded,
-        color: theme.colorScheme.primaryContainer,
+        color: theme.colorScheme.onPrimaryContainer,
         size: 24,
       ),
     );

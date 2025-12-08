@@ -14,7 +14,7 @@ class AnimatedEqualizer extends StatefulWidget {
     this.color = Colors.white,
     this.size = 32,
     this.barCount = 5,
-    this.speed = 0.5,
+    this.speed = 1.2, // Tốc độ mặc định 1.2
     this.spacing = 2,
     this.cornerRadius = 2.0,
   });
@@ -39,12 +39,13 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTicker
     _rnd = Random();
 
     _phases = List.generate(widget.barCount, (_) => _rnd.nextDouble() * pi * 2);
-    _amps = List.generate(widget.barCount, (_) => 0.5 + _rnd.nextDouble() * 1.0);
-    _freqOffsets = List.generate(widget.barCount, (_) => _rnd.nextDouble() * 0.1);
+    _amps = List.generate(widget.barCount, (i) => 0.3 + (i % 3) * 0.2 + _rnd.nextDouble() * 0.4);
+    _freqOffsets = List.generate(widget.barCount, (_) => _rnd.nextDouble() * 0.2);
     _values = List.filled(widget.barCount, 0);
     _velocity = List.filled(widget.barCount, 0);
 
-    final duration = Duration(milliseconds: max(300, (1500 / widget.speed).round()));
+    // Tăng duration để chậm hơn và mượt hơn
+    final duration = Duration(milliseconds: max(800, (2500 / widget.speed).round()));
 
     _controller = AnimationController(vsync: this, duration: duration)..repeat();
   }
@@ -68,44 +69,40 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTicker
           for (int i = 0; i < widget.barCount; i++) {
             final phase = _phases[i];
 
-            final freq = 0.7 + (i % 5) * 0.2 + _freqOffsets[i];
-            final low = 0.2 + (i % 3) * 0.12;
-            final mid = 0.4 + (i % 4) * 0.15;
-            
-            // Subtle jitter for organic feeling
-            final jitter = 0.03 * sin(t * 2 * pi * 5 + i * 1.8);
+            // Tạo frequency khác nhau cho từng thanh để chúng không đồng bộ
+            final baseFreq = 0.3 + (i * 0.12) + _freqOffsets[i];
+            final slowFreq = 0.15 + (i % 3) * 0.06;
+            final midFreq = 0.45 + (i % 4) * 0.08;
 
-            // Main frequency component
-            double v = sin(t * 2 * pi * freq + phase);
-            
-            // Add harmonics với amplitudes thấp hơn để tránh overflow
-            v += 0.25 * sin(t * 2 * pi * low + phase * 0.8);
-            v += 0.15 * sin(t * 2 * pi * mid + phase * 1.3);
-            
-            // Normalize properly - chia cho tổng amplitude tối đa (1 + 0.25 + 0.15 = 1.4)
-            v = v / 1.4;
-            
-            // Convert to 0-1 range
-            v = (v + 1) / 2;
+            // Jitter nhẹ cho tự nhiên
+            final jitter = 0.02 * sin(t * 2 * pi * 2.5 + i * 2.1);
 
-            // Apply power curve
-            v = pow(v, 1.2).toDouble() * _amps[i];
-            v = (v + jitter).clamp(0, 1);
+            // Kết hợp nhiều sóng với amplitude khác nhau
+            double v = sin(t * 2 * pi * baseFreq + phase);
+            v += 0.4 * sin(t * 2 * pi * slowFreq + phase * 1.3);
+            v += 0.3 * sin(t * 2 * pi * midFreq + phase * 0.7);
 
-            // Smooth easing
-            v = Curves.easeOutCubic.transform(v);
+            // Normalize về 0-1 (tổng amplitude tối đa = 1 + 0.4 + 0.3 = 1.7)
+            v = (v + 1.7) / 3.4;
 
-            double target = v;
-            
-            // Spring physics mềm hơn để mượt mà tự nhiên
-            double force = (target - _values[i]) * 0.18;
+            // Thêm variation giữa các thanh để chiều cao chênh lệch nhiều hơn
+            final heightVariation = 0.1 + (i % 4) * 0.25;
+            v = (v * _amps[i] + heightVariation + jitter).clamp(0, 1);
 
+            // Smooth curves để mượt hơn
+            v = Curves.easeInOutSine.transform(v);
+
+            final target = v;
+
+            // Spring physics mượt mà hơn
+            final spring = 0.08; // Giảm spring force để chậm hơn
+            final damping = 0.82; // Tăng damping để mượt hơn
+
+            final force = (target - _values[i]) * spring;
             _velocity[i] += force;
-            _velocity[i] *= 0.86; // Giảm damping để responsive hơn
+            _velocity[i] *= damping;
 
             _values[i] += _velocity[i];
-            
-            // QUAN TRỌNG: Clamp giá trị cuối để không vượt khung
             _values[i] = _values[i].clamp(0.0, 1.0);
           }
 
@@ -135,32 +132,41 @@ class _EqualizerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final glowPaint =
-        Paint()
-          ..color = color.withValues(alpha: 0.25)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    // Glow effect nhẹ hơn
+    final glowPaint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
-    final grad =
-        Paint()
-          ..shader = LinearGradient(
-            colors: [color.withValues(alpha: 0.95), color.withValues(alpha: 0.6)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    // Gradient đẹp hơn
+    final gradientPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          color.withValues(alpha: 0.9),
+          color.withValues(alpha: 0.7),
+          color.withValues(alpha: 0.5),
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final barWidth = (size.width - spacing * (barCount - 1)) / barCount;
-    final maxH = size.height;
-    final minH = maxH * 0.06;
+    final maxHeight = size.height;
+    final minHeight = maxHeight * 0.12; // Tăng min height để dễ thấy hơn
 
     for (int i = 0; i < barCount; i++) {
-      final h = minH + (maxH - minH) * values[i];
+      // Tính height với chênh lệch lớn hơn
+      final heightRatio = values[i];
+      final height = minHeight + (maxHeight - minHeight) * heightRatio;
       final left = i * (barWidth + spacing);
 
-      final rect = Rect.fromLTWH(left, maxH - h, barWidth, h);
-      final r = RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius));
+      final rect = Rect.fromLTWH(left, maxHeight - height, barWidth, height);
+      final roundedRect = RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius));
 
-      canvas.drawRRect(r.inflate(2), glowPaint);
-      canvas.drawRRect(r, grad);
+      // Vẽ glow
+      canvas.drawRRect(roundedRect.inflate(1.5), glowPaint);
+
+      // Vẽ thanh chính
+      canvas.drawRRect(roundedRect, gradientPaint);
     }
   }
 

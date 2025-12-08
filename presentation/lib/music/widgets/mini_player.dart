@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'animated_equalizer.dart';
 
 
 class MiniPlayer extends StatelessWidget {
@@ -170,12 +171,35 @@ class MiniPlayer extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               
-              // Play/Pause button
-              IconButton.filled(
-                onPressed: onPlayPause,
-                icon: Icon(
-                  isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  size: 28,
+              // Play/Pause button with animated equalizer
+              GestureDetector(
+                onTap: onPlayPause,
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: isPlaying
+                        ? const AnimatedEqualizer(
+                            color: Colors.white,
+                            size: 24,
+                            barCount: 4,
+                            speed: 1.2,
+                            spacing: 1.5,
+                            cornerRadius: 1.5,
+                          )
+                        : const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 28),
+                  ),
                 ),
               ),
             ],

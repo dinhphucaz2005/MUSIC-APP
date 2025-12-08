@@ -5,9 +5,9 @@ class AppTheme {
   AppTheme._();
 
   /// Primary accent color for the music app
-  static const Color primaryColor = Color(0xFF6366F1); // Indigo
-  static const Color secondaryColor = Color(0xFF8B5CF6); // Violet
-  static const Color accentColor = Color(0xFFF472B6); // Pink
+  static const Color primaryColor = Color(0xFF000000); // Black
+  static const Color secondaryColor = Color(0xFFFFFFFF); // White
+  static const Color accentColor = Color(0xFF71717A); // Zinc 500
 
   /// Dark theme configuration
   static ThemeData darkTheme() {
@@ -15,18 +15,20 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF6366F1),
-        onPrimary: Color(0xFFFAFAFA),
-        secondary: Color(0xFF27272A),
-        onSecondary: Color(0xFFFAFAFA),
-        surface: Color(0xFF09090B),
-        onSurface: Color(0xFFFAFAFA),
+        primary: Color(0xFFFFFFFF),
+        onPrimary: Color(0xFF000000),
+        secondary: Color(0xFF71717A),
+        onSecondary: Color(0xFFFFFFFF),
+        surface: Color(0xFF000000),
+        onSurface: Color(0xFFFFFFFF),
         surfaceContainerHighest: Color(0xFF18181B),
         error: Color(0xFFEF4444),
-        onError: Color(0xFFFAFAFA),
+        onError: Color(0xFFFFFFFF),
         outline: Color(0xFF27272A),
+        primaryContainer: Color(0xFF18181B),
+        onPrimaryContainer: Color(0xFFFFFFFF),
       ),
-      scaffoldBackgroundColor: const Color(0xFF09090B),
+      scaffoldBackgroundColor: const Color(0xFF000000),
       cardTheme: CardThemeData(
         color: const Color(0xFF18181B),
         elevation: 0,
@@ -36,8 +38,8 @@ class AppTheme {
         ),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF09090B),
-        foregroundColor: Color(0xFFFAFAFA),
+        backgroundColor: Color(0xFF000000),
+        foregroundColor: Color(0xFFFFFFFF),
         elevation: 0,
         centerTitle: true,
       ),
@@ -46,22 +48,22 @@ class AppTheme {
         thickness: 1,
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: const Color(0xFF6366F1),
+        activeTrackColor: const Color(0xFFFFFFFF),
         inactiveTrackColor: const Color(0xFF27272A),
-        thumbColor: const Color(0xFF6366F1),
-        overlayColor: const Color(0xFF6366F1).withValues(alpha: 0.2),
+        thumbColor: const Color(0xFFFFFFFF),
+        overlayColor: const Color(0xFFFFFFFF).withValues(alpha: 0.2),
         trackHeight: 4,
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const Color(0xFF6366F1);
+            return const Color(0xFFFFFFFF);
           }
           return const Color(0xFFA1A1AA);
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const Color(0xFF6366F1).withValues(alpha: 0.5);
+            return const Color(0xFFFFFFFF).withValues(alpha: 0.5);
           }
           return const Color(0xFF27272A);
         }),
@@ -79,7 +81,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+          borderSide: const BorderSide(color: Color(0xFFFFFFFF), width: 2),
         ),
         hintStyle: const TextStyle(color: Color(0xFFA1A1AA)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -94,12 +96,12 @@ class AppTheme {
         titleTextStyle: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: Color(0xFFFAFAFA),
+          color: Color(0xFFFFFFFF),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFF18181B),
-        contentTextStyle: const TextStyle(color: Color(0xFFFAFAFA)),
+        contentTextStyle: const TextStyle(color: Color(0xFFFFFFFF)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: const BorderSide(color: Color(0xFF27272A)),
@@ -107,7 +109,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: Color(0xFF6366F1),
+        color: Color(0xFFFFFFFF),
       ),
     );
   }
@@ -118,16 +120,18 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF6366F1),
-        onPrimary: Color(0xFFFAFAFA),
+        primary: Color(0xFF000000),
+        onPrimary: Color(0xFFFFFFFF),
         secondary: Color(0xFFF4F4F5),
         onSecondary: Color(0xFF18181B),
         surface: Color(0xFFFFFFFF),
-        onSurface: Color(0xFF09090B),
+        onSurface: Color(0xFF000000),
         surfaceContainerHighest: Color(0xFFFFFFFF),
         error: Color(0xFFEF4444),
-        onError: Color(0xFFFAFAFA),
+        onError: Color(0xFFFFFFFF),
         outline: Color(0xFFE4E4E7),
+        primaryContainer: Color(0xFFF4F4F5),
+        onPrimaryContainer: Color(0xFF000000),
       ),
       scaffoldBackgroundColor: const Color(0xFFFFFFFF),
       cardTheme: CardThemeData(
@@ -140,7 +144,7 @@ class AppTheme {
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFFFFFFFF),
-        foregroundColor: Color(0xFF09090B),
+        foregroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
       ),
@@ -149,22 +153,22 @@ class AppTheme {
         thickness: 1,
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: const Color(0xFF6366F1),
+        activeTrackColor: const Color(0xFF000000),
         inactiveTrackColor: const Color(0xFFE4E4E7),
-        thumbColor: const Color(0xFF6366F1),
-        overlayColor: const Color(0xFF6366F1).withValues(alpha: 0.2),
+        thumbColor: const Color(0xFF000000),
+        overlayColor: const Color(0xFF000000).withValues(alpha: 0.2),
         trackHeight: 4,
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const Color(0xFF6366F1);
+            return const Color(0xFF000000);
           }
           return const Color(0xFF71717A);
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const Color(0xFF6366F1).withValues(alpha: 0.5);
+            return const Color(0xFF000000).withValues(alpha: 0.5);
           }
           return const Color(0xFFE4E4E7);
         }),
@@ -182,7 +186,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
+          borderSide: const BorderSide(color: Color(0xFF000000), width: 2),
         ),
         hintStyle: const TextStyle(color: Color(0xFF71717A)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -197,12 +201,12 @@ class AppTheme {
         titleTextStyle: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF09090B),
+          color: Color(0xFF000000),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFFFFFFFF),
-        contentTextStyle: const TextStyle(color: Color(0xFF09090B)),
+        contentTextStyle: const TextStyle(color: Color(0xFF000000)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: const BorderSide(color: Color(0xFFE4E4E7)),
@@ -210,7 +214,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: Color(0xFF6366F1),
+        color: Color(0xFF000000),
       ),
     );
   }

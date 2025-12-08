@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-
+import 'animated_equalizer.dart';
 
 enum RepeatMode { off, one, all }
 
@@ -50,8 +51,8 @@ class FullPlayer extends StatefulWidget {
 
 class _FullPlayerState extends State<FullPlayer> {
   Widget _buildThumbnail(ThemeData theme) {
-    const size = 300.0;
-    
+    const size = 280.0;
+
     if (widget.thumbnailPath == null || widget.thumbnailPath!.isEmpty) {
       return Container(
         width: size,
@@ -61,23 +62,23 @@ class _FullPlayerState extends State<FullPlayer> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              theme.colorScheme.primary.withValues(alpha: 0.3),
-              theme.colorScheme.primary.withValues(alpha: 0.6),
+              Colors.white.withValues(alpha: 0.2),
+              Colors.white.withValues(alpha: 0.1),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Icon(
           Icons.music_note_rounded,
-          color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
-          size: 100,
+          color: Colors.white.withValues(alpha: 0.8),
+          size: 80,
         ),
       );
     }
 
     if (widget.thumbnailPath!.startsWith('/')) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         child: Image.file(
           File(widget.thumbnailPath!),
           width: size,
@@ -90,7 +91,7 @@ class _FullPlayerState extends State<FullPlayer> {
 
     if (widget.thumbnailPath!.startsWith('http')) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         child: Image.network(
           widget.thumbnailPath!,
           width: size,
@@ -113,16 +114,16 @@ class _FullPlayerState extends State<FullPlayer> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.7),
+            Colors.white.withValues(alpha: 0.2),
+            Colors.white.withValues(alpha: 0.1),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Icon(
         Icons.broken_image_rounded,
-        color: theme.colorScheme.primaryContainer,
-        size: 80,
+        color: Colors.white.withValues(alpha: 0.6),
+        size: 60,
       ),
     );
   }
@@ -147,266 +148,287 @@ class _FullPlayerState extends State<FullPlayer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            theme.colorScheme.surface,
-            theme.colorScheme.primaryContainer,
-          ],
+
+    return Stack(
+      children: [
+        // Background blur effect
+        if (widget.thumbnailPath != null && widget.thumbnailPath!.isNotEmpty)
+          Positioned.fill(
+            child: Image.file(
+              File(widget.thumbnailPath!),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(color: Colors.black),
+            ),
+          ),
+
+        // Blur overlay
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.6),
+            ),
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (widget.onClose != null)
-                    IconButton(
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
-                      onPressed: widget.onClose,
-                    )
-                  else
-                    const SizedBox(width: 40),
-                  
-                  Text(
-                    'NOW PLAYING',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.5,
-                      color: theme.colorScheme.primaryContainer,
-                    ),
-                  ),
-                  
-                  IconButton(
-                    icon: const Icon(Icons.queue_music_rounded),
-                    onPressed: widget.onQueue,
-                  ),
-                ],
-              ),
-            ),
-            
-            const Spacer(flex: 1),
-            
-            // Album art with shadow
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                    blurRadius: 40,
-                    offset: const Offset(0, 20),
-                  ),
-                ],
-              ),
-              child: _buildThumbnail(theme),
-            ),
-            
-            const Spacer(flex: 1),
-            
-            // Song info
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                children: [
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.artist,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: theme.colorScheme.primaryContainer,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Progress bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                children: [
-                  Slider(
-                    value: widget.position.toDouble().clamp(0, widget.duration.toDouble()),
-                    min: 0,
-                    max: widget.duration.toDouble() > 0 ? widget.duration.toDouble() : 1,
-                    onChanged: widget.onSeek,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formatDuration(widget.position),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.colorScheme.primaryContainer,
-                          fontWeight: FontWeight.w500,
-                        ),
+
+        // Main content
+        SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (widget.onClose != null)
+                      IconButton(
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 28),
+                        onPressed: widget.onClose,
+                      )
+                    else
+                      const SizedBox(width: 40),
+                    Text(
+                      'NOW PLAYING',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.5,
+                        color: Colors.white.withValues(alpha: 0.7),
                       ),
-                      Text(
-                        _formatDuration(widget.duration),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.colorScheme.primaryContainer,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.more_horiz_rounded, color: Colors.white),
+                      onPressed: widget.onQueue,
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(flex: 1),
+
+              // Album art với shadow đẹp
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
                       ),
                     ],
                   ),
-                ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: _buildThumbnail(theme),
+                  ),
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Controls
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Shuffle
-                  IconButton(
-                    icon: Icon(
-                      Icons.shuffle_rounded,
-                      color: widget.isShuffleEnabled 
-                          ? theme.colorScheme.primary 
-                          : theme.colorScheme.primaryContainer,
-                    ),
-                    onPressed: widget.onShuffle,
-                  ),
-                  
-                  // Previous
-                  IconButton(
-                    icon: Icon(
-                      Icons.skip_previous_rounded,
-                      size: 36,
-                      color: theme.colorScheme.primaryContainer,
-                    ),
-                    onPressed: widget.onPrevious,
-                  ),
-                  
-                  // Play/Pause
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.primary.withValues(alpha: 0.8),
-                        ],
+
+              const Spacer(flex: 1),
+
+              // Song info
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.artist,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Progress bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: Colors.white,
+                        inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+                        thumbColor: Colors.white,
+                        overlayColor: Colors.white.withValues(alpha: 0.2),
+                        trackHeight: 4,
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                      ),
+                      child: Slider(
+                        value: widget.duration > 0 ? (widget.position / widget.duration).clamp(0.0, 1.0) : 0.0,
+                        onChanged: (value) => widget.onSeek(value * widget.duration),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatDuration(widget.position),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        Text(
+                          _formatDuration(widget.duration),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
                         ),
                       ],
                     ),
-                    child: IconButton(
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Control buttons
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Shuffle
+                    IconButton(
+                      onPressed: widget.onShuffle,
                       icon: Icon(
-                        widget.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                        color: theme.colorScheme.onPrimary,
-                        size: 36,
+                        Icons.shuffle_rounded,
+                        color: widget.isShuffleEnabled ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                        size: 24,
                       ),
-                      onPressed: widget.onPlayPause,
                     ),
-                  ),
-                  
-                  // Next
-                  IconButton(
-                    icon: Icon(
-                      Icons.skip_next_rounded,
-                      size: 36,
-                      color: theme.colorScheme.primary,
+
+                    // Previous
+                    IconButton(
+                      onPressed: widget.onPrevious,
+                      icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 32),
                     ),
-                    onPressed: widget.onNext,
-                  ),
-                  
-                  // Repeat
-                  IconButton(
-                    icon: Icon(
-                      _getRepeatIcon(),
-                      color: widget.repeatMode != RepeatMode.off 
-                          ? theme.colorScheme.primary 
-                          : theme.colorScheme.primaryContainer,
+
+                    // Play/Pause với animated equalizer
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: InkWell(
+                        onTap: widget.onPlayPause,
+                        borderRadius: BorderRadius.circular(40),
+                        child: Center(
+                          child: widget.isPlaying
+                              ? const AnimatedEqualizer(
+                                  color: Colors.black,
+                                  size: 32,
+                                  barCount: 4,
+                                  speed: 1.2,
+                                  spacing: 2,
+                                )
+                              : const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.black,
+                                  size: 40,
+                                ),
+                        ),
+                      ),
                     ),
-                    onPressed: widget.onRepeat,
-                  ),
-                ],
+
+                    // Next
+                    IconButton(
+                      onPressed: widget.onNext,
+                      icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 32),
+                    ),
+
+                    // Repeat
+                    IconButton(
+                      onPressed: widget.onRepeat,
+                      icon: Icon(
+                        _getRepeatIcon(),
+                        color: widget.repeatMode != RepeatMode.off ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Extra controls
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.lyrics_rounded,
-                      color: theme.colorScheme.primaryContainer,
+
+              const SizedBox(height: 24),
+
+              // Bottom actions
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        // TODO: Add to favorites
+                      },
+                      icon: Icon(
+                        Icons.favorite_border_rounded,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
                     ),
-                    onPressed: widget.onLyrics,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.favorite_border_rounded,
-                      color: theme.colorScheme.primaryContainer,
+                    IconButton(
+                      onPressed: () {
+                        // TODO: Show lyrics
+                      },
+                      icon: Icon(
+                        Icons.lyrics_rounded,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
                     ),
-                    onPressed: () {
-                      // TODO: Toggle favorite
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.share_rounded,
-                      color: theme.colorScheme.primaryContainer,
+                    IconButton(
+                      onPressed: () {
+                        // TODO: Share
+                      },
+                      icon: Icon(
+                        Icons.share_rounded,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
                     ),
-                    onPressed: () {
-                      // TODO: Share song
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            
-            const Spacer(flex: 1),
-          ],
+
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

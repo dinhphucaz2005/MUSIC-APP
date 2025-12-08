@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:music/local_song_repository.dart';
 import 'package:music/media_controller_manager.dart';
@@ -66,121 +68,365 @@ class _SongsPageState extends State<SongsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Music'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => widget.repository.loadLocalSongs(),
+    final theme = Theme.of(context);
+
+    return StreamBuilder<LocalSongRepositoryState>(
+      stream: widget.repository.subject,
+      builder: (context, snapshot) {
+        final state = snapshot.data ?? LocalSongRepositoryState();
+        final allSongs = state.songs;
+        final currentSong = allSongs.isNotEmpty ? allSongs.first : null;
+
+        return Scaffold(
+          backgroundColor: Colors.black,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'My Music',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                onPressed: () => widget.repository.loadLocalSongs(),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          SearchBarWidget(
-            controller: _searchController,
-            placeholder: 'Search songs, artists...',
-            onChanged: (value) => setState(() => _searchQuery = value),
-          ),
+          body: Stack(
+            children: [
+              // Background with blur effect
+              if (currentSong?.thumbnailPath != null)
+                Positioned.fill(
+                  child: Stack(
+                    children: [
+                      // Background image
+                      Image.file(
+                        File(currentSong!.thumbnailPath!),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (_, __, ___) => Container(color: Colors.black),
+                      ),
+                      // Blur overlay
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-          // Songs List
-          Expanded(
-            child: StreamBuilder<LocalSongRepositoryState>(
-              stream: widget.repository.subject,
-              builder: (context, snapshot) {
-                final state = snapshot.data ?? LocalSongRepositoryState();
-                final allSongs = state.songs;
-                final songs = _filterSongs(allSongs);
+              // Main content
+              SafeArea(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
 
-                if (state.isLoading && allSongs.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (allSongs.isEmpty) {
-                  return EmptyState(
-                    icon: Icons.music_note_rounded,
-                    title: 'No songs found',
-                    subtitle: 'Load your local music library to get started',
-                    showIconBackground: true,
-                    action: ElevatedButton.icon(
-                      onPressed: () => widget.repository.loadLocalSongs(),
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Load Songs'),
-                    ),
-                  );
-                }
-
-                if (songs.isEmpty && _searchQuery.isNotEmpty) {
-                  return EmptyState(
-                    icon: Icons.search_off_rounded,
-                    title: 'No results for "$_searchQuery"',
-                  );
-                }
-
-                return StreamBuilder<PlayerState>(
-                  stream: widget.mediaController.subject,
-                  builder: (context, playerSnapshot) {
-                    final playerState = playerSnapshot.data;
-
-                    return Column(
-                      children: [
-                        // Song count
-                        if (_searchQuery.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                CountBadge(count: songs.length, suffix: 'songs'),
-                                const Spacer(),
-                                if (state.isLoading)
-                                  const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-
-                        // Songs list
-                        Expanded(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
-                            itemCount: songs.length,
-                            itemBuilder: (context, index) {
-                              final song = songs[index];
-                              final playerSong = playerState?.currentSong;
-                              final isPlaying = playerState != null &&
-                                  playerSong is LocalSong &&
-                                  playerSong.title == song.title &&
-                                  (playerState.isPlaying ?? false);
-                              final isFavorite = _favoritePaths.contains(song.path);
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: SongItem(
-                                  song: song,
-                                  isPlaying: isPlaying,
-                                  isFavorite: isFavorite,
-                                  onTap: () => widget.mediaController.playSong(song),
-                                  onFavoriteToggle: () => _toggleFavorite(song),
-                                ),
-                              );
-                            },
+                    // Compact Search Bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            width: 1,
                           ),
                         ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) => setState(() => _searchQuery = value),
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Search songs, artists...',
+                            hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 14,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.white.withValues(alpha: 0.6),
+                              size: 20,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Songs List
+                    Expanded(
+                      child: _buildSongsList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSongsList() {
+    return StreamBuilder<LocalSongRepositoryState>(
+      stream: widget.repository.subject,
+      builder: (context, snapshot) {
+        final state = snapshot.data ?? LocalSongRepositoryState();
+        final allSongs = state.songs;
+        final songs = _filterSongs(allSongs);
+
+        if (state.isLoading && allSongs.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          );
+        }
+
+        if (allSongs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.music_note_rounded,
+                  size: 64,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No songs found',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Load your local music library to get started',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () => widget.repository.loadLocalSongs(),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Load Songs'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (songs.isEmpty && _searchQuery.isNotEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 64,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No results for "$_searchQuery"',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return StreamBuilder<PlayerState>(
+          stream: widget.mediaController.subject,
+          builder: (context, playerSnapshot) {
+            final playerState = playerSnapshot.data;
+
+            return Column(
+              children: [
+                // Song count
+                if (_searchQuery.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Text(
+                            '${songs.length} songs',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        if (state.isLoading)
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 12),
+
+                // Songs list
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
+                    itemCount: songs.length,
+                    itemBuilder: (context, index) {
+                      final song = songs[index];
+                      final playerSong = playerState?.currentSong;
+                      final isPlaying = playerState != null &&
+                          playerSong is LocalSong &&
+                          playerSong.title == song.title &&
+                          (playerState.isPlaying ?? false);
+                      final isFavorite = _favoritePaths.contains(song.path);
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _buildSongItem(song, isPlaying, isFavorite),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSongItem(LocalSong song, bool isPlaying, bool isFavorite) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: isPlaying ? 0.15 : 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isPlaying
+              ? Colors.white.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.1),
+        ),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          child: isPlaying
+              ? const Center(
+                  child: AnimatedEqualizer(
+                    color: Colors.white,
+                    size: 20,
+                    barCount: 3,
+                    speed: 1.2,
+                    spacing: 1.5,
+                  ),
+                )
+              : Icon(
+                  Icons.music_note_rounded,
+                  color: Colors.white.withValues(alpha: 0.6),
+                  size: 24,
+                ),
+        ),
+        title: Text(
+          song.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isPlaying ? Colors.white : Colors.white.withValues(alpha: 0.9),
+            fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 15,
+          ),
+        ),
+        subtitle: Text(
+          song.artist,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.6),
+            fontSize: 13,
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (song.durationMillis > 0)
+              Text(
+                _formatDuration(song.durationMillis),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+              ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red[400] : Colors.white.withValues(alpha: 0.6),
+                size: 20,
+              ),
+              onPressed: () => _toggleFavorite(song),
+            ),
+          ],
+        ),
+        onTap: () => widget.mediaController.playSong(song),
       ),
     );
+  }
+
+  String _formatDuration(int milliseconds) {
+    final duration = Duration(milliseconds: milliseconds);
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
   }
 }
