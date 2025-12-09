@@ -1,15 +1,12 @@
 import "package:flutter/material.dart";
-import "package:music/local_song_repository.dart";
 import "package:music/media_controller_manager.dart";
 import "package:presentation/music/widgets/widgets.dart";
 
 class PlaylistsPage extends StatefulWidget {
   const PlaylistsPage({
-    required this.repository,
     required this.mediaController,
     super.key,
   });
-  final LocalSongRepository repository;
   final MediaControllerManager mediaController;
 
   @override

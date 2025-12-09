@@ -1,16 +1,14 @@
 import "package:flutter/material.dart";
-import "package:music/local_song_repository.dart";
 import "package:music/media_controller_manager.dart";
 import "package:music/song.dart";
 import "package:presentation/music/widgets/widgets.dart";
 
 class ArtistsPage extends StatefulWidget {
   const ArtistsPage({
-    required this.repository,
     required this.mediaController,
     super.key,
   });
-  final LocalSongRepository repository;
+
   final MediaControllerManager mediaController;
 
   @override
@@ -18,32 +16,11 @@ class ArtistsPage extends StatefulWidget {
 }
 
 class _ArtistsPageState extends State<ArtistsPage> {
-  Map<String, List<LocalSong>> _artists = {};
+  final Map<String, List<LocalSong>> _artists = {};
 
   @override
   void initState() {
     super.initState();
-    _groupSongsByArtist();
-  }
-
-  void _groupSongsByArtist() {
-    widget.repository.subject.listen((state) {
-      final songs = state.songs;
-      final Map<String, List<LocalSong>> artists = {};
-
-      for (final song in songs) {
-        final artistName =
-            song.artist.isNotEmpty ? song.artist : "Unknown Artist";
-        if (!artists.containsKey(artistName)) {
-          artists[artistName] = [];
-        }
-        artists[artistName]!.add(song);
-      }
-
-      if (mounted) {
-        setState(() => _artists = artists);
-      }
-    });
   }
 
   @override

@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:music/local_song_repository.dart";
 import "package:music/media_controller_manager.dart";
 import "package:music/song.dart";
 import "package:presentation/music/widgets/widgets.dart";
@@ -8,11 +7,9 @@ import "package:shared_preferences/shared_preferences.dart";
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({
-    required this.repository,
     required this.mediaController,
     super.key,
   });
-  final LocalSongRepository repository;
   final MediaControllerManager mediaController;
 
   @override
@@ -20,8 +17,8 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  List<LocalSong> _favoriteSongs = [];
-  bool _isLoading = true;
+  final List<LocalSong> _favoriteSongs = [];
+  final bool _isLoading = true;
 
   @override
   void initState() {
@@ -30,21 +27,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<void> _loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    final favoritePaths = prefs.getStringList("favorite_songs") ?? [];
-
-    widget.repository.subject.listen((state) {
-      final allSongs = state.songs;
-      final favorites =
-          allSongs.where((song) => favoritePaths.contains(song.path)).toList();
-
-      if (mounted) {
-        setState(() {
-          _favoriteSongs = favorites;
-          _isLoading = false;
-        });
-      }
-    });
   }
 
   Future<void> _toggleFavorite(LocalSong song) async {

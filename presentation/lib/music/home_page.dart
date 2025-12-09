@@ -23,7 +23,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  final _repository = LocalSongRepository();
   final _mediaController = MediaControllerManager();
   int _currentIndex = 0;
   late AnimationController _animationController;
@@ -124,17 +123,14 @@ class _HomePageState extends State<HomePage>
         return SongsPage();
       case 1:
         return ArtistsPage(
-          repository: _repository,
           mediaController: _mediaController,
         );
       case 2:
         return FavoritesPage(
-          repository: _repository,
           mediaController: _mediaController,
         );
       case 3:
         return PlaylistsPage(
-          repository: _repository,
           mediaController: _mediaController,
         );
       default:
