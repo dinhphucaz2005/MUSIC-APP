@@ -72,32 +72,13 @@ class _SongsPageState extends State<SongsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SongsCubit, SongsState>(
+    return BlocSelector<PlayerCubit, PlayerState, Song?>(
+      selector: (state) => state.currentSong,
       builder: (context, state) {
-        final allSongs = state is SongsLoaded ? state.songs : <LocalSong>[];
-        final currentSong = allSongs.isNotEmpty ? allSongs.first : null;
-
+        final currentSong = state as LocalSong?;
         return Scaffold(
           backgroundColor: Colors.black,
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: const Text(
-              "My Music",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-                onPressed: () => context.read<SongsCubit>().loadSongs(),
-              ),
-            ],
-          ),
           body: Stack(
             children: [
               // Background with blur effect
@@ -126,58 +107,56 @@ class _SongsPageState extends State<SongsPage> {
                 ),
 
               // Main content
-              SafeArea(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
+              Column(
+                children: [
+                  const SizedBox(height: 20),
 
-                    // Compact Search Bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            width: 1,
-                          ),
+                  // Compact Search Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 1,
                         ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) =>
-                              setState(() => _searchQuery = value),
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: "Search songs, artists...",
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 14,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Colors.white.withValues(alpha: 0.6),
-                              size: 20,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) =>
+                            setState(() => _searchQuery = value),
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search songs, artists...",
+                          hintStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.white.withValues(alpha: 0.6),
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
                         ),
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                    // Songs List
-                    Expanded(
-                      child: _buildSongsList(),
-                    ),
-                  ],
-                ),
+                  // Songs List
+                  Expanded(
+                    child: _buildSongsList(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -319,7 +298,7 @@ class _SongsPageState extends State<SongsPage> {
                       final song = songs[index];
                       final playerSong = playerState.currentSong;
                       final isPlaying = playerSong is LocalSong &&
-                          playerSong.title == song.title &&
+                          playerSong.path == song.path &&
                           playerState.isPlaying;
                       final isFavorite = _favoritePaths.contains(song.path);
 
@@ -358,21 +337,31 @@ class _SongsPageState extends State<SongsPage> {
             borderRadius: BorderRadius.circular(8),
             color: Colors.white.withValues(alpha: 0.1),
           ),
-          child: isPlaying
-              ? const Center(
-                  child: AnimatedEqualizer(
-                    color: Colors.white,
-                    size: 20,
-                    barCount: 3,
-                    speed: 1.2,
-                    spacing: 1.5,
+          child: Stack(
+            children: [
+              Image.file(
+                File(song.thumbnailPath),
+                opacity: AlwaysStoppedAnimation(0.5),
+                fit: BoxFit.cover,
+                width: 50,
+                height: 50,
+                errorBuilder: (_, __, ___) {
+                  return Container(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                  );
+                },
+              ),
+              if (isPlaying)
+                Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                )
-              : Icon(
-                  Icons.music_note_rounded,
-                  color: Colors.white.withValues(alpha: 0.6),
-                  size: 24,
+                  child: AnimatedEqualizer(),
                 ),
+            ],
+          ),
         ),
         title: Text(
           song.title,
