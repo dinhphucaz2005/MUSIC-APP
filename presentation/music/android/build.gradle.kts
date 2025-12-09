@@ -32,12 +32,6 @@ android {
 
     defaultConfig {
         minSdk = 24
-        externalNativeBuild {
-            cmake {
-                cppFlags += "-std=c++2a"
-                arguments += "-DANDROID_STL=c++_shared"
-            }
-        }
     }
 
     compileOptions {
@@ -47,16 +41,6 @@ android {
 
     sourceSets {
         getByName("main").java.srcDirs("src/main/kotlin")
-    }
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-
-    buildFeatures {
-        prefab = true
     }
 }
 
@@ -68,5 +52,4 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
     implementation("androidx.media3:media3-datasource-okhttp:1.3.1")
-    implementation("com.google.oboe:oboe:1.10.0")
 }

@@ -1,5 +1,6 @@
 [versions]
 complie-sdk = "36"
+oboe = "1.10.0"
 target-sdk = "36"
 min-sdk = "26"
 java-version = "21"
@@ -75,6 +76,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose-android", version.ref = "koin" }
 
+oboe = { module = "com.google.oboe:oboe", version.ref = "oboe" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 android-gradleApiPlugin = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
 android-tools-common = { module = "com.android.tools:common", version.ref = "androidTools" }

@@ -13,6 +13,12 @@ android {
         applicationId = "nd.phuc.musicapp"
         versionCode = 1
         versionName = "1.0.0"
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++2a"
+                arguments += "-DANDROID_STL=c++_shared"
+            }
+        }
     }
 
     buildTypes {
@@ -37,10 +43,21 @@ android {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
         }
     }
+    buildFeatures {
+        prefab = true
+    }
+
     namespace = "nd.phuc.musicapp"
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 }
 
 dependencies {
     implementation(projects.core)
     implementation(projects.flutter)
+    implementation(libs.oboe)
 }
