@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// A reusable empty state widget with icon, title, subtitle, and optional action
 class EmptyState extends StatelessWidget {
+  const EmptyState({
+    required this.icon,
+    required this.title,
+    super.key,
+    this.subtitle,
+    this.action,
+    this.showIconBackground = false,
+    this.iconColor,
+  });
+
   final IconData icon;
   final String title;
   final String? subtitle;
   final Widget? action;
   final bool showIconBackground;
   final Color? iconColor;
-
-  const EmptyState({
-    super.key,
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.action,
-    this.showIconBackground = false,
-    this.iconColor,
-  });
 
   @override
   Widget build(BuildContext context) {

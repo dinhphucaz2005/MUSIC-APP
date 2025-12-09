@@ -21,7 +21,8 @@ class MethodChannelMusic extends MusicPlatform {
   Stream<dynamic> get songStream => eventChannel.receiveBroadcastStream();
 
   @override
-  Stream<dynamic> get playerStateStream => playerEventChannel.receiveBroadcastStream();
+  Stream<dynamic> get playerStateStream =>
+      playerEventChannel.receiveBroadcastStream();
 
   @override
   Future<void> playOrPause() async {

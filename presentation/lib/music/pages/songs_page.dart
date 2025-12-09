@@ -1,25 +1,26 @@
-import 'dart:io';
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:music/local_song_repository.dart';
-import 'package:music/media_controller_manager.dart';
-import 'package:music/song.dart';
-import 'package:presentation/music/widgets/widgets.dart';
+import "dart:io";
+import "dart:ui";
+import "package:flutter/material.dart";
+import "package:music/song.dart";
+import "package:presentation/music/widgets/widgets.dart";
 
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:shared_preferences/shared_preferences.dart";
+
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:presentation/music/presentation/cubit/player/player_cubit.dart";
+import "package:presentation/music/presentation/cubit/songs/songs_cubit.dart";
 
 class SongsPage extends StatefulWidget {
-  final LocalSongRepository repository;
-  final MediaControllerManager mediaController;
-
-  const SongsPage({super.key, required this.repository, required this.mediaController});
+  const SongsPage({
+    super.key,
+  });
 
   @override
   State<SongsPage> createState() => _SongsPageState();
 }
 
 class _SongsPageState extends State<SongsPage> {
-  String _searchQuery = '';
+  String _searchQuery = "";
   final _searchController = TextEditingController();
   Set<String> _favoritePaths = {};
 
@@ -31,7 +32,7 @@ class _SongsPageState extends State<SongsPage> {
 
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    final favoritePaths = prefs.getStringList('favorite_songs') ?? [];
+    final favoritePaths = prefs.getStringList("favorite_songs") ?? [];
     if (mounted) {
       setState(() => _favoritePaths = favoritePaths.toSet());
     }
@@ -39,7 +40,7 @@ class _SongsPageState extends State<SongsPage> {
 
   Future<void> _toggleFavorite(LocalSong song) async {
     final prefs = await SharedPreferences.getInstance();
-    final favoritePaths = prefs.getStringList('favorite_songs') ?? [];
+    final favoritePaths = prefs.getStringList("favorite_songs") ?? [];
 
     if (favoritePaths.contains(song.path)) {
       favoritePaths.remove(song.path);
@@ -47,16 +48,19 @@ class _SongsPageState extends State<SongsPage> {
       favoritePaths.add(song.path);
     }
 
-    await prefs.setStringList('favorite_songs', favoritePaths);
+    await prefs.setStringList("favorite_songs", favoritePaths);
     await _loadFavorites();
   }
 
   List<LocalSong> _filterSongs(List<LocalSong> songs) {
-    if (_searchQuery.isEmpty) return songs;
+    if (_searchQuery.isEmpty) {
+      return songs;
+    }
 
     final query = _searchQuery.toLowerCase();
     return songs.where((song) {
-      return song.title.toLowerCase().contains(query) || song.artist.toLowerCase().contains(query);
+      return song.title.toLowerCase().contains(query) ||
+          song.artist.toLowerCase().contains(query);
     }).toList();
   }
 
@@ -68,13 +72,9 @@ class _SongsPageState extends State<SongsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return StreamBuilder<LocalSongRepositoryState>(
-      stream: widget.repository.subject,
-      builder: (context, snapshot) {
-        final state = snapshot.data ?? LocalSongRepositoryState();
-        final allSongs = state.songs;
+    return BlocBuilder<SongsCubit, SongsState>(
+      builder: (context, state) {
+        final allSongs = state is SongsLoaded ? state.songs : <LocalSong>[];
         final currentSong = allSongs.isNotEmpty ? allSongs.first : null;
 
         return Scaffold(
@@ -84,7 +84,7 @@ class _SongsPageState extends State<SongsPage> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: const Text(
-              'My Music',
+              "My Music",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class _SongsPageState extends State<SongsPage> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-                onPressed: () => widget.repository.loadLocalSongs(),
+                onPressed: () => context.read<SongsCubit>().loadSongs(),
               ),
             ],
           ),
@@ -107,11 +107,12 @@ class _SongsPageState extends State<SongsPage> {
                     children: [
                       // Background image
                       Image.file(
-                        File(currentSong!.thumbnailPath!),
+                        File(currentSong!.thumbnailPath),
                         fit: BoxFit.cover,
                         width: double.infinity,
                         height: double.infinity,
-                        errorBuilder: (_, __, ___) => Container(color: Colors.black),
+                        errorBuilder: (_, __, ___) =>
+                            Container(color: Colors.black),
                       ),
                       // Blur overlay
                       BackdropFilter(
@@ -145,10 +146,11 @@ class _SongsPageState extends State<SongsPage> {
                         ),
                         child: TextField(
                           controller: _searchController,
-                          onChanged: (value) => setState(() => _searchQuery = value),
+                          onChanged: (value) =>
+                              setState(() => _searchQuery = value),
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            hintText: 'Search songs, artists...',
+                            hintText: "Search songs, artists...",
                             hintStyle: TextStyle(
                               color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 14,
@@ -185,14 +187,12 @@ class _SongsPageState extends State<SongsPage> {
   }
 
   Widget _buildSongsList() {
-    return StreamBuilder<LocalSongRepositoryState>(
-      stream: widget.repository.subject,
-      builder: (context, snapshot) {
-        final state = snapshot.data ?? LocalSongRepositoryState();
-        final allSongs = state.songs;
+    return BlocBuilder<SongsCubit, SongsState>(
+      builder: (context, state) {
+        final allSongs = state is SongsLoaded ? state.songs : <LocalSong>[];
         final songs = _filterSongs(allSongs);
 
-        if (state.isLoading && allSongs.isEmpty) {
+        if (state is SongsLoading && allSongs.isEmpty) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.white),
           );
@@ -210,7 +210,7 @@ class _SongsPageState extends State<SongsPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No songs found',
+                  "No songs found",
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 18,
@@ -219,7 +219,7 @@ class _SongsPageState extends State<SongsPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Load your local music library to get started',
+                  "Load your local music library to get started",
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 14,
@@ -227,9 +227,9 @@ class _SongsPageState extends State<SongsPage> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: () => widget.repository.loadLocalSongs(),
+                  onPressed: () => context.read<SongsCubit>().loadSongs(),
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Load Songs'),
+                  label: const Text("Load Songs"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -263,11 +263,8 @@ class _SongsPageState extends State<SongsPage> {
           );
         }
 
-        return StreamBuilder<PlayerState>(
-          stream: widget.mediaController.subject,
-          builder: (context, playerSnapshot) {
-            final playerState = playerSnapshot.data;
-
+        return BlocBuilder<PlayerCubit, PlayerState>(
+          builder: (context, playerState) {
             return Column(
               children: [
                 // Song count
@@ -289,7 +286,7 @@ class _SongsPageState extends State<SongsPage> {
                             ),
                           ),
                           child: Text(
-                            '${songs.length} songs',
+                            "${songs.length} songs",
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 12,
@@ -298,7 +295,7 @@ class _SongsPageState extends State<SongsPage> {
                           ),
                         ),
                         const Spacer(),
-                        if (state.isLoading)
+                        if (state is SongsLoading)
                           SizedBox(
                             width: 16,
                             height: 16,
@@ -315,15 +312,15 @@ class _SongsPageState extends State<SongsPage> {
                 // Songs list
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100),
+                    padding:
+                        const EdgeInsets.only(left: 16, right: 16, bottom: 100),
                     itemCount: songs.length,
                     itemBuilder: (context, index) {
                       final song = songs[index];
-                      final playerSong = playerState?.currentSong;
-                      final isPlaying = playerState != null &&
-                          playerSong is LocalSong &&
+                      final playerSong = playerState.currentSong;
+                      final isPlaying = playerSong is LocalSong &&
                           playerSong.title == song.title &&
-                          (playerState.isPlaying ?? false);
+                          playerState.isPlaying;
                       final isFavorite = _favoritePaths.contains(song.path);
 
                       return Padding(
@@ -382,7 +379,8 @@ class _SongsPageState extends State<SongsPage> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isPlaying ? Colors.white : Colors.white.withValues(alpha: 0.9),
+            color:
+                isPlaying ? Colors.white : Colors.white.withValues(alpha: 0.9),
             fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w500,
             fontSize: 15,
           ),
@@ -411,14 +409,16 @@ class _SongsPageState extends State<SongsPage> {
             IconButton(
               icon: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red[400] : Colors.white.withValues(alpha: 0.6),
+                color: isFavorite
+                    ? Colors.red[400]
+                    : Colors.white.withValues(alpha: 0.6),
                 size: 20,
               ),
               onPressed: () => _toggleFavorite(song),
             ),
           ],
         ),
-        onTap: () => widget.mediaController.playSong(song),
+        onTap: () => context.read<PlayerCubit>().playSong(song),
       ),
     );
   }
@@ -427,6 +427,6 @@ class _SongsPageState extends State<SongsPage> {
     final duration = Duration(milliseconds: milliseconds);
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }

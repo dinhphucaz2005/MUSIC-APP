@@ -1,19 +1,18 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
+import "dart:io";
+import "package:flutter/material.dart";
 
 class AlbumArtTransition extends StatelessWidget {
+  const AlbumArtTransition({
+    required this.thumbnailPath,
+    required this.progress,
+    super.key,
+    this.miniSize = 48,
+    this.fullSize = 280,
+  });
   final String? thumbnailPath;
   final double progress;
   final double miniSize;
   final double fullSize;
-
-  const AlbumArtTransition({
-    super.key,
-    required this.thumbnailPath,
-    required this.progress,
-    this.miniSize = 48,
-    this.fullSize = 280,
-  });
 
   Widget _buildPlaceholder(double size, {bool isError = false}) {
     return Container(
@@ -36,7 +35,7 @@ class AlbumArtTransition extends StatelessWidget {
       return _buildPlaceholder(size);
     }
 
-    if (thumbnailPath!.startsWith('/')) {
+    if (thumbnailPath!.startsWith("/")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(size * 0.1),
         child: Image.file(
@@ -49,7 +48,7 @@ class AlbumArtTransition extends StatelessWidget {
       );
     }
 
-    if (thumbnailPath!.startsWith('http')) {
+    if (thumbnailPath!.startsWith("http")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(size * 0.1),
         child: Image.network(
@@ -88,4 +87,3 @@ class AlbumArtTransition extends StatelessWidget {
     );
   }
 }
-

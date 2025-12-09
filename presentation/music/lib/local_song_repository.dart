@@ -10,7 +10,9 @@ class LocalSongRepositoryState {
 }
 
 class LocalSongRepository {
-  final subject = BehaviorSubject<LocalSongRepositoryState>.seeded(LocalSongRepositoryState());
+  final subject = BehaviorSubject<LocalSongRepositoryState>.seeded(
+    LocalSongRepositoryState(),
+  );
   final _platform = MusicPlatform.instance;
 
   LocalSongRepository() {
@@ -33,26 +35,33 @@ class LocalSongRepository {
               durationMillis: (songData['duration'] as num?)?.toInt() ?? 0,
               status: LocalSongStatus.unchanged,
             );
-            subject.add(LocalSongRepositoryState(
-              songs: [...currentState.songs, song],
-              isLoading: currentState.isLoading,
-            ));
+            subject.add(
+              LocalSongRepositoryState(
+                songs: [...currentState.songs, song],
+                isLoading: currentState.isLoading,
+              ),
+            );
             break;
           case 'remove':
             final id = event['id'] as String?;
             if (id != null) {
-              final updatedSongs = currentState.songs.where((s) => s.path != id).toList();
-              subject.add(LocalSongRepositoryState(
-                songs: updatedSongs,
-                isLoading: currentState.isLoading,
-              ));
+              final updatedSongs =
+                  currentState.songs.where((s) => s.path != id).toList();
+              subject.add(
+                LocalSongRepositoryState(
+                  songs: updatedSongs,
+                  isLoading: currentState.isLoading,
+                ),
+              );
             }
             break;
           case 'finish':
-            subject.add(LocalSongRepositoryState(
-              songs: currentState.songs,
-              isLoading: false,
-            ));
+            subject.add(
+              LocalSongRepositoryState(
+                songs: currentState.songs,
+                isLoading: false,
+              ),
+            );
             break;
         }
       }
@@ -60,7 +69,9 @@ class LocalSongRepository {
   }
 
   void loadLocalSongs() {
-    subject.add(LocalSongRepositoryState(songs: subject.value.songs, isLoading: true));
+    subject.add(
+      LocalSongRepositoryState(songs: subject.value.songs, isLoading: true),
+    );
     _platform.loadLocalSongs();
   }
 

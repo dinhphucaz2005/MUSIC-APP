@@ -1,14 +1,13 @@
-import 'dart:io';
-import 'dart:ui';
-import 'package:flutter/material.dart';
+import "dart:io";
+import "dart:ui";
+import "package:flutter/material.dart";
 
 class BlurredBackground extends StatelessWidget {
-  final String? thumbnailPath;
-
   const BlurredBackground({
     super.key,
     this.thumbnailPath,
   });
+  final String? thumbnailPath;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,9 @@ class BlurredBackground extends StatelessWidget {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
             child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.5),
+              color: Theme.of(context)
+                  .scaffoldBackgroundColor
+                  .withValues(alpha: 0.5),
             ),
           ),
         ],

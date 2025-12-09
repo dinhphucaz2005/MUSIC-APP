@@ -1,38 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:presentation/style/app_theme.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:presentation/di/injection.dart";
+import "package:presentation/music/presentation/cubit/theme/theme_cubit.dart";
+import "package:presentation/style/app_theme.dart";
 
-import 'music/home_page.dart';
+import "package:presentation/music/home_page.dart";
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   runApp(const MusicApp());
 }
 
-class MusicApp extends StatefulWidget {
+class MusicApp extends StatelessWidget {
   const MusicApp({super.key});
 
   @override
-  State<MusicApp> createState() => _MusicAppState();
-}
-
-class _MusicAppState extends State<MusicApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
-
-  void _toggleTheme() {
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Music App',
-      debugShowCheckedModeBanner: false,
-      themeMode: _themeMode,
-      theme: AppTheme.lightTheme(),
-      darkTheme: AppTheme.darkTheme(),
-      home: HomePage(onToggleTheme: _toggleTheme),
+    return BlocProvider(
+      create: (_) => getIt<ThemeCubit>(),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp(
+            title: "Music App",
+            debugShowCheckedModeBanner: false,
+            themeMode: themeMode,
+            theme: AppTheme.lightTheme(),
+            darkTheme: AppTheme.darkTheme(),
+            home: const HomePage(),
+          );
+        },
+      ),
     );
   }
 }

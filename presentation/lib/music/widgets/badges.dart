@@ -1,24 +1,25 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// A reusable count badge widget
 class CountBadge extends StatelessWidget {
-  final int count;
-  final String? suffix;
-  final Color? backgroundColor;
-  final Color? textColor;
-
   const CountBadge({
-    super.key,
     required this.count,
+    super.key,
     this.suffix,
     this.backgroundColor,
     this.textColor,
   });
 
+  final int count;
+  final String? suffix;
+  final Color? backgroundColor;
+  final Color? textColor;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bgColor = backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.1);
+    final bgColor =
+        backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.1);
     final fgColor = textColor ?? theme.colorScheme.primary;
 
     return Container(
@@ -28,7 +29,7 @@ class CountBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        suffix != null ? '$count $suffix' : '$count',
+        suffix != null ? "$count $suffix" : "$count",
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -41,14 +42,14 @@ class CountBadge extends StatelessWidget {
 
 /// A duration badge that formats milliseconds to mm:ss
 class DurationBadge extends StatelessWidget {
-  final int durationMillis;
-  final bool isHighlighted;
-
   const DurationBadge({
-    super.key,
     required this.durationMillis,
+    super.key,
     this.isHighlighted = false,
   });
+
+  final int durationMillis;
+  final bool isHighlighted;
 
   String _formatDuration(int millis) {
     final seconds = millis ~/ 1000;

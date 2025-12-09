@@ -7,11 +7,15 @@ sealed class LocalSongResult {
 class NewLocalSong extends LocalSongResult {
   final LocalSong song;
 
-  NewLocalSong({required this.song});
+  NewLocalSong({
+    required this.song,
+  });
 }
 
 class LocalSongRemoved extends LocalSongResult {
   final String filePath;
 
-  LocalSongRemoved({required this.filePath});
+  LocalSongRemoved({
+    required this.filePath,
+  });
 }

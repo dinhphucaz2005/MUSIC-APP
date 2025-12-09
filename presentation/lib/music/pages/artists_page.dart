@@ -1,19 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:music/local_song_repository.dart';
-import 'package:music/media_controller_manager.dart';
-import 'package:music/song.dart';
-import 'package:presentation/music/widgets/widgets.dart';
-
+import "package:flutter/material.dart";
+import "package:music/local_song_repository.dart";
+import "package:music/media_controller_manager.dart";
+import "package:music/song.dart";
+import "package:presentation/music/widgets/widgets.dart";
 
 class ArtistsPage extends StatefulWidget {
-  final LocalSongRepository repository;
-  final MediaControllerManager mediaController;
-
   const ArtistsPage({
-    super.key,
     required this.repository,
     required this.mediaController,
+    super.key,
   });
+  final LocalSongRepository repository;
+  final MediaControllerManager mediaController;
 
   @override
   State<ArtistsPage> createState() => _ArtistsPageState();
@@ -34,7 +32,8 @@ class _ArtistsPageState extends State<ArtistsPage> {
       final Map<String, List<LocalSong>> artists = {};
 
       for (final song in songs) {
-        final artistName = song.artist.isNotEmpty ? song.artist : 'Unknown Artist';
+        final artistName =
+            song.artist.isNotEmpty ? song.artist : "Unknown Artist";
         if (!artists.containsKey(artistName)) {
           artists[artistName] = [];
         }
@@ -50,10 +49,10 @@ class _ArtistsPageState extends State<ArtistsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Artists'),
+        title: const Text("Artists"),
         actions: [
           IconButton(
             icon: const Icon(Icons.search_rounded),
@@ -66,8 +65,8 @@ class _ArtistsPageState extends State<ArtistsPage> {
       body: _artists.isEmpty
           ? const EmptyState(
               icon: Icons.person_rounded,
-              title: 'No artists found',
-              subtitle: 'Load songs to see artists',
+              title: "No artists found",
+              subtitle: "Load songs to see artists",
             )
           : ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -78,14 +77,15 @@ class _ArtistsPageState extends State<ArtistsPage> {
 
                 return ListTileCard(
                   leading: CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    backgroundColor:
+                        theme.colorScheme.primary.withValues(alpha: 0.1),
                     child: Text(
-                      artistName.isNotEmpty ? artistName[0].toUpperCase() : '?',
+                      artistName.isNotEmpty ? artistName[0].toUpperCase() : "?",
                       style: TextStyle(color: theme.colorScheme.primary),
                     ),
                   ),
                   title: artistName,
-                  subtitle: '${songs.length} songs',
+                  subtitle: "${songs.length} songs",
                   trailing: Icon(
                     Icons.chevron_right_rounded,
                     color: theme.colorScheme.primaryContainer,
@@ -119,20 +119,28 @@ class _ArtistsPageState extends State<ArtistsPage> {
                   child: Row(
                     children: [
                       Text(
-                        '${index + 1}',
-                        style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer),
+                        "${index + 1}",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(
+                              song.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             Text(
                               _formatDuration(song.durationMillis),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context).colorScheme.primaryContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
                               ),
                               maxLines: 1,
                             ),
@@ -149,7 +157,7 @@ class _ArtistsPageState extends State<ArtistsPage> {
         actions: [
           OutlinedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: const Text("Close"),
           ),
           ElevatedButton(
             onPressed: () {
@@ -158,7 +166,7 @@ class _ArtistsPageState extends State<ArtistsPage> {
               }
               Navigator.of(context).pop();
             },
-            child: const Text('Play All'),
+            child: const Text("Play All"),
           ),
         ],
       ),

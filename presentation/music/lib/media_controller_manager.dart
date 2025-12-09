@@ -6,7 +6,10 @@ class PlayerState {
   final bool? isPlaying;
   final Song? currentSong;
 
-  PlayerState({this.isPlaying, this.currentSong});
+  PlayerState({
+    this.isPlaying,
+    this.currentSong,
+  });
 }
 
 class MediaControllerManager {
@@ -21,10 +24,9 @@ class MediaControllerManager {
         final title = event['title'] as String? ?? '';
 
         if (title.isNotEmpty && _currentSong != null) {
-          subject.add(PlayerState(
-            isPlaying: isPlaying,
-            currentSong: _currentSong,
-          ));
+          subject.add(
+            PlayerState(isPlaying: isPlaying, currentSong: _currentSong),
+          );
         }
       }
     });

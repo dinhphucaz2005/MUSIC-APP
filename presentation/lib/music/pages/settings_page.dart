@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:flutter/material.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({
+    super.key,
+    this.onToggleTheme,
+  });
   final VoidCallback? onToggleTheme;
-
-  const SettingsPage({super.key, this.onToggleTheme});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -12,7 +14,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool _isDarkMode = true;
-  String _audioQuality = 'High';
+  String _audioQuality = "High";
   bool _crossfadeEnabled = false;
   int _crossfadeDuration = 5;
 
@@ -25,19 +27,19 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _isDarkMode = prefs.getBool('dark_mode') ?? true;
-      _audioQuality = prefs.getString('audio_quality') ?? 'High';
-      _crossfadeEnabled = prefs.getBool('crossfade_enabled') ?? false;
-      _crossfadeDuration = prefs.getInt('crossfade_duration') ?? 5;
+      _isDarkMode = prefs.getBool("dark_mode") ?? true;
+      _audioQuality = prefs.getString("audio_quality") ?? "High";
+      _crossfadeEnabled = prefs.getBool("crossfade_enabled") ?? false;
+      _crossfadeDuration = prefs.getInt("crossfade_duration") ?? 5;
     });
   }
 
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('dark_mode', _isDarkMode);
-    await prefs.setString('audio_quality', _audioQuality);
-    await prefs.setBool('crossfade_enabled', _crossfadeEnabled);
-    await prefs.setInt('crossfade_duration', _crossfadeDuration);
+    await prefs.setBool("dark_mode", _isDarkMode);
+    await prefs.setString("audio_quality", _audioQuality);
+    await prefs.setBool("crossfade_enabled", _crossfadeEnabled);
+    await prefs.setInt("crossfade_duration", _crossfadeDuration);
   }
 
   @override
@@ -46,19 +48,19 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text("Settings"),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Appearance Section
-          _SectionHeader(title: 'Appearance'),
+          _SectionHeader(title: "Appearance"),
           Card(
             clipBehavior: Clip.antiAlias,
             child: _SettingsTile(
               icon: Icons.dark_mode_rounded,
-              title: 'Dark Mode',
-              subtitle: 'Use dark theme',
+              title: "Dark Mode",
+              subtitle: "Use dark theme",
               trailing: Switch(
                 value: _isDarkMode,
                 onChanged: (value) {
@@ -73,21 +75,23 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
 
           // Playback Section
-          _SectionHeader(title: 'Playback'),
+          _SectionHeader(title: "Playback"),
           Card(
             child: Column(
               children: [
                 _SettingsTile(
                   icon: Icons.high_quality_rounded,
-                  title: 'Audio Quality',
+                  title: "Audio Quality",
                   subtitle: _audioQuality,
                   onTap: () => _showQualityPicker(),
                 ),
                 Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.swap_horiz_rounded,
-                  title: 'Crossfade',
-                  subtitle: _crossfadeEnabled ? '${_crossfadeDuration}s between songs' : 'Disabled',
+                  title: "Crossfade",
+                  subtitle: _crossfadeEnabled
+                      ? "${_crossfadeDuration}s between songs"
+                      : "Disabled",
                   trailing: Switch(
                     value: _crossfadeEnabled,
                     onChanged: (value) {
@@ -102,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        Text('Duration: ${_crossfadeDuration}s'),
+                        Text("Duration: ${_crossfadeDuration}s"),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Slider(
@@ -111,7 +115,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             max: 12,
                             divisions: 11,
                             onChanged: (value) {
-                              setState(() => _crossfadeDuration = value.round());
+                              setState(
+                                () => _crossfadeDuration = value.round(),
+                              );
                               _saveSettings();
                             },
                           ),
@@ -127,22 +133,22 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
 
           // Storage Section
-          _SectionHeader(title: 'Storage'),
+          _SectionHeader(title: "Storage"),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _SettingsTile(
                   icon: Icons.cached_rounded,
-                  title: 'Clear Cache',
-                  subtitle: 'Free up storage space',
+                  title: "Clear Cache",
+                  subtitle: "Free up storage space",
                   onTap: () => _showClearCacheConfirmation(),
                 ),
                 Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.folder_rounded,
-                  title: 'Music Folders',
-                  subtitle: 'Manage scan locations',
+                  title: "Music Folders",
+                  subtitle: "Manage scan locations",
                   onTap: () {
                     // TODO: Implement music folder management
                   },
@@ -154,21 +160,21 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
 
           // About Section
-          _SectionHeader(title: 'About'),
+          _SectionHeader(title: "About"),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _SettingsTile(
                   icon: Icons.info_rounded,
-                  title: 'Version',
-                  subtitle: '1.0.0',
+                  title: "Version",
+                  subtitle: "1.0.0",
                 ),
                 Divider(color: theme.colorScheme.primaryContainer),
                 _SettingsTile(
                   icon: Icons.code_rounded,
-                  title: 'View Source',
-                  subtitle: 'GitHub Repository',
+                  title: "View Source",
+                  subtitle: "GitHub Repository",
                   onTap: () {
                     // TODO: Open GitHub link
                   },
@@ -186,11 +192,11 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Audio Quality'),
+        title: const Text("Audio Quality"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final quality in ['Low', 'Medium', 'High', 'Lossless'])
+            for (final quality in ["Low", "Medium", "High", "Lossless"])
               GestureDetector(
                 onTap: () {
                   setState(() => _audioQuality = quality);
@@ -207,7 +213,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: quality == _audioQuality ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primaryContainer,
+                            color: quality == _audioQuality
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
                             width: 2,
                           ),
                         ),
@@ -218,7 +228,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                   height: 10,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                               )
@@ -235,7 +246,7 @@ class _SettingsPageState extends State<SettingsPage> {
         actions: [
           OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text("Cancel"),
           ),
         ],
       ),
@@ -246,12 +257,14 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Cache'),
-        content: const Text('This will clear all cached images and temporary files. Continue?'),
+        title: const Text("Clear Cache"),
+        content: const Text(
+          "This will clear all cached images and temporary files. Continue?",
+        ),
         actions: [
           OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text("Cancel"),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -261,10 +274,10 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cache cleared successfully')),
+                const SnackBar(content: Text("Cache cleared successfully")),
               );
             },
-            child: const Text('Clear'),
+            child: const Text("Clear"),
           ),
         ],
       ),
@@ -273,9 +286,8 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _SectionHeader extends StatelessWidget {
-  final String title;
-
   const _SectionHeader({required this.title});
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -296,12 +308,6 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
   const _SettingsTile({
     required this.icon,
     required this.title,
@@ -309,6 +315,11 @@ class _SettingsTile extends StatelessWidget {
     this.trailing,
     this.onTap,
   });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,17 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// A reusable list tile card with avatar, title, subtitle, and trailing
 class ListTileCard extends StatelessWidget {
+  const ListTileCard({
+    required this.title,
+    super.key,
+    this.leading,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.margin,
+  });
   final Widget? leading;
   final String title;
   final String? subtitle;
@@ -10,23 +20,16 @@ class ListTileCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
 
-  const ListTileCard({
-    super.key,
-    this.leading,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.onTap,
-    this.padding,
-    this.margin,
-  });
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: margin ??
+          const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
       child: Material(
         color: theme.colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
@@ -86,12 +89,6 @@ class ListTileCard extends StatelessWidget {
 
 /// A circular avatar with optional image or text
 class ShadcnCircleAvatar extends StatelessWidget {
-  final double size;
-  final String? text;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final IconData? icon;
-
   const ShadcnCircleAvatar({
     super.key,
     this.size = 48,
@@ -100,11 +97,17 @@ class ShadcnCircleAvatar extends StatelessWidget {
     this.textColor,
     this.icon,
   });
+  final double size;
+  final String? text;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bgColor = backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.1);
+    final bgColor =
+        backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.1);
     final fgColor = textColor ?? theme.colorScheme.primary;
 
     return Container(
@@ -118,7 +121,7 @@ class ShadcnCircleAvatar extends StatelessWidget {
         child: icon != null
             ? Icon(icon, color: fgColor, size: size * 0.5)
             : Text(
-                text?.isNotEmpty == true ? text![0].toUpperCase() : '?',
+                text?.isNotEmpty == true ? text![0].toUpperCase() : "?",
                 style: TextStyle(
                   color: fgColor,
                   fontWeight: FontWeight.bold,
@@ -132,25 +135,25 @@ class ShadcnCircleAvatar extends StatelessWidget {
 
 /// A square avatar with rounded corners
 class ShadcnSquareAvatar extends StatelessWidget {
+  const ShadcnSquareAvatar({
+    required this.icon,
+    super.key,
+    this.size = 56,
+    this.backgroundColor,
+    this.iconColor,
+    this.borderRadius = 8,
+  });
   final double size;
   final IconData icon;
   final Color? backgroundColor;
   final Color? iconColor;
   final double borderRadius;
 
-  const ShadcnSquareAvatar({
-    super.key,
-    this.size = 56,
-    required this.icon,
-    this.backgroundColor,
-    this.iconColor,
-    this.borderRadius = 8,
-  });
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bgColor = backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.2);
+    final bgColor =
+        backgroundColor ?? theme.colorScheme.primary.withValues(alpha: 0.2);
     final fgColor = iconColor ?? theme.colorScheme.primary;
 
     return Container(

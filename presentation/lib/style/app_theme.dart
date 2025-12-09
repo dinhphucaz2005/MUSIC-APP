@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// App theme configuration for Material Design with shadcn-style colors
 class AppTheme {
@@ -84,7 +84,8 @@ class AppTheme {
           borderSide: const BorderSide(color: Color(0xFFFFFFFF), width: 2),
         ),
         hintStyle: const TextStyle(color: Color(0xFFA1A1AA)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: const Color(0xFF18181B),
@@ -189,7 +190,8 @@ class AppTheme {
           borderSide: const BorderSide(color: Color(0xFF000000), width: 2),
         ),
         hintStyle: const TextStyle(color: Color(0xFF71717A)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: const Color(0xFFFFFFFF),

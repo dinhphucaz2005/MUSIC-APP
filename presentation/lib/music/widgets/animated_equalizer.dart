@@ -1,14 +1,7 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
+import "dart:math";
+import "package:flutter/material.dart";
 
 class AnimatedEqualizer extends StatefulWidget {
-  final Color color;
-  final double size;
-  final int barCount;
-  final double speed;
-  final double spacing;
-  final double cornerRadius;
-
   const AnimatedEqualizer({
     super.key,
     this.color = Colors.white,
@@ -18,12 +11,19 @@ class AnimatedEqualizer extends StatefulWidget {
     this.spacing = 2,
     this.cornerRadius = 2.0,
   });
+  final Color color;
+  final double size;
+  final int barCount;
+  final double speed;
+  final double spacing;
+  final double cornerRadius;
 
   @override
   State<AnimatedEqualizer> createState() => _AnimatedEqualizerState();
 }
 
-class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTickerProviderStateMixin {
+class _AnimatedEqualizerState extends State<AnimatedEqualizer>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Random _rnd;
 
@@ -39,15 +39,21 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTicker
     _rnd = Random();
 
     _phases = List.generate(widget.barCount, (_) => _rnd.nextDouble() * pi * 2);
-    _amps = List.generate(widget.barCount, (i) => 0.3 + (i % 3) * 0.2 + _rnd.nextDouble() * 0.4);
-    _freqOffsets = List.generate(widget.barCount, (_) => _rnd.nextDouble() * 0.2);
+    _amps = List.generate(
+      widget.barCount,
+      (i) => 0.3 + (i % 3) * 0.2 + _rnd.nextDouble() * 0.4,
+    );
+    _freqOffsets =
+        List.generate(widget.barCount, (_) => _rnd.nextDouble() * 0.2);
     _values = List.filled(widget.barCount, 0);
     _velocity = List.filled(widget.barCount, 0);
 
     // Tăng duration để chậm hơn và mượt hơn
-    final duration = Duration(milliseconds: max(800, (2500 / widget.speed).round()));
+    final duration =
+        Duration(milliseconds: max(800, (2500 / widget.speed).round()));
 
-    _controller = AnimationController(vsync: this, duration: duration)..repeat();
+    _controller = AnimationController(vsync: this, duration: duration)
+      ..repeat();
   }
 
   @override
@@ -122,13 +128,18 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer> with SingleTicker
 }
 
 class _EqualizerPainter extends CustomPainter {
+  _EqualizerPainter({
+    required this.color,
+    required this.values,
+    required this.barCount,
+    required this.spacing,
+    required this.cornerRadius,
+  });
   final Color color;
   final List<double> values;
   final int barCount;
   final double spacing;
   final double cornerRadius;
-
-  _EqualizerPainter({required this.color, required this.values, required this.barCount, required this.spacing, required this.cornerRadius});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -160,7 +171,8 @@ class _EqualizerPainter extends CustomPainter {
       final left = i * (barWidth + spacing);
 
       final rect = Rect.fromLTWH(left, maxHeight - height, barWidth, height);
-      final roundedRect = RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius));
+      final roundedRect =
+          RRect.fromRectAndRadius(rect, Radius.circular(cornerRadius));
 
       // Vẽ glow
       canvas.drawRRect(roundedRect.inflate(1.5), glowPaint);

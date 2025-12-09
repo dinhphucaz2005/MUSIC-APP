@@ -1,11 +1,31 @@
-import 'dart:io';
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'animated_equalizer.dart';
+import "dart:io";
+import "dart:ui";
+import "package:flutter/material.dart";
+import "package:presentation/music/widgets/animated_equalizer.dart";
 
 enum RepeatMode { off, one, all }
 
 class FullPlayer extends StatefulWidget {
+  const FullPlayer({
+    required this.title,
+    required this.artist,
+    required this.isPlaying,
+    required this.duration,
+    required this.position,
+    required this.onPlayPause,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onSeek,
+    super.key,
+    this.thumbnailPath,
+    this.onClose,
+    this.onShuffle,
+    this.onRepeat,
+    this.onQueue,
+    this.onLyrics,
+    this.isShuffleEnabled = false,
+    this.repeatMode = RepeatMode.off,
+  });
   final String title;
   final String artist;
   final String? thumbnailPath;
@@ -23,27 +43,6 @@ class FullPlayer extends StatefulWidget {
   final VoidCallback? onLyrics;
   final bool isShuffleEnabled;
   final RepeatMode repeatMode;
-
-  const FullPlayer({
-    super.key,
-    required this.title,
-    required this.artist,
-    this.thumbnailPath,
-    required this.isPlaying,
-    required this.duration,
-    required this.position,
-    required this.onPlayPause,
-    required this.onPrevious,
-    required this.onNext,
-    required this.onSeek,
-    this.onClose,
-    this.onShuffle,
-    this.onRepeat,
-    this.onQueue,
-    this.onLyrics,
-    this.isShuffleEnabled = false,
-    this.repeatMode = RepeatMode.off,
-  });
 
   @override
   State<FullPlayer> createState() => _FullPlayerState();
@@ -76,7 +75,7 @@ class _FullPlayerState extends State<FullPlayer> {
       );
     }
 
-    if (widget.thumbnailPath!.startsWith('/')) {
+    if (widget.thumbnailPath!.startsWith("/")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: Image.file(
@@ -89,7 +88,7 @@ class _FullPlayerState extends State<FullPlayer> {
       );
     }
 
-    if (widget.thumbnailPath!.startsWith('http')) {
+    if (widget.thumbnailPath!.startsWith("http")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: Image.network(
@@ -177,19 +176,24 @@ class _FullPlayerState extends State<FullPlayer> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     if (widget.onClose != null)
                       IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 28),
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                         onPressed: widget.onClose,
                       )
                     else
                       const SizedBox(width: 40),
                     Text(
-                      'NOW PLAYING',
+                      "NOW PLAYING",
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -198,7 +202,10 @@ class _FullPlayerState extends State<FullPlayer> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.more_horiz_rounded, color: Colors.white),
+                      icon: const Icon(
+                        Icons.more_horiz_rounded,
+                        color: Colors.white,
+                      ),
                       onPressed: widget.onQueue,
                     ),
                   ],
@@ -275,11 +282,16 @@ class _FullPlayerState extends State<FullPlayer> {
                         thumbColor: Colors.white,
                         overlayColor: Colors.white.withValues(alpha: 0.2),
                         trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 8),
                       ),
                       child: Slider(
-                        value: widget.duration > 0 ? (widget.position / widget.duration).clamp(0.0, 1.0) : 0.0,
-                        onChanged: (value) => widget.onSeek(value * widget.duration),
+                        value: widget.duration > 0
+                            ? (widget.position / widget.duration)
+                                .clamp(0.0, 1.0)
+                            : 0.0,
+                        onChanged: (value) =>
+                            widget.onSeek(value * widget.duration),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -319,7 +331,9 @@ class _FullPlayerState extends State<FullPlayer> {
                       onPressed: widget.onShuffle,
                       icon: Icon(
                         Icons.shuffle_rounded,
-                        color: widget.isShuffleEnabled ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                        color: widget.isShuffleEnabled
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.5),
                         size: 24,
                       ),
                     ),
@@ -327,7 +341,11 @@ class _FullPlayerState extends State<FullPlayer> {
                     // Previous
                     IconButton(
                       onPressed: widget.onPrevious,
-                      icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 32),
+                      icon: const Icon(
+                        Icons.skip_previous_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
 
                     // Play/Pause với animated equalizer
@@ -369,7 +387,11 @@ class _FullPlayerState extends State<FullPlayer> {
                     // Next
                     IconButton(
                       onPressed: widget.onNext,
-                      icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 32),
+                      icon: const Icon(
+                        Icons.skip_next_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
 
                     // Repeat
@@ -377,7 +399,9 @@ class _FullPlayerState extends State<FullPlayer> {
                       onPressed: widget.onRepeat,
                       icon: Icon(
                         _getRepeatIcon(),
-                        color: widget.repeatMode != RepeatMode.off ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                        color: widget.repeatMode != RepeatMode.off
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.5),
                         size: 24,
                       ),
                     ),

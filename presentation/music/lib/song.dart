@@ -16,7 +16,13 @@ class LocalSong extends Song {
   final LocalSongStatus status;
 
   JsonObject toJson() {
-    return {'path': path, 'title': title, 'artist': artist, 'thumbnailPath': thumbnailPath, 'durationMillis': durationMillis};
+    return {
+      'path': path,
+      'title': title,
+      'artist': artist,
+      'thumbnailPath': thumbnailPath,
+      'durationMillis': durationMillis,
+    };
   }
 
   factory LocalSong.fromJson(JsonObject json) {
@@ -26,7 +32,10 @@ class LocalSong extends Song {
       artist: json['artist'] as String,
       thumbnailPath: json['thumbnailPath'] as String,
       durationMillis: json['durationMillis'] as int,
-      status: LocalSongStatus.values.firstWhere((e) => e.name == (json['status'] as String?), orElse: () => LocalSongStatus.unknown),
+      status: LocalSongStatus.values.firstWhere(
+        (e) => e.name == (json['status'] as String?),
+        orElse: () => LocalSongStatus.unknown,
+      ),
     );
   }
 

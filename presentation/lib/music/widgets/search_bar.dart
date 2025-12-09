@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// A reusable search bar widget
 class SearchBarWidget extends StatelessWidget {
+  const SearchBarWidget({
+    super.key,
+    this.controller,
+    this.placeholder = "Search...",
+    this.onChanged,
+    this.onClear,
+  });
+
   final TextEditingController? controller;
   final String placeholder;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
 
-  const SearchBarWidget({
-    super.key,
-    this.controller,
-    this.placeholder = 'Search...',
-    this.onChanged,
-    this.onClear,
-  });
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: TextField(
@@ -50,23 +50,24 @@ class SearchBarWidget extends StatelessWidget {
 
 /// A simple section header with optional action
 class SectionHeader extends StatelessWidget {
-  final String title;
-  final Widget? action;
-  final EdgeInsets? padding;
-
   const SectionHeader({
-    super.key,
     required this.title,
+    super.key,
     this.action,
     this.padding,
   });
+
+  final String title;
+  final Widget? action;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Text(

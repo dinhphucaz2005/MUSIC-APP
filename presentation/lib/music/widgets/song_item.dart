@@ -1,23 +1,22 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:music/song.dart';
-import 'animated_equalizer.dart';
+import "dart:io";
+import "package:flutter/material.dart";
+import "package:music/song.dart";
+import "package:presentation/music/widgets/animated_equalizer.dart";
 
 class SongItem extends StatelessWidget {
+  const SongItem({
+    required this.song,
+    required this.onTap,
+    super.key,
+    this.isPlaying = false,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
+  });
   final LocalSong song;
   final VoidCallback onTap;
   final bool isPlaying;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
-
-  const SongItem({
-    super.key,
-    required this.song,
-    required this.onTap,
-    this.isPlaying = false,
-    this.isFavorite = false,
-    this.onFavoriteToggle,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +24,14 @@ class SongItem extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isPlaying ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.08),
+        color: isPlaying
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isPlaying ? Colors.white.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1),
+          color: isPlaying
+              ? Colors.white.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.1),
         ),
       ),
       child: Material(
@@ -72,9 +75,12 @@ class SongItem extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontWeight: isPlaying ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight:
+                              isPlaying ? FontWeight.w700 : FontWeight.w600,
                           fontSize: 15,
-                          color: isPlaying ? Colors.white : Colors.white.withValues(alpha: 0.9),
+                          color: isPlaying
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -110,7 +116,9 @@ class SongItem extends StatelessWidget {
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
                           size: 18,
-                          color: isFavorite ? Colors.red[400] : Colors.white.withValues(alpha: 0.6),
+                          color: isFavorite
+                              ? Colors.red[400]
+                              : Colors.white.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -131,7 +139,7 @@ class SongItem extends StatelessWidget {
       return _buildPlaceholder(theme);
     }
 
-    if (thumbnailPath.startsWith('/')) {
+    if (thumbnailPath.startsWith("/")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.file(
@@ -144,7 +152,7 @@ class SongItem extends StatelessWidget {
       );
     }
 
-    if (thumbnailPath.startsWith('http')) {
+    if (thumbnailPath.startsWith("http")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Image.network(

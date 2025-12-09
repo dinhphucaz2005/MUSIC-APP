@@ -1,9 +1,18 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'animated_equalizer.dart';
-
+import "dart:io";
+import "package:flutter/material.dart";
+import "package:presentation/music/widgets/animated_equalizer.dart";
 
 class MiniPlayer extends StatelessWidget {
+  const MiniPlayer({
+    required this.title,
+    required this.artist,
+    required this.isPlaying,
+    required this.onPlayPause,
+    required this.onTap,
+    super.key,
+    this.thumbnailPath,
+  });
+
   final String title;
   final String artist;
   final String? thumbnailPath;
@@ -11,19 +20,9 @@ class MiniPlayer extends StatelessWidget {
   final VoidCallback onPlayPause;
   final VoidCallback onTap;
 
-  const MiniPlayer({
-    super.key,
-    required this.title,
-    required this.artist,
-    this.thumbnailPath,
-    required this.isPlaying,
-    required this.onPlayPause,
-    required this.onTap,
-  });
-
   Widget _buildThumbnail(ThemeData theme) {
     const size = 52.0;
-    
+
     if (thumbnailPath == null || thumbnailPath!.isEmpty) {
       return Container(
         width: size,
@@ -40,7 +39,7 @@ class MiniPlayer extends StatelessWidget {
       );
     }
 
-    if (thumbnailPath!.startsWith('/')) {
+    if (thumbnailPath!.startsWith("/")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Image.file(
@@ -55,13 +54,16 @@ class MiniPlayer extends StatelessWidget {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.broken_image, color: theme.colorScheme.primaryContainer),
+            child: Icon(
+              Icons.broken_image,
+              color: theme.colorScheme.primaryContainer,
+            ),
           ),
         ),
       );
     }
 
-    if (thumbnailPath!.startsWith('http')) {
+    if (thumbnailPath!.startsWith("http")) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Image.network(
@@ -76,7 +78,10 @@ class MiniPlayer extends StatelessWidget {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.broken_image, color: theme.colorScheme.primaryContainer),
+            child: Icon(
+              Icons.broken_image,
+              color: theme.colorScheme.primaryContainer,
+            ),
           ),
         ),
       );
@@ -96,7 +101,7 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -139,7 +144,7 @@ class MiniPlayer extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              
+
               // Song info
               Expanded(
                 child: Column(
@@ -170,7 +175,7 @@ class MiniPlayer extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Play/Pause button with animated equalizer
               GestureDetector(
                 onTap: onPlayPause,
@@ -198,7 +203,11 @@ class MiniPlayer extends StatelessWidget {
                             spacing: 1.5,
                             cornerRadius: 1.5,
                           )
-                        : const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 28),
+                        : const Icon(
+                            Icons.play_arrow_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                   ),
                 ),
               ),
