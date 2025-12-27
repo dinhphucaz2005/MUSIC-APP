@@ -21,6 +21,7 @@ import nd.phuc.musicapp.navigation.AppNavGraph
 import nd.phuc.musicapp.ui.main.AppNavigationBar
 import nd.phuc.musicapp.ui.main.AppScreen
 import org.koin.android.ext.android.inject
+import nd.phuc.musicapp.ui.theme.MusicAppTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -59,7 +60,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MaterialTheme() {
+            MusicAppTheme {
                 CompositionLocalProvider(
                     LocalMediaControllerManager provides mediaControllerManager,
                 ) {

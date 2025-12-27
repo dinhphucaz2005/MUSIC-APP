@@ -16,6 +16,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import nd.phuc.musicapp.ui.player.MiniPlayer
 
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+
 @Composable
 fun AppScreen(
     bottomNavigationBar: @Composable (Modifier) -> Unit,
@@ -31,7 +34,7 @@ fun AppScreen(
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             content()
         }
 
@@ -43,14 +46,7 @@ fun AppScreen(
 
 @Composable
 fun FullPlayer(onClose: () -> Unit) {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Box(contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Full Player", style = MaterialTheme.typography.titleLarge)
-                Button(onClick = onClose) { Text("Close") }
-            }
-        }
-    }
+    nd.phuc.musicapp.ui.player.FullPlayer(onCollapse = onClose)
 }
 
 @Composable
@@ -62,7 +58,36 @@ fun AppNavigationBar(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    NavigationBar(modifier = modifier) {
+    AppNavigationBarContent(
+        modifier = modifier,
+        navigationItems = navigationItems,
+        currentRoute = currentRoute,
+        onNavigate = { route ->
+            if (route != currentRoute) {
+                navController.navigate(route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun AppNavigationBarContent(
+    modifier: Modifier = Modifier,
+    navigationItems: List<String>,
+    currentRoute: String?,
+    onNavigate: (String) -> Unit,
+) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.dp
+    ) {
         navigationItems.forEach { route ->
             val isSelected = currentRoute == route || (route == "home" && currentRoute == null)
 
@@ -85,22 +110,50 @@ fun AppNavigationBar(
                             "playlist" -> "Playlists"
                             "artist" -> "Library"
                             else -> "Unknown"
-                        }
+                        },
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )
                 },
                 selected = isSelected,
-                onClick = {
-                    if (route != currentRoute) {
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                onClick = { onNavigate(route) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.secondary,
+                    unselectedTextColor = MaterialTheme.colorScheme.secondary,
+                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             )
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun AppScreenPreview() {
+    AppScreen(
+        bottomNavigationBar = { modifier ->
+            AppNavigationBarContent(
+                modifier = modifier,
+                navigationItems = listOf("home", "playlist", "artist"),
+                currentRoute = "home",
+                onNavigate = {}
+            )
+        },
+        content = {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("App Content")
+            }
+        }
+    )
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun AppNavigationBarPreview() {
+    AppNavigationBarContent(
+        navigationItems = listOf("home", "playlist", "artist"),
+        currentRoute = "home",
+        onNavigate = {}
+    )
 }

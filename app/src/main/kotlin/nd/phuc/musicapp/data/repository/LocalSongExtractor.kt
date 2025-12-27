@@ -3,7 +3,6 @@ package nd.phuc.musicapp.data.repository
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -11,6 +10,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import nd.phuc.musicapp.model.LocalSong
 import nd.phuc.musicapp.model.ThumbnailSource
+import timber.log.Timber
 import java.io.File
 
 fun MediaMetadataRetriever.getDuration(): Long =
@@ -25,8 +25,6 @@ fun MediaMetadataRetriever.getAuthor(): String =
 fun MediaMetadataRetriever.getThumbnailByteArray(): ByteArray? = this.embeddedPicture
 
 sealed class ExtractLocalSongResult {
-    data object Idle : ExtractLocalSongResult()
-    data object InProgress : ExtractLocalSongResult()
     data object Finished : ExtractLocalSongResult()
     data class Success(val song: LocalSong) : ExtractLocalSongResult()
     data class NotFound(val path: String) : ExtractLocalSongResult()
@@ -34,7 +32,6 @@ sealed class ExtractLocalSongResult {
 }
 
 object LocalSongExtractor {
-    private const val TAG = "LocalSongExtractor"
     private const val NUMBER_OF_THREADS = 6
     private lateinit var thumbnailDir: File
 
@@ -47,10 +44,6 @@ object LocalSongExtractor {
 
     private val hashMap = hashMapOf<String, LocalSong>() // <Path, LocalSong>
 
-    fun getCachedSong(filePath: String): LocalSong? {
-        return hashMap[filePath]
-    }
-
     fun extracts(
         context: Context,
         filePaths: List<String> = emptyList(),
@@ -59,13 +52,13 @@ object LocalSongExtractor {
         CoroutineScope(Dispatchers.IO).launch {
             val files = filePaths.ifEmpty { getAllLocalFilePaths(context) }
             if (files.isEmpty()) {
-                Log.w(TAG, "extracts: no local audio files found")
+                Timber.w("extracts: no local audio files found")
                 onSongExtracted(ExtractLocalSongResult.Finished)
                 return@launch
             }
 
             val chunkSize = (files.size + NUMBER_OF_THREADS - 1) / NUMBER_OF_THREADS
-            val chunks = files.chunked(if (chunkSize == 0) 1 else chunkSize)
+            val chunks = files.chunked(chunkSize)
 
             val jobs = chunks.map { chunk ->
                 async {
@@ -139,7 +132,7 @@ object LocalSongExtractor {
 
             ExtractLocalSongResult.Success(tempSong.copy(thumbnailSource = thumbnailSource))
         } catch (e: Exception) {
-            Log.e(TAG, "extract: failed to extract metadata for file: ${file.path}", e)
+            Timber.e(e, "extract: failed to extract metadata for file: ${file.path}")
             ExtractLocalSongResult.Error(file.path, e)
         }
     }
@@ -153,7 +146,7 @@ object LocalSongExtractor {
         val cursor = try {
             context.contentResolver.query(uri, projection, selection, null, sortOrder)
         } catch (e: Exception) {
-            Log.e(TAG, "getAllLocalFilePaths: query failed", e)
+            Timber.e(e, "getAllLocalFilePaths: query failed")
             null
         }
 
@@ -185,7 +178,7 @@ object LocalSongExtractor {
                         try {
                             file.writeBytes(bytes)
                         } catch (e: Exception) {
-                            Log.e(TAG, "Failed to cache thumbnail", e)
+                            Timber.e(e, "Failed to cache thumbnail")
                             return null
                         }
                     }
