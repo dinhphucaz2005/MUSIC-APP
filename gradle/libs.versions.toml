@@ -1,15 +1,12 @@
 [versions]
-complie-sdk = "36"
 oboe = "1.10.0"
-target-sdk = "36"
-min-sdk = "26"
-java-version = "21"
-agp = "8.13.1"
+agp = "8.13.2"
 kotlin = "2.2.21"
 ksp = "2.2.20-2.0.3"
 androidTools = "31.13.1"
 android = "1.17.0"
 compose = "1.9.5"
+extended-icons = "1.7.8"
 constraintlayoutCompose = "1.1.1"
 lifecycle = "2.10.0"
 room = "2.8.4"
@@ -23,7 +20,7 @@ roomKtx = "2.8.4"
 timber = "5.0.1"
 koin = "4.1.1"
 material3 = "1.4.0"
-uiGraphics = "1.9.5"
+nav = "2.7.0"
 
 
 [libraries]
@@ -32,6 +29,7 @@ uiGraphics = "1.9.5"
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "android" }
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "extended-icons" }
 
 # Lifecycle
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -62,7 +60,6 @@ coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.r
 coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
 
 # Ktor
-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -74,7 +71,8 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 # Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-compose-android", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 
 oboe = { module = "com.google.oboe:oboe", version.ref = "oboe" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
@@ -83,7 +81,8 @@ android-tools-common = { module = "com.android.tools:common", version.ref = "and
 compose-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "nav" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -136,4 +135,5 @@ media3 = [
 koin = [
     "koin-core",
     "koin-android",
+    "koin-androidx-compose"
 ]

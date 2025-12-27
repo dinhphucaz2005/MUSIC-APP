@@ -37,7 +37,7 @@
         </activity>
 
         <service
-            android:name="AppMusicService"
+            android:name=".MusicService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback">

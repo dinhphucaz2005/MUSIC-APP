@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ndphuc.android.application.compose)
     alias(libs.plugins.ndphuc.android.application.flavors)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ndphuc.android.room)
     alias(libs.plugins.ksp)
 }
 
@@ -56,8 +57,28 @@ android {
     }
 }
 
+room {
+    schemaDirectory("schemas")
+}
+
 dependencies {
-    implementation(projects.core)
-    implementation(projects.flutter)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.animation)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.timber)
+    implementation(libs.bundles.media3)
+    implementation(libs.bundles.coil)
+    implementation(libs.bundles.koin)
+    implementation(libs.koin.compose)
+    implementation(libs.bundles.ktor)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.oboe)
+    implementation(libs.navigation.compose)
 }
