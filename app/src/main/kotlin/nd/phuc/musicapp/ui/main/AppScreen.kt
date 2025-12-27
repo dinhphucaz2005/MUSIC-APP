@@ -12,12 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import kotlinx.coroutines.launch
 import nd.phuc.musicapp.ui.player.MiniPlayer
 
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import nd.phuc.musicapp.ui.player.FullPlayer
 
 @Composable
 fun AppScreen(
@@ -34,20 +37,18 @@ fun AppScreen(
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
             content()
         }
 
         if (isPlayerExpanded) {
-            FullPlayer(onClose = { isPlayerExpanded = false })
+            FullPlayer(onCollapse = { isPlayerExpanded = false })
         }
     }
 }
 
-@Composable
-fun FullPlayer(onClose: () -> Unit) {
-    nd.phuc.musicapp.ui.player.FullPlayer(onCollapse = onClose)
-}
 
 @Composable
 fun AppNavigationBar(

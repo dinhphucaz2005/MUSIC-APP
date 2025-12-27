@@ -14,7 +14,6 @@ object Destinations {
     const val HOME = "home"
     const val PLAYLIST = "playlist"
     const val ARTIST = "artist"
-    const val PLAYLIST_DETAIL = "playlist/{playlistId}"
 }
 
 @Composable
@@ -26,9 +25,5 @@ fun AppNavGraph(
         composable(Destinations.HOME) { SongsScreen() }
         composable(Destinations.PLAYLIST) { PlaylistScreen() }
         composable(Destinations.ARTIST) { ArtistScreen() }
-        composable("playlist/{playlistId}") { backStackEntry ->
-            val playlistId = backStackEntry.arguments?.getString("playlistId") ?: ""
-            PlaylistDetailScreen(playlistId)
-        }
     }
 }

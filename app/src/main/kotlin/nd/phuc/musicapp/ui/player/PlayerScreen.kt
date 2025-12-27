@@ -3,27 +3,29 @@ package nd.phuc.musicapp.ui.player
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import nd.phuc.musicapp.LocalMediaControllerManager
-import nd.phuc.musicapp.MediaControllerManager
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import nd.phuc.musicapp.LocalMediaControllerManager
+import nd.phuc.musicapp.MediaControllerManager
 import nd.phuc.musicapp.model.LocalSong
 import nd.phuc.musicapp.model.ThumbnailSource
 
@@ -43,18 +45,20 @@ fun MiniPlayer(
         position = position,
         duration = duration,
         onExpand = onExpand,
-        onPlayPause = mediaControllerManager::togglePlayPause
+        onPlayPause = mediaControllerManager::togglePlayPause,
+        onNext = mediaControllerManager::playNextSong
     )
 }
 
 @Composable
-fun MiniPlayerContent(
+private fun MiniPlayerContent(
     isPlaying: Boolean,
     currentSong: nd.phuc.musicapp.model.Song?,
     position: Long,
     duration: Long,
     onExpand: () -> Unit,
     onPlayPause: () -> Unit,
+    onNext: () -> Unit,
 ) {
     if (currentSong == null) return
 
@@ -63,11 +67,10 @@ fun MiniPlayerContent(
             .fillMaxWidth()
             .height(72.dp)
             .clickable { onExpand() },
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f),
         tonalElevation = 4.dp
     ) {
         Column {
-            // Thin progress bar at the top
             if (duration > 0) {
                 LinearProgressIndicator(
                     progress = { position.toFloat() / duration },
@@ -75,7 +78,7 @@ fun MiniPlayerContent(
                         .fillMaxWidth()
                         .height(2.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    trackColor = Color.Transparent
                 )
             }
             Row(
@@ -94,7 +97,7 @@ fun MiniPlayerContent(
                     contentDescription = null,
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(RoundedCornerShape(4.dp)),
+                        .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -103,20 +106,29 @@ fun MiniPlayerContent(
                         text = currentSong.getSongTitle(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
                     )
                     Text(
                         text = currentSong.getSongArtist(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
-                        maxLines = 1
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
                     )
                 }
-                IconButton(onClick = onPlayPause) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = "Play/Pause"
-                    )
+                Row {
+                    IconButton(onClick = onPlayPause) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                            contentDescription = "Play/Pause"
+                        )
+                    }
+                    IconButton(onClick = onNext) {
+                        Icon(
+                            imageVector = Icons.Default.SkipNext, contentDescription = "Next"
+                        )
+                    }
                 }
             }
         }
@@ -132,51 +144,45 @@ fun FullPlayer(
     val currentSong by mediaControllerManager.currentSong.collectAsState()
     val position by mediaControllerManager.position.collectAsState()
     val duration by mediaControllerManager.duration.collectAsState()
+    val shuffleState by mediaControllerManager.shuffleState.collectAsState()
+    val repeatState by mediaControllerManager.repeatState.collectAsState()
 
     FullPlayerContent(
         playerState = playerState,
         currentSong = currentSong,
         position = position,
         duration = duration,
+        shuffleState = shuffleState,
+        repeatState = repeatState,
         onCollapse = onCollapse,
         onPlayPause = mediaControllerManager::togglePlayPause,
         onPrevious = mediaControllerManager::playPreviousSong,
         onNext = mediaControllerManager::playNextSong,
-        onSeek = mediaControllerManager::seekToSliderPosition
-    )
+        onSeek = mediaControllerManager::seekToSliderPosition,
+        onToggleShuffle = mediaControllerManager::toggleShuffle,
+        onToggleRepeat = mediaControllerManager::toggleRepeat,
+        onToggleLike = { /* TODO: Implement like logic */ })
 }
 
 @Composable
-fun FullPlayerContent(
+private fun FullPlayerContent(
     playerState: MediaControllerManager.PlayerState,
     currentSong: nd.phuc.musicapp.model.Song?,
     position: Long,
     duration: Long,
+    shuffleState: MediaControllerManager.ShuffleState,
+    repeatState: MediaControllerManager.RepeatState,
     onCollapse: () -> Unit,
     onPlayPause: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onSeek: (Float) -> Unit,
+    onToggleShuffle: () -> Unit,
+    onToggleRepeat: () -> Unit,
+    onToggleLike: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        IconButton(
-            onClick = onCollapse, modifier = Modifier.align(Alignment.Start)
-        ) {
-            Icon(
-                Icons.Default.SkipPrevious,
-                contentDescription = "Back",
-                modifier = Modifier.size(32.dp)
-            ) // Using SkipPrevious as a back icon for now
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Premium Background: Darkened Album Art
         AsyncImage(
             model = when (val source = currentSong?.getThumbnail()) {
                 is ThumbnailSource.FromUrl -> source.url
@@ -185,91 +191,179 @@ fun FullPlayerContent(
                 else -> null
             },
             contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.3f
+        )
+        Box(
             modifier = Modifier
-                .aspectRatio(1f)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .shadow(8.dp),
-            contentScale = ContentScale.Crop
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.6f), Color.Black.copy(alpha = 0.9f)
+                        )
+                    )
+                )
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = currentSong?.getSongTitle() ?: "Unknown",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = currentSong?.getSongArtist() ?: "Unknown",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Slider(
-            value = if (duration > 0) position.toFloat() / duration else 0f,
-            onValueChange = onSeek,
-            modifier = Modifier.fillMaxWidth(),
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-            )
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = formatDuration(position), style = MaterialTheme.typography.bodySmall)
-            Text(text = formatDuration(duration), style = MaterialTheme.typography.bodySmall)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onPrevious) {
+            IconButton(
+                onClick = onCollapse, modifier = Modifier.align(Alignment.Start)
+            ) {
                 Icon(
-                    Icons.Default.SkipPrevious,
-                    contentDescription = "Previous",
-                    modifier = Modifier.size(48.dp)
+                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = "Collapse",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.White
                 )
             }
-            IconButton(
-                onClick = onPlayPause, modifier = Modifier.size(80.dp)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            AsyncImage(
+                model = when (val source = currentSong?.getThumbnail()) {
+                    is ThumbnailSource.FromUrl -> source.url
+                    is ThumbnailSource.FromByteArray -> source.byteArray
+                    is ThumbnailSource.FilePath -> source.path
+                    else -> null
+                },
+                contentDescription = null,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp))
+                    .shadow(16.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = RoundedCornerShape(40.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(80.dp)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = currentSong?.getSongTitle() ?: "Unknown",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
+                    )
+                    Text(
+                        text = currentSong?.getSongArtist() ?: "Unknown",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
+                    )
+                }
+                IconButton(onClick = onToggleLike) {
                     Icon(
-                        if (playerState == MediaControllerManager.PlayerState.PLAYING) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = "Play/Pause",
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxSize(),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        imageVector = if (currentSong?.isLiked == true) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = "Like",
+                        tint = if (currentSong?.isLiked == true) Color.Red else Color.White
                     )
                 }
             }
-            IconButton(onClick = onNext) {
-                Icon(
-                    Icons.Default.SkipNext,
-                    contentDescription = "Next",
-                    modifier = Modifier.size(48.dp)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Slider(
+                value = if (duration > 0) position.toFloat() / duration else 0f,
+                onValueChange = onSeek,
+                modifier = Modifier.fillMaxWidth(),
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.White,
+                    activeTrackColor = Color.White,
+                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                )
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = formatDuration(position),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+                Text(
+                    text = formatDuration(duration),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f)
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onToggleShuffle) {
+                    Icon(
+                        imageVector = Icons.Rounded.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = if (shuffleState == MediaControllerManager.ShuffleState.ON) MaterialTheme.colorScheme.primary else Color.White
+                    )
+                }
+                IconButton(onClick = onPrevious) {
+                    Icon(
+                        imageVector = Icons.Default.SkipPrevious,
+                        contentDescription = "Previous",
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.White
+                    )
+                }
+                IconButton(
+                    onClick = onPlayPause, modifier = Modifier.size(80.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(40.dp),
+                        color = Color.White,
+                        modifier = Modifier.size(80.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (playerState == MediaControllerManager.PlayerState.PLAYING) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                            contentDescription = "Play/Pause",
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxSize(),
+                            tint = Color.Black
+                        )
+                    }
+                }
+                IconButton(onClick = onNext) {
+                    Icon(
+                        imageVector = Icons.Default.SkipNext,
+                        contentDescription = "Next",
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.White
+                    )
+                }
+                IconButton(onClick = onToggleRepeat) {
+                    Icon(
+                        imageVector = when (repeatState) {
+                            MediaControllerManager.RepeatState.ONE -> Icons.Rounded.RepeatOne
+                            MediaControllerManager.RepeatState.ALL -> Icons.Rounded.Repeat
+                            else -> Icons.Rounded.Repeat
+                        },
+                        contentDescription = "Repeat",
+                        tint = if (repeatState != MediaControllerManager.RepeatState.OFF) MaterialTheme.colorScheme.primary else Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+        }
     }
 }
 
@@ -277,7 +371,12 @@ fun FullPlayerContent(
 @Composable
 private fun MiniPlayerPreview() {
     val mockSong = LocalSong(
-        "Preview Song", "Preview Artist", "path", ThumbnailSource.None, 300000, false
+        "Preview Song with a very long title that should marquee",
+        "Preview Artist",
+        "path",
+        ThumbnailSource.None,
+        300000,
+        false
     )
     MiniPlayerContent(
         isPlaying = true,
@@ -285,25 +384,36 @@ private fun MiniPlayerPreview() {
         position = 120000,
         duration = 300000,
         onExpand = {},
-        onPlayPause = {})
+        onPlayPause = {},
+        onNext = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun FullPlayerPreview() {
     val mockSong = LocalSong(
-        "Preview Song", "Preview Artist", "path", ThumbnailSource.None, 300000, false
+        "Preview Song with a very long title that should marquee",
+        "Preview Artist",
+        "path",
+        ThumbnailSource.None,
+        300000,
+        false
     )
     FullPlayerContent(
         playerState = MediaControllerManager.PlayerState.PLAYING,
         currentSong = mockSong,
         position = 120000,
         duration = 300000,
+        shuffleState = MediaControllerManager.ShuffleState.OFF,
+        repeatState = MediaControllerManager.RepeatState.ALL,
         onCollapse = {},
         onPlayPause = {},
         onPrevious = {},
         onNext = {},
-        onSeek = {})
+        onSeek = {},
+        onToggleShuffle = {},
+        onToggleRepeat = {},
+        onToggleLike = {})
 }
 
 private fun formatDuration(millis: Long): String {

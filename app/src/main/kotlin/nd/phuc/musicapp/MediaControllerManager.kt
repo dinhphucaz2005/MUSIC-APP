@@ -1,7 +1,6 @@
 package nd.phuc.musicapp
 
 import android.content.Context
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -9,19 +8,13 @@ import androidx.media3.common.Timeline
 import androidx.media3.session.MediaController
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import nd.phuc.musicapp.model.Song
+import timber.log.Timber
 
 class MediaControllerManager {
-    companion object {
-        private const val TAG = "MediaControllerManager"
-    }
-
     enum class PlayerState {
         PLAYING, PAUSED, STOPPED;
     }
@@ -46,12 +39,12 @@ class MediaControllerManager {
             newPosition: Player.PositionInfo,
             reason: Int,
         ) {
-            Log.d(TAG, "onPositionDiscontinuity: $reason")
+            Timber.d("onPositionDiscontinuity: $reason")
             _position.value = controller?.currentPosition ?: 0L
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-            Log.d(TAG, "onIsPlayingChanged: $isPlaying")
+            Timber.d("onIsPlayingChanged: $isPlaying")
             _playerState.value = if (isPlaying) {
                 PlayerState.PLAYING
             } else {
@@ -62,13 +55,13 @@ class MediaControllerManager {
 
         // listener for update position
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            Log.d(TAG, "onTimelineChanged: $reason")
+            Timber.d("onTimelineChanged: $reason")
             _position.value = controller?.currentPosition ?: 0L
             _duration.value = controller?.duration ?: 0L
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            Log.d(TAG, "onPlaybackStateChanged: $playbackState")
+            Timber.d("onPlaybackStateChanged: $playbackState")
             _playerState.value = when (playbackState) {
                 Player.STATE_BUFFERING -> PlayerState.PAUSED
                 Player.STATE_READY -> {
@@ -88,7 +81,7 @@ class MediaControllerManager {
         }
 
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            Log.d(TAG, "onShuffleModeEnabledChanged: $shuffleModeEnabled")
+            Timber.d("onShuffleModeEnabledChanged: $shuffleModeEnabled")
             _shuffleState.value = if (shuffleModeEnabled) {
                 ShuffleState.ON
             } else {
@@ -97,7 +90,7 @@ class MediaControllerManager {
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
-            Log.d(TAG, "onRepeatModeChanged: $repeatMode")
+            Timber.d("onRepeatModeChanged: $repeatMode")
             _repeatState.value = when (repeatMode) {
                 Player.REPEAT_MODE_OFF -> RepeatState.OFF
                 Player.REPEAT_MODE_ONE -> RepeatState.ONE
@@ -109,13 +102,11 @@ class MediaControllerManager {
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     fun initialize(
         context: Context,
         binder: MusicService.MusicBinder,
     ) {
-        Log.i(TAG, "Initializing MediaControllerManager")
+        Timber.i("Initializing MediaControllerManager")
         controllerFuture = binder.service.getSession().token.let {
             MediaController.Builder(context, it).buildAsync()
         }
@@ -128,7 +119,7 @@ class MediaControllerManager {
                 controller?.addListener(playerListener)
                 controller?.let { _position.value = it.currentPosition }
             } catch (e: Exception) {
-                Log.e(TAG, "Error initializing MediaController", e)
+                Timber.e(e, "Error initializing MediaController")
             }
         }, MoreExecutors.directExecutor())
         withController {
@@ -169,11 +160,6 @@ class MediaControllerManager {
     }
 
 
-    fun dispose() {
-//        controller?.removeListener(playerListener)
-//        controller?.release()
-//        controller = null
-    }
 
     /*============Controller actions============*/
     fun play(song: Song) {

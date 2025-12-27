@@ -1,4 +1,4 @@
-package nd.phuc.musicapp.helper
+package nd.phuc.musicapp.data.repository
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
